@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Runtime artifacts
+runs/
+*.log
+*.pid
+
+# Local/editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Safety: do not commit accidental copied workspace roots
+C:/
+cs6727-secure-model-delegation/
+
+# Secrets and local configuration
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx

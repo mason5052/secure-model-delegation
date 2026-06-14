@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Secure Model Delegation Control Panel</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="kicker">CS6727 prototype</p>
+          <h1>Secure Model Delegation Control Panel</h1>
+          <p class="subtitle">
+            Policy-bounded local-to-external AI fallback using a simulated external endpoint.
+          </p>
+        </div>
+        <div class="status" id="healthStatus">Checking...</div>
+      </header>
+
+      <section class="panel input-panel">
+        <div class="panel-head">
+          <h2>Request Input</h2>
+          <div class="controls">
+            <select id="exampleSelect" aria-label="Example prompt">
+              <option value="">Select an example</option>
+            </select>
+            <button id="processButton" type="button">Process</button>
+            <button id="clearButton" type="button" class="secondary">Clear</button>
+          </div>
+        </div>
+        <textarea id="promptInput" spellcheck="false" placeholder="Enter a synthetic prompt to inspect the gateway decision..."></textarea>
+      </section>
+
+      <section class="result-grid">
+        <article class="panel decision-panel">
+          <div class="panel-head">
+            <h2>Policy Decision</h2>
+            <span class="route-badge" id="routeBadge">No run yet</span>
+          </div>
+          <dl class="kv-grid">
+            <div><dt>Utility</dt><dd id="utilityValue">-</dd></div>
+            <div><dt>Hard action</dt><dd id="hardActionValue">-</dd></div>
+            <div><dt>Transport</dt><dd id="transportValue">-</dd></div>
+            <div><dt>Target profile</dt><dd id="targetProfileValue">-</dd></div>
+            <div><dt>Advisory route</dt><dd id="advisoryRouteValue">-</dd></div>
+          </dl>
+          <div class="subsection">
+            <h3>Detected sensitive labels</h3>
+            <div class="chip-row" id="labelChips"></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h2>Policy Explanation</h2>
+          <h3>Reasons</h3>
+          <ul id="reasonsList" class="compact-list"></ul>
+          <h3>Rule IDs</h3>
+          <ul id="ruleIdsList" class="compact-list"></ul>
+        </article>
+      </section>
+
+      <section class="panel">
+        <h2>Detected Span Evidence</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Label</th>
+                <th>Detector</th>
+                <th>Severity</th>
+                <th>Action</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Safe preview</th>
+              </tr>
+            </thead>
+            <tbody id="spanTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="result-grid">
+        <article class="panel">
+          <h2>Delegated Payload</h2>
+          <pre id="payloadPanel" class="payload">No external delegation</pre>
+        </article>
+        <article class="panel">
+          <h2>Leakage Check</h2>
+          <div id="leakagePanel" class="leakage-ok">No direct leakage detected</div>
+          <h3>Artifact References</h3>
+          <dl class="artifact-list">
+            <div><dt>audit_ref</dt><dd id="auditRef">-</dd></div>
+            <div><dt>external_ref</dt><dd id="externalRef">-</dd></div>
+          </dl>
+        </article>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

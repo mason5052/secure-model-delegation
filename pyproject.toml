@@ -1,0 +1,9 @@
+[project]
+name = "cs6727-secure-model-delegation"
+version = "0.1.0"
+description = "PR3 prototype skeleton for policy-bounded local-to-cloud LLM fallback control"
+requires-python = ">=3.9"
+dependencies = []
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

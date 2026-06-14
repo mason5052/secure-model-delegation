@@ -1,0 +1,287 @@
+version: "0.2"
+project: "Secure Model Delegation"
+
+span_actions:
+  - allow
+  - remove
+  - replace_with_placeholder
+  - generalize
+  - summarize_locally
+  - deny_span
+
+route_labels:
+  - local_process
+  - deny_request
+  - ask_clarification
+  - local_summary
+  - delegate_sanitized_to_external_ai
+  - delegate_pseudocode_to_external_ai
+
+utility_labels:
+  - sufficient
+  - partial
+  - insufficient
+
+sensitive_classes:
+  api_key:
+    severity: high
+    default_span_action: replace_with_placeholder
+    placeholder: "[API_KEY]"
+    raw_external_delegation: false
+    allowed_routes:
+      - local_summary
+      - delegate_sanitized_to_external_ai
+    escalates_with:
+      - source_code
+      - proprietary_code
+      - system_prompt
+      - incident_detail
+    leakage_patterns:
+      - "sk-[A-Za-z0-9_-]+"
+      - "(?i)api[_-]?key\\s*[=:]"
+    notes: "Original API keys must never cross the boundary. Generic debugging may continue after replacement."
+
+  auth_token:
+    severity: high
+    default_span_action: replace_with_placeholder
+    placeholder: "[AUTH_TOKEN]"
+    raw_external_delegation: false
+    allowed_routes:
+      - local_summary
+      - delegate_sanitized_to_external_ai
+    escalates_with:
+      - source_code
+      - incident_detail
+      - prompt_injection
+    leakage_patterns:
+      - "(?i)authorization:\\s*bearer\\s+[A-Za-z0-9._-]+"
+    notes: "Bearer tokens are replaced before any external delegation."
+
+  config_secret:
+    severity: high
+    default_span_action: replace_with_placeholder
+    placeholder: "[CONFIG_SECRET]"
+    raw_external_delegation: false
+    allowed_routes:
+      - local_summary
+      - delegate_sanitized_to_external_ai
+    escalates_with:
+      - source_code
+      - incident_detail
+      - prompt_injection
+    leakage_patterns:
+      - "(?i)(password|secret|token|key)\\s*="
+    notes: "Configuration secrets are transformed, not sent raw."
+
+  pii_email:
+    severity: medium
+    default_span_action: replace_with_placeholder
+    placeholder: "[EMAIL]"
+    raw_external_delegation: false
+    allowed_routes:
+      - local_summary
+      - delegate_sanitized_to_external_ai
+    escalates_with:
+      - incident_detail
+      - prompt_injection
+    leakage_patterns:
+      - "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+    notes: "Personal email addresses are replaced with stable placeholders."
+
+  pii_phone:
+    severity: medium
+    default_span_action: replace_with_placeholder
+    placeholder: "[PHONE]"
+    raw_external_delegation: false
+    allowed_routes:
+      - local_summary
+      - delegate_sanitized_to_external_ai
+    escalates_with:
+      - incident_detail
+      - prompt_injection
+    leakage_patterns:
+      - "\\b\\d{3}[-. ]\\d{3}[-. ]\\d{4}\\b"
+    notes: "Phone numbers are replaced with stable placeholders."
+
+  internal_hostname:
+    severity: medium
+    default_span_action: generalize
+    placeholder: "[INTERNAL_HOST]"
+    raw_external_delegation: false
+    allowed_routes:
+      - local_summary
+      - delegate_sanitized_to_external_ai
+    escalates_with:
+      - incident_detail
+      - source_code
+      - prompt_injection
+    leakage_patterns:
+      - "\\b[A-Za-z0-9-]+\\.(internal|local|corp)\\b"
+    notes: "Internal hostnames may be generalized for generic troubleshooting."
+
+  private_ip:
+    severity: medium
+    default_span_action: generalize
+    placeholder: "[PRIVATE_IP]"
+    raw_external_delegation: false
+    allowed_routes:
+      - local_summary
+      - delegate_sanitized_to_external_ai
+    escalates_with:
+      - incident_detail
+      - source_code
+      - prompt_injection
+    leakage_patterns:
+      - "\\b10\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b"
+      - "\\b172\\.(1[6-9]|2\\d|3[0-1])\\.\\d{1,3}\\.\\d{1,3}\\b"
+      - "\\b192\\.168\\.\\d{1,3}\\.\\d{1,3}\\b"
+    notes: "Private IP addresses are generalized before delegation."
+
+  internal_infrastructure:
+    severity: medium
+    default_span_action: generalize
+    placeholder: "[INTERNAL_INFRA]"
+    raw_external_delegation: false
+    allowed_routes:
+      - local_summary
+      - delegate_sanitized_to_external_ai
+    escalates_with:
+      - incident_detail
+      - source_code
+      - prompt_injection
+    leakage_patterns: []
+    notes: "Generic infrastructure terms may remain abstract, but topology plus incident detail stays local."
+
+  source_code:
+    severity: high
+    default_span_action: summarize_locally
+    placeholder: "[SOURCE_CODE_LOCAL_ONLY]"
+    raw_external_delegation: false
+    allowed_routes:
+      - local_process
+      - local_summary
+      - delegate_pseudocode_to_external_ai
+    escalates_with:
+      - api_key
+      - auth_token
+      - config_secret
+      - system_prompt
+      - incident_detail
+      - prompt_injection
+    leakage_patterns: []
+    notes: "Raw source code does not cross the boundary. External assistance uses pseudocode or generalized problem statements."
+
+  proprietary_code:
+    severity: high
+    default_span_action: summarize_locally
+    placeholder: "[PROPRIETARY_CODE_LOCAL_ONLY]"
+    raw_external_delegation: false
+    allowed_routes:
+      - local_process
+      - local_summary
+      - delegate_pseudocode_to_external_ai
+    escalates_with:
+      - api_key
+      - auth_token
+      - config_secret
+      - incident_detail
+      - prompt_injection
+    leakage_patterns: []
+    notes: "Private implementation details are summarized or generalized before external help."
+
+  incident_detail:
+    severity: high
+    default_span_action: summarize_locally
+    placeholder: "[INCIDENT_DETAIL_LOCAL_ONLY]"
+    raw_external_delegation: false
+    allowed_routes:
+      - local_process
+      - local_summary
+    escalates_with:
+      - internal_hostname
+      - private_ip
+      - internal_infrastructure
+      - prompt_injection
+      - api_key
+    leakage_patterns: []
+    notes: "Detailed security incidents and topology combinations stay inside the trusted boundary."
+
+  system_prompt:
+    severity: critical
+    default_span_action: deny_span
+    placeholder: "[SYSTEM_PROMPT_DENIED]"
+    raw_external_delegation: false
+    allowed_routes:
+      - deny_request
+      - local_process
+    escalates_with:
+      - prompt_injection
+      - source_code
+      - api_key
+    leakage_patterns:
+      - "(?i)system prompt"
+      - "(?i)internal agent instructions"
+    notes: "System prompt extraction attempts are denied or handled locally."
+
+  prompt_injection:
+    severity: medium
+    default_span_action: summarize_locally
+    placeholder: "[PROMPT_INJECTION_TEXT_REMOVED]"
+    raw_external_delegation: false
+    allowed_routes:
+      - local_process
+      - local_summary
+    escalates_with:
+      - api_key
+      - auth_token
+      - source_code
+      - incident_detail
+      - system_prompt
+    leakage_patterns:
+      - "(?i)ignore.*policy"
+      - "(?i)send.*secrets"
+      - "(?i)reveal.*system.*prompt"
+    notes: "Prompt injection is treated as untrusted data and risk amplifier, not as policy authority."
+
+  benign_public:
+    severity: low
+    default_span_action: allow
+    placeholder: ""
+    raw_external_delegation: true
+    allowed_routes:
+      - local_process
+      - delegate_sanitized_to_external_ai
+    escalates_with: []
+    leakage_patterns: []
+    notes: "Public or non-sensitive requests may be delegated if useful."
+
+conflict_resolution:
+  strategy: "transformed_payload_safety_plus_remaining_utility"
+  rules:
+    - id: hard_denied_raw_spans_never_cross_boundary
+      priority: 100
+      effect: "block_or_transform_before_delegation"
+    - id: source_code_requires_pseudocode
+      priority: 90
+      effect: "raw_code_external_delegation_denied"
+    - id: prompt_injection_is_risk_amplifier
+      priority: 80
+      effect: "remove_as_instruction_and_raise_risk"
+    - id: incident_topology_stays_local
+      priority: 75
+      effect: "route_to_local_summary_when_incident_detail_combines_with_topology"
+    - id: transformed_payload_must_retain_utility
+      priority: 70
+      effect: "route_to_local_summary_or_clarification_if_utility_insufficient"
+
+leakage_oracle_defaults:
+  check_exact_span_match: true
+  check_case_insensitive_match: true
+  check_whitespace_normalized_match: true
+  check_secret_patterns: true
+  check_raw_code_line_match: true
+  check_prompt_injection_command_match: true
+  semantic_leakage:
+    automatic_check: false
+    manual_review: true
+    note: "Semantic leakage is documented as a limitation in PR3."
