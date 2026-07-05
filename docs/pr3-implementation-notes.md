@@ -1,15 +1,19 @@
-# PR3 Implementation Notes
+# Implementation Notes
 
-## What Changed From The Skeleton
+These notes summarize the current prototype implementation state. They are
+public-safe and intentionally avoid raw runtime logs, local absolute paths, real
+credentials, real company data, and course submission drafts.
+
+## What Changed From The Initial Skeleton
 
 - Replaced provider-specific routes such as OpenAI or Claude delegation with provider-neutral route labels.
-- Separated request route from transport. The PR3 prototype routes to External AI, then uses `simulated_external_endpoint` as the transport.
+- Separated request route from transport. The prototype routes to External AI, then uses `simulated_external_endpoint` as the transport.
 - Expanded the policy model from action-priority logic into a policy-bounded controller that considers transformed payload safety and remaining utility.
 - Added source-code handling that blocks raw code delegation and uses pseudocode or generalized problem statements when external assistance is allowed.
 - Changed prompt injection handling from a simple local-process case into a risk-amplifier signal that escalates when combined with credentials, code, or incident details.
 - Expanded the benchmark from 6 to 32 synthetic cases.
 - Added baseline comparison output for `no_gateway`, `regex_only`, `detector_only`, and the policy-bounded controller result.
-- Added a local FastAPI web UI for browser-based manual testing and PR3/video demonstration.
+- Added a local FastAPI web UI for browser-based manual testing and demonstration.
 
 ## Implemented Components
 
@@ -36,7 +40,7 @@
 
 ## Conflict Resolution Logic
 
-The controller does not choose the final route only from the single riskiest class. It applies the following PR3 v1 sequence:
+The controller does not choose the final route only from the single riskiest class. It applies the following v1 sequence:
 
 1. Detect sensitive spans and risk signals.
 2. Apply hard policy first.
@@ -68,20 +72,21 @@ The demo covers:
 
 ## Current Evaluation Result
 
-Latest Mac run:
+Latest local validation run:
 
 - Benchmark count: 32
 - Delegated cases: 14
 - Route accuracy: 1.0
 - Direct leakage count: 0
-- Direct leakage rate: 0.0
+- Direct leakage findings per delegated case: 0.0
 - Utility labels: 4 insufficient, 14 partial, 14 sufficient
 - Route counts: 2 ask clarification, 4 pseudocode delegation, 10 sanitized delegation, 1 deny, 3 local process, 12 local summary
-- Unit tests: 13 tests passing
+- Unit and web tests: 13 tests passing
+- Web smoke test: health check passed, 7 examples loaded, raw synthetic key did not leak in the delegated payload
 
 ## Baseline Comparison
 
-Latest Mac run:
+Latest local validation run:
 
 - `no_gateway`: 32 delegated cases, 79 direct leakage findings
 - `regex_only`: 32 delegated cases, 2 direct leakage findings
@@ -89,7 +94,7 @@ Latest Mac run:
 - `policy_bounded_controller`: 14 delegated cases, 0 direct leakage findings in the main evaluation
 
 This comparison is intentionally limited. The baseline leakage values are direct
-leakage finding counts, not proof of full privacy. They are useful PR3 evidence
+leakage finding counts, not proof of full privacy. They are useful evidence
 that route-aware control matters, but they do not prove full semantic privacy.
 
 ## Remaining Limitations
@@ -102,7 +107,7 @@ that route-aware control matters, but they do not prove full semantic privacy.
 - No real provider API calls are used in PR3.
 - No real company data, internal data, customer data, logs, or secrets are used.
 
-## PR3 Evidence
+## Public-Safe Evidence
 
 - Executable gateway prototype.
 - Structured policy YAML artifact.
@@ -111,3 +116,4 @@ that route-aware control matters, but they do not prove full semantic privacy.
 - Audit log with `raw_input_stored=false`.
 - Direct leakage evaluation with zero findings for the policy-bounded controller.
 - Baseline comparison showing why route-aware policy control is different from detector-only masking.
+- Public-safe evaluation summary in `docs/evaluation-summary.md`.

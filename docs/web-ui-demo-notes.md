@@ -2,9 +2,14 @@
 
 ## Purpose
 
-The web UI turns the command-line Secure Model Delegation prototype into a local, testable control panel. It is intended for PR3 evidence, Video Update 2 or 3, and the final presentation.
+The web UI turns the command-line Secure Model Delegation prototype into a
+local, testable control panel. It is intended for manual review, evaluation
+evidence, and demonstration.
 
 The UI demonstrates the project contribution: Policy-Bounded Model Delegation Control and Evaluation. It is not a general DLP product, and it does not call real external model APIs.
+
+All examples below are synthetic. Do not paste real company data, customer data,
+production logs, credentials, or source code into the demo UI.
 
 ## UI Workflow
 
@@ -14,7 +19,7 @@ The UI demonstrates the project contribution: Policy-Bounded Model Delegation Co
 4. Click `Process`.
 5. Review the final route, utility label, hard action, transport, target profile, detected spans, policy reasons, delegated payload, leakage result, and artifact references.
 
-## Screens To Show In Video Update 2 Or 3
+## Useful Demo Screens
 
 - The input panel with example selector.
 - The final route badge and utility label.
