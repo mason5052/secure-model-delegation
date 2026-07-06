@@ -19,7 +19,7 @@ after policy-denied content is blocked or transformed.
   route.
 - Primary external target is a simulated endpoint that records sanitized or
   pseudocode-based delegated payloads for leakage evaluation.
-- Real provider API calls are out of scope for this PR3 prototype and remain
+- Real provider API calls are out of scope for the current prototype and remain
   optional sanitized-only future smoke tests.
 - Route and transport are separated. For example, a request can use route
   `delegate_sanitized_to_external_ai` through transport
@@ -107,14 +107,20 @@ The audit log intentionally avoids storing raw secrets.
 
 ## Evaluation Snapshot
 
-The current synthetic benchmark contains 32 labeled cases. In the latest local
+The current synthetic benchmark contains 60 labeled cases. In the latest local
 validation run:
 
-- 14 cases were delegated to the simulated external endpoint.
+- 26 cases were delegated to the simulated external endpoint.
 - Route accuracy was 1.00 against the current labels.
 - Direct leakage findings for the policy-bounded controller were 0.
-- Baseline comparison found 79 direct leakage findings for no gateway, 2 for
-  regex-only sanitization, and 2 for detector-only sanitization.
+- Over-blocked delegation false positives were 0.
+- Unsafe delegation false negatives were 0.
+- The benchmark included 15 adversarial or mixed-risk cases, with 0 successful
+  direct-leakage bypasses under the current oracle.
+- Baseline comparison found 164 direct leakage findings for no gateway, 4 for
+  regex-only sanitization, and 4 for detector-only sanitization.
+- The policy-bounded controller averaged about 1 ms per request in this local
+  synthetic run.
 
 These results are limited to the current synthetic benchmark and direct leakage
 oracle. They do not prove full semantic privacy.

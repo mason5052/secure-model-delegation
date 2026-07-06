@@ -17,6 +17,13 @@ DETECTOR_RULES: list[dict[str, str]] = [
         "severity": "high",
     },
     {
+        "label": "api_key",
+        "pattern": r"\bA\s*P\s*I\s*[_ -]?\s*K\s*E\s*Y\s*[:=]\s*(?:[A-Za-z0-9]\s*){10,}\b",
+        "detector": "regex_obfuscated_secret",
+        "action": "replace_with_placeholder",
+        "severity": "high",
+    },
+    {
         "label": "auth_token",
         "pattern": r"\bBearer\s+[A-Za-z0-9._-]{10,}\b",
         "detector": "regex_token",
@@ -25,7 +32,7 @@ DETECTOR_RULES: list[dict[str, str]] = [
     },
     {
         "label": "config_secret",
-        "pattern": r"\b(?:DB_)?(?:PASSWORD|SECRET|TOKEN|KEY)\s*=\s*[A-Za-z0-9_@#$%./:-]{6,}\b",
+        "pattern": r"\b(?:[A-Z][A-Z0-9]*_)*(?:PASSWORD|SECRET|TOKEN|KEY)\s*=\s*[A-Za-z0-9_@#$%./:-]{6,}\b",
         "detector": "regex_config",
         "action": "replace_with_placeholder",
         "severity": "high",
@@ -74,7 +81,7 @@ DETECTOR_RULES: list[dict[str, str]] = [
     },
     {
         "label": "source_code",
-        "pattern": r"```[\s\S]*?```|\b(?:def|function|class|const|let|var)\s+[A-Za-z_][A-Za-z0-9_]*\b|return\s+[A-Za-z0-9_().+\-/*\[\]\"']+",
+        "pattern": r"```[\s\S]*?```|\bfunction\s+[A-Za-z_][A-Za-z0-9_]*\s*\([^)]*\)\s*\{[^}]*\}|\b(?:def|class|const|let|var)\s+[A-Za-z_][A-Za-z0-9_]*\b|return\s+[A-Za-z0-9_().+\-/*\[\]\"']+",
         "detector": "regex_code",
         "action": "summarize_locally",
         "severity": "high",
@@ -104,6 +111,20 @@ DETECTOR_RULES: list[dict[str, str]] = [
         "label": "prompt_injection",
         "pattern": r"\b(?:ignore previous|ignore all previous|system override|send all api keys|send all secrets|bypass policy|disable the gateway|reveal.*system prompt)\b",
         "detector": "custom_prompt_injection",
+        "action": "summarize_locally",
+        "severity": "medium",
+    },
+    {
+        "label": "prompt_injection",
+        "pattern": r"\b(?:i\s*g\s*n\s*o\s*r\s*e\s+previous|b\s*y\s*p\s*a\s*s\s+s\s+policy|s\s*e\s*n\s*d\s+all\s+secrets)\b",
+        "detector": "custom_obfuscated_prompt_injection",
+        "action": "summarize_locally",
+        "severity": "medium",
+    },
+    {
+        "label": "prompt_injection",
+        "pattern": r"\b(?:base64|encoded|decode)[^\n.]{0,100}(?:aWdub3Jl|c2VuZCBhbGwgc2VjcmV0cw|YnlwYXNz)\b",
+        "detector": "custom_encoded_prompt_injection",
         "action": "summarize_locally",
         "severity": "medium",
     },
