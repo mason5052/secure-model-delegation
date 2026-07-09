@@ -3,8 +3,9 @@
 Policy-bounded controller prototype for local-to-external AI fallback.
 
 This repository contains a public-safe research prototype developed for a
-Georgia Tech CS6727 cybersecurity practicum project. It is prepared for
-evaluation and later open-source release with synthetic data only.
+Georgia Tech CS6727 cybersecurity practicum project. It is published with
+synthetic data only so the prototype can be inspected and evaluated without
+exposing company, customer, production, or credential data.
 
 This is not a general PII detector, DLP product, or privacy masking tool. The
 prototype demonstrates Policy-Bounded Model Delegation Control and Evaluation:
@@ -111,27 +112,49 @@ The demo and evaluation write run artifacts to `runs/`:
 
 The audit log intentionally avoids storing raw secrets.
 
-## Evaluation Snapshot
+## Evaluation Summary
 
-The current synthetic benchmark contains 60 labeled cases. In the latest local
-validation run:
+The current synthetic benchmark contains 60 labeled cases. The latest local
+validation run produced the following public-safe results:
 
-- 26 cases were delegated to the simulated external endpoint.
-- Route accuracy was 1.00 against the current labels.
-- Direct leakage findings for the policy-bounded controller were 0.
-- Over-blocked delegation false positives were 0.
-- Unsafe delegation false negatives were 0.
-- The benchmark included 15 adversarial or mixed-risk cases, with 0 successful
-  direct-leakage bypasses under the current oracle.
-- Baseline comparison found 164 direct leakage findings for no gateway, 4 for
-  regex-only sanitization, and 4 for detector-only sanitization.
-- The policy-bounded controller averaged about 1 ms per request in this local
-  synthetic run.
+| Metric | Value |
+| --- | ---: |
+| Benchmark cases | 60 |
+| Delegated cases | 26 |
+| Route accuracy against current labels | 1.00 |
+| Direct leakage findings | 0 |
+| Over-blocked delegation false positives | 0 |
+| Unsafe delegation false negatives | 0 |
+| Adversarial or mixed-risk cases | 15 |
+| Successful direct-leakage bypasses | 0 |
+| Average local controller latency | about 1 ms/request |
+
+Baseline comparison:
+
+| Approach | Delegated cases | Direct leakage findings | Leakage case rate |
+| --- | ---: | ---: | ---: |
+| no_gateway | 60 | 164 | 0.85 |
+| regex_only | 60 | 4 | 0.07 |
+| detector_only | 60 | 4 | 0.07 |
+| policy_bounded_controller | 26 | 0 | 0.00 |
+
+Route distribution:
+
+| Route | Count |
+| --- | ---: |
+| local_process | 7 |
+| local_summary | 21 |
+| ask_clarification | 4 |
+| deny_request | 2 |
+| delegate_sanitized_to_external_ai | 20 |
+| delegate_pseudocode_to_external_ai | 6 |
 
 These results are limited to the current synthetic benchmark and direct leakage
 oracle. They do not prove full semantic privacy.
 
-For public-safe evidence details, see `docs/evaluation-summary.md`.
+For representative route examples, sanitized delegated payloads, public-safe
+audit examples, and metric interpretation, see
+[`docs/evaluation-summary.md`](docs/evaluation-summary.md).
 
 ## Data And Safety Notes
 
