@@ -24,23 +24,52 @@ The core decision problem is not whether the gateway can detect sensitive text.
 The core problem is deciding how an AI request should cross, or not cross, a
 model boundary.
 
-At a high level, the controller evaluates each request as:
+At a high level, the controller is modeled as a constrained route function:
 
 ```text
-route = controller(evidence, target_profile, disclosure_policy, utility_signal)
+R = f(E, P_t, U)
 ```
 
 Where:
 
-- `evidence` is the set of detected signals in the request, such as API keys,
+- `R` is the final route decision.
+- `E` is the set of detected evidence signals in the request, such as API keys,
   authentication tokens, PII, internal hostnames, source code, incident details,
   or prompt-injection text.
-- `target_profile` describes the intended model target, such as a trusted local
-  model, an approved external AI target, or a high-risk external target.
-- `disclosure_policy` defines what each target is allowed to receive, what must
-  be transformed, and what must remain inside the trusted boundary.
-- `utility_signal` is an advisory estimate of whether a transformed request is
-  still useful enough to delegate.
+- `P_t` is the target-specific disclosure policy for the intended model target,
+  such as a trusted local model, an approved external AI target, or a high-risk
+  external target.
+- `U` is an advisory utility estimate of whether a transformed request is still
+  useful enough to delegate.
+
+More explicitly:
+
+```text
+A(E, P_t) = {r in Routes | Safe(r, E, P_t) = true}
+R = f(E, P_t, U) = argmax_{r in A(E, P_t)} U(r)
+```
+
+Where:
+
+- `Routes` is the set of possible handling decisions.
+- `Safe(r, E, P_t)` is true only when route `r` satisfies hard disclosure
+  policy for the target profile.
+- `A(E, P_t)` is the policy-allowed route set.
+- `U(r)` ranks only policy-allowed routes. It does not authorize unsafe routes.
+
+In other words, the controller first removes routes that violate policy, then
+chooses the most useful remaining route. The core safety invariant is:
+
+```text
+forall r notin A(E, P_t): f(E, P_t, U) != r
+```
+
+This means that advisory evidence, ML scores, or utility estimates cannot select
+a route that the target-specific policy forbids.
+
+This proves a bounded route-safety property by construction. It does not prove
+that evidence detection is perfect or that all semantic leakage is impossible;
+those risks are evaluated separately through benchmark tests and limitations.
 
 The controller returns one of a small set of route decisions:
 
