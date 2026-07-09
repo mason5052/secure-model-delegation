@@ -11,6 +11,12 @@ prototype demonstrates Policy-Bounded Model Delegation Control and Evaluation:
 hard disclosure policy is applied first, and advisory routing is applied only
 after policy-denied content is blocked or transformed.
 
+## Architecture At A Glance
+
+![Secure Model Delegation architecture](docs/assets/secure-model-delegation-architecture.png)
+
+Diagram source: `docs/assets/secure-model-delegation-architecture.html`.
+
 ## Current Scope
 
 - Text-only synthetic enterprise requests.

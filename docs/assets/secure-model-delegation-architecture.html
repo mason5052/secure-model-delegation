@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Secure Model Delegation Architecture</title>
+  <style>
+    :root {
+      --ink: #17313a;
+      --muted: #52676c;
+      --bg: #f8f6ef;
+      --panel: rgba(255,255,255,0.78);
+      --local: #e7f1ec;
+      --policy: #fff1c7;
+      --policy-border: #b8860b;
+      --egress: #f6dfd4;
+      --external: #f9e9e7;
+      --eval: #eef2f2;
+      --teal: #2d6a6a;
+      --red: #bd4b42;
+      --blue: #3a6ea5;
+      --green: #4f7f5e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      width: 980px;
+      min-height: 2160px;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    .canvas {
+      width: 980px;
+      min-height: 2160px;
+      padding: 30px 40px 36px;
+      background: linear-gradient(180deg, #fbfaf5 0%, #f4f1e7 100%);
+    }
+    .flow { display: grid; gap: 15px; }
+    .zone {
+      border-radius: 18px;
+      padding: 18px 20px;
+      background: var(--panel);
+      border: 2px solid rgba(45, 106, 106, 0.35);
+      box-shadow: 0 12px 24px rgba(23,49,58,0.07);
+    }
+    .zone.local { background: var(--local); border-color: rgba(45,106,106,0.55); }
+    .zone.policy { background: var(--policy); border: 4px solid var(--policy-border); box-shadow: 0 16px 30px rgba(184,134,11,0.15); }
+    .zone.egress { background: var(--egress); border-color: rgba(189,75,66,0.55); }
+    .zone.external { background: var(--external); border: 3px dashed var(--red); }
+    .zone.eval { background: var(--eval); border-color: rgba(80,101,106,0.45); }
+    .zone-title { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .badge {
+      width: 38px; height: 38px; flex: 0 0 38px; border-radius: 999px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 19px; color: white; background: var(--teal);
+    }
+    .policy .badge { background: var(--policy-border); }
+    .egress .badge, .external .badge { background: var(--red); }
+    .eval .badge { background: #5b6f76; }
+    h2 { margin: 0; font-size: 25px; line-height: 1.15; color: #17313a; }
+    .note { margin: 4px 0 0; font-size: 15.5px; line-height: 1.34; color: var(--muted); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+    .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; }
+    .card {
+      min-height: 82px; padding: 13px 14px; border-radius: 13px;
+      background: rgba(255,255,255,0.78); border: 1px solid rgba(23,49,58,0.14);
+    }
+    .card strong { display: block; margin-bottom: 7px; font-size: 16px; color: #153d3f; }
+    .card span { display: block; font-size: 13.5px; line-height: 1.32; color: #4d6266; }
+    .small-card { min-height: 70px; padding: 12px; }
+    .small-card strong { font-size: 14px; }
+    .small-card span { font-size: 12.5px; }
+    .connector { height: 28px; position: relative; margin: -1px 0; }
+    .connector:before { content: ""; position: absolute; left: 50%; top: 0; height: 22px; border-left: 4px solid var(--teal); transform: translateX(-50%); }
+    .connector:after { content: ""; position: absolute; left: 50%; top: 20px; width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 11px solid var(--teal); transform: translateX(-50%); }
+    .connector.red:before { border-left-color: var(--red); }
+    .connector.red:after { border-top-color: var(--red); }
+    .policy-matrix {
+      width: 100%; border-collapse: separate; border-spacing: 0; overflow: hidden;
+      border-radius: 12px; margin-top: 12px; border: 1px solid rgba(184,134,11,0.36); background: rgba(255,255,255,0.72);
+    }
+    .policy-matrix th, .policy-matrix td { padding: 10px 11px; text-align: left; font-size: 13px; line-height: 1.25; border-bottom: 1px solid rgba(184,134,11,0.18); }
+    .policy-matrix th { color: #5d4308; background: rgba(184,134,11,0.13); font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; }
+    .policy-matrix tr:last-child td { border-bottom: none; }
+    .tag { display: inline-block; padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 800; background: #eaf4ef; color: #26503d; border: 1px solid rgba(45,106,106,0.20); }
+    .tag.warn { background: #fae8dc; color: #793d16; border-color: rgba(189,75,66,0.24); }
+    .tag.deny { background: #f8dddd; color: #81302a; border-color: rgba(189,75,66,0.26); }
+    .routes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 13px; }
+    .route { min-height: 78px; padding: 12px 9px; border-radius: 13px; text-align: center; background: #eef7f0; border: 1px solid rgba(45,106,106,0.25); font-size: 13.5px; font-weight: 900; color: #244a3a; }
+    .route small { display: block; margin-top: 6px; font-weight: 600; font-size: 11.5px; color: #5d7465; line-height: 1.25; }
+    .route.out { background: #fae8dc; color: #713f18; border-color: rgba(189,75,66,0.34); }
+    .boundary { position: relative; height: 48px; display: flex; align-items: center; justify-content: center; color: var(--red); font-weight: 900; font-size: 18px; letter-spacing: .03em; }
+    .boundary:before { content: ""; position: absolute; left: 0; right: 0; top: 24px; border-top: 5px dashed var(--red); opacity: .8; }
+    .boundary span { position: relative; padding: 8px 18px; background: var(--bg); border: 2px solid var(--red); border-radius: 999px; }
+    .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+    .metric { padding: 13px 13px; background: rgba(255,255,255,0.72); border-radius: 12px; border: 1px solid rgba(23,49,58,0.12); font-size: 13px; line-height: 1.28; color: #44585c; }
+    .metric strong { color: #153d3f; display: block; margin-bottom: 5px; font-size: 15px; }
+    .caption { margin-top: 14px; padding: 13px 17px; border-left: 6px solid var(--teal); color: #405357; font-size: 14.5px; line-height: 1.34; background: rgba(255,255,255,0.68); border-radius: 10px; }
+  </style>
+</head>
+<body>
+  <main class="canvas" role="img" aria-label="Secure Model Delegation architecture diagram">
+    <section class="flow">
+      <section class="zone local">
+        <div class="zone-title">
+          <div class="badge">1</div>
+          <div>
+            <h2>Request assembly and normalization</h2>
+            <p class="note">Convert a user task and its context into one canonical request before any external delegation decision is made.</p>
+          </div>
+        </div>
+        <div class="grid3">
+          <div class="card"><strong>Inputs</strong><span>Prompt, retrieved context, logs, code snippets, tool output, metadata.</span></div>
+          <div class="card"><strong>Normalization</strong><span>Normalize encodings, whitespace, code fences, hostnames, headers, and metadata fields.</span></div>
+          <div class="card"><strong>Output</strong><span>A canonical request object used consistently by sensors, policy, routing, audit, and evaluation.</span></div>
+        </div>
+      </section>
+
+      <div class="connector" aria-hidden="true"></div>
+
+      <section class="zone local">
+        <div class="zone-title">
+          <div class="badge">2</div>
+          <div>
+            <h2>Evidence providers supply facts, not authority</h2>
+            <p class="note">Reusable detectors and advisory classifiers identify risk signals. They do not decide whether a cloud target is allowed to see the request.</p>
+          </div>
+        </div>
+        <div class="grid4">
+          <div class="card small-card"><strong>Secrets</strong><span>API keys, bearer tokens, credentials, config secrets.</span></div>
+          <div class="card small-card"><strong>PII</strong><span>Email, phone, person names, addresses, identifiers.</span></div>
+          <div class="card small-card"><strong>Enterprise context</strong><span>Internal hostnames, topology, incident details, private code.</span></div>
+          <div class="card small-card"><strong>Adversarial text</strong><span>Prompt injection, evasion wording, mixed-risk requests.</span></div>
+        </div>
+      </section>
+
+      <div class="connector" aria-hidden="true"></div>
+
+      <section class="zone policy">
+        <div class="zone-title">
+          <div class="badge">3</div>
+          <div>
+            <h2>Policy-bounded model delegation controller</h2>
+            <p class="note">Core contribution: hard disclosure policy runs first; ML-assisted routing and utility logic can only choose among policy-allowed routes.</p>
+          </div>
+        </div>
+        <table class="policy-matrix" aria-label="example policy actions">
+          <thead>
+            <tr><th>Detected class</th><th>Example policy action</th><th>Reason</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>API key or token</td><td><span class="tag deny">deny raw span</span> or placeholder</td><td>Never allow raw credentials to cross the trust boundary.</td></tr>
+            <tr><td>PII</td><td><span class="tag">transform</span> to stable placeholder</td><td>Preserve task structure while removing direct identity exposure.</td></tr>
+            <tr><td>Private code</td><td><span class="tag warn">pseudocode</span> or local summary</td><td>Keep proprietary implementation details from external targets.</td></tr>
+            <tr><td>Internal topology or incident detail</td><td><span class="tag warn">local summary</span></td><td>Summarize locally when context is too sensitive to delegate.</td></tr>
+            <tr><td>Prompt injection</td><td><span class="tag deny">treat as data</span></td><td>Injection text cannot override disclosure policy.</td></tr>
+          </tbody>
+        </table>
+        <div class="grid3">
+          <div class="card"><strong>Conflict resolution</strong><span>When one request has multiple sensitive classes, the highest-risk policy path wins.</span></div>
+          <div class="card"><strong>One-way risk</strong><span>Advisory ML may raise risk, but cannot lower hard policy restrictions.</span></div>
+          <div class="card"><strong>Target profile</strong><span>OpenAI and Claude are modeled as external policy profiles in the public prototype.</span></div>
+        </div>
+        <div class="routes">
+          <div class="route">Local process<small>answer inside boundary</small></div>
+          <div class="route">Deny<small>refuse or explain why</small></div>
+          <div class="route">Clarify<small>ask user to narrow scope</small></div>
+          <div class="route">Local summary<small>summarize without raw egress</small></div>
+          <div class="route out">Sanitize + delegate<small>only safe payload exits</small></div>
+        </div>
+      </section>
+
+      <div class="boundary"><span>Trust boundary</span></div>
+
+      <section class="zone egress">
+        <div class="zone-title">
+          <div class="badge">4</div>
+          <div>
+            <h2>Egress guard and sanitizer</h2>
+            <p class="note">This is the only exit path. It builds the delegated payload after policy-denied spans are removed, transformed, generalized, or summarized.</p>
+          </div>
+        </div>
+        <div class="grid3">
+          <div class="card"><strong>Sanitized payload</strong><span>Raw secrets become placeholders; sensitive code can become pseudocode; topology can become a summary.</span></div>
+          <div class="card"><strong>Audit trace</strong><span>Decision metadata, rule IDs, evidence classes, payload references, and leakage checks are logged.</span></div>
+          <div class="card"><strong>No raw secret logging</strong><span>Audit artifacts are designed to avoid storing real or synthetic raw secret values.</span></div>
+        </div>
+      </section>
+
+      <div class="connector red" aria-hidden="true"></div>
+
+      <section class="zone external">
+        <div class="zone-title">
+          <div class="badge">5</div>
+          <div>
+            <h2>Simulated external AI endpoint</h2>
+            <p class="note">The public prototype records exactly what would have been sent outside the trusted boundary. Real OpenAI or Claude calls remain future sanitized-only smoke tests.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="connector" aria-hidden="true"></div>
+
+      <section class="zone eval">
+        <div class="zone-title">
+          <div class="badge">6</div>
+          <div>
+            <h2>Evaluation harness and baselines</h2>
+            <p class="note">Synthetic benchmark cases compare the policy-bounded controller against weaker baselines and measure both safety and usefulness.</p>
+          </div>
+        </div>
+        <div class="metric-grid">
+          <div class="metric"><strong>Safety</strong>direct leakage findings, unsafe delegation false negatives, adversarial bypass cases</div>
+          <div class="metric"><strong>Routing</strong>route accuracy, over-blocking false positives, target-profile decisions</div>
+          <div class="metric"><strong>Utility</strong>post-sanitization usefulness, delegated payload quality, latency overhead</div>
+        </div>
+        <div class="metric-grid">
+          <div class="metric"><strong>No gateway</strong>raw request leaves the trusted boundary</div>
+          <div class="metric"><strong>Detector-only</strong>mask spans without route-level policy control</div>
+          <div class="metric"><strong>Policy controller</strong>hard policy + route decision + sanitized egress</div>
+        </div>
+      </section>
+    </section>
+</main>
+</body>
+</html>
