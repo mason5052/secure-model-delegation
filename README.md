@@ -18,6 +18,57 @@ after policy-denied content is blocked or transformed.
 
 Diagram source: `docs/assets/secure-model-delegation-architecture.html`.
 
+## Decision Model
+
+The core decision problem is not whether the gateway can detect sensitive text.
+The core problem is deciding how an AI request should cross, or not cross, a
+model boundary.
+
+At a high level, the controller evaluates each request as:
+
+```text
+route = controller(evidence, target_profile, disclosure_policy, utility_signal)
+```
+
+Where:
+
+- `evidence` is the set of detected signals in the request, such as API keys,
+  authentication tokens, PII, internal hostnames, source code, incident details,
+  or prompt-injection text.
+- `target_profile` describes the intended model target, such as a trusted local
+  model, an approved external AI target, or a high-risk external target.
+- `disclosure_policy` defines what each target is allowed to receive, what must
+  be transformed, and what must remain inside the trusted boundary.
+- `utility_signal` is an advisory estimate of whether a transformed request is
+  still useful enough to delegate.
+
+The controller returns one of a small set of route decisions:
+
+| Route | Meaning |
+| --- | --- |
+| `local_process` | Keep the request inside the trusted local/private boundary. |
+| `deny_request` | Refuse the request because the policy risk is too high. |
+| `ask_clarification` | Ask the user to narrow or clarify the request before routing. |
+| `local_summary` | Produce a local-only summary without external delegation. |
+| `delegate_sanitized_to_external_ai` | Send only a sanitized payload to the simulated external target. |
+| `delegate_pseudocode_to_external_ai` | Send only pseudocode or a generalized problem statement to the simulated external target. |
+
+The policy order is intentional. Hard disclosure policy is applied before
+advisory routing. Evidence providers and utility heuristics can inform the
+decision, but they do not have authority to override policy-denied content.
+
+For example, source code can be handled differently depending on the target:
+
+| Target profile | Source-code policy | Resulting route |
+| --- | --- | --- |
+| `local_private` | Raw code may be used locally. | `local_process` |
+| `approved_external_ai` | Raw code cannot cross the boundary; convert to pseudocode or a generalized problem statement. | `delegate_pseudocode_to_external_ai` |
+| `high_risk_external_ai` | No code-derived external payload is allowed. | `local_summary` |
+
+This is the main distinction from a generic privacy filter. A detector might
+say "this span looks sensitive." The Secure Model Delegation controller decides
+what model target, if any, may receive the request and in what form.
+
 ## Current Scope
 
 - Text-only synthetic enterprise requests.
