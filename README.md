@@ -216,6 +216,13 @@ For representative route examples, sanitized delegated payloads, public-safe
 audit examples, and metric interpretation, see
 [`docs/evaluation-summary.md`](docs/evaluation-summary.md).
 
+## Project Progress Reports
+
+Public-safe Markdown copies of the submitted CS6727 progress reports are
+available in [`docs/progress-reports/`](docs/progress-reports/). They show how
+the project moved from revised proposal, to architecture, to prototype evidence,
+to expanded evaluation planning.
+
 ## Data And Safety Notes
 
 - All benchmark cases are synthetic.
