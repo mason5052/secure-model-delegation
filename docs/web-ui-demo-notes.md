@@ -77,7 +77,15 @@ Expected behavior: prompt injection is treated as untrusted data and a risk ampl
 Review this code for an authorization bug: function updateOrder(user){ return order.status = 'paid'; }
 ```
 
-Expected behavior: raw code is not sent as-is. The route is `delegate_pseudocode_to_external_ai` or local summary, depending on policy.
+Expected behavior: raw code is never sent as-is outside the trusted boundary. The current demo includes three target-profile examples using the same source-code prompt:
+
+| Target Profile | Expected Route | Expected External Payload |
+| --- | --- | --- |
+| `local_private` | `local_process` | None |
+| `approved_external_ai` | `delegate_pseudocode_to_external_ai` | Pseudocode or generalized problem statement |
+| `high_risk_external_ai` | `local_summary` | None |
+
+This is the clearest manual demo that the system is a target-specific model delegation controller, not just a source-code detector.
 
 ### Incident Detail Plus Internal Topology
 

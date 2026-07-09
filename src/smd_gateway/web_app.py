@@ -53,8 +53,21 @@ EXAMPLES: list[dict[str, str]] = [
     },
     {
         "id": "source_code_pseudocode",
-        "title": "Source code requiring pseudocode delegation",
+        "title": "Source code to approved external target",
         "prompt": "Review this code for an authorization bug: function updateOrder(user){ return order.status = 'paid'; }",
+        "target_profile": "approved_external_ai",
+    },
+    {
+        "id": "source_code_local_private",
+        "title": "Source code handled locally",
+        "prompt": "Review this code for an authorization bug: function updateOrder(user){ return order.status = 'paid'; }",
+        "target_profile": "local_private",
+    },
+    {
+        "id": "source_code_high_risk_external",
+        "title": "Source code with high-risk external target",
+        "prompt": "Review this code for an authorization bug: function updateOrder(user){ return order.status = 'paid'; }",
+        "target_profile": "high_risk_external_ai",
     },
     {
         "id": "incident_topology",

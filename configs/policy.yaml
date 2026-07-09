@@ -22,6 +22,24 @@ utility_labels:
   - partial
   - insufficient
 
+target_profiles:
+  local_private:
+    trust_level: trusted
+    source_code_policy: allow_raw_local_processing
+    notes: "Raw source code may be processed inside the trusted local/private boundary."
+  approved_external_ai:
+    trust_level: less_trusted
+    aliases:
+      - external_ai
+      - openai_profile
+      - claude_profile
+    source_code_policy: pseudocode_or_generalized_problem_statement_only
+    notes: "External assistance may receive pseudocode or a generalized problem statement, not raw private source code."
+  high_risk_external_ai:
+    trust_level: high_risk
+    source_code_policy: local_summary_only
+    notes: "High-risk external targets do not receive raw code or pseudocode; the gateway keeps source-code requests local."
+
 sensitive_classes:
   api_key:
     severity: high
@@ -157,6 +175,10 @@ sensitive_classes:
     default_span_action: summarize_locally
     placeholder: "[SOURCE_CODE_LOCAL_ONLY]"
     raw_external_delegation: false
+    target_policy:
+      local_private: allow_raw_local_processing
+      approved_external_ai: delegate_pseudocode_only
+      high_risk_external_ai: local_summary_only
     allowed_routes:
       - local_process
       - local_summary
@@ -169,7 +191,7 @@ sensitive_classes:
       - incident_detail
       - prompt_injection
     leakage_patterns: []
-    notes: "Raw source code does not cross the boundary. External assistance uses pseudocode or generalized problem statements."
+    notes: "Raw source code may be processed locally. Approved external targets receive only pseudocode or a generalized problem statement. High-risk external targets receive no code-derived payload and use local summary only."
 
   proprietary_code:
     severity: high
@@ -264,6 +286,9 @@ conflict_resolution:
     - id: source_code_requires_pseudocode
       priority: 90
       effect: "raw_code_external_delegation_denied"
+    - id: source_code_target_profile_matrix
+      priority: 88
+      effect: "local_private_allows_raw_code_approved_external_gets_pseudocode_high_risk_external_gets_local_summary"
     - id: prompt_injection_is_risk_amplifier
       priority: 80
       effect: "remove_as_instruction_and_raise_risk"

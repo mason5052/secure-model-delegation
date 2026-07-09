@@ -20,6 +20,7 @@ const auditRef = document.getElementById("auditRef");
 const externalRef = document.getElementById("externalRef");
 
 let examples = [];
+let selectedTargetProfile = "external_ai";
 
 async function loadHealth() {
   try {
@@ -46,12 +47,14 @@ exampleSelect.addEventListener("change", () => {
   const selected = examples.find((item) => item.id === exampleSelect.value);
   if (selected) {
     promptInput.value = selected.prompt;
+    selectedTargetProfile = selected.target_profile || "external_ai";
   }
 });
 
 clearButton.addEventListener("click", () => {
   promptInput.value = "";
   exampleSelect.value = "";
+  selectedTargetProfile = "external_ai";
   resetResults();
 });
 
@@ -72,7 +75,7 @@ processButton.addEventListener("click", async () => {
       body: JSON.stringify({
         case_id: "WEB_MANUAL_001",
         user_prompt: prompt,
-        target_profile: "external_ai",
+        target_profile: selectedTargetProfile,
         transport: "simulated_external_endpoint",
       }),
     });

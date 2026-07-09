@@ -17,8 +17,8 @@ company data.
 
 | Metric | Value |
 | --- | ---: |
-| Benchmark cases | 60 |
-| Delegated cases | 26 |
+| Benchmark cases | 63 |
+| Delegated cases | 27 |
 | Route accuracy against current labels | 1.00 |
 | Direct leakage findings | 0 |
 | Direct leakage case rate | 0.00 |
@@ -33,21 +33,21 @@ company data.
 | Route | Count |
 | --- | ---: |
 | ask_clarification | 4 |
-| delegate_pseudocode_to_external_ai | 6 |
+| delegate_pseudocode_to_external_ai | 7 |
 | delegate_sanitized_to_external_ai | 20 |
 | deny_request | 2 |
-| local_process | 7 |
-| local_summary | 21 |
+| local_process | 8 |
+| local_summary | 22 |
 
 ## Utility Preservation Summary
 
 | Utility bucket | Count |
 | --- | ---: |
 | delegated_partial | 2 |
-| delegated_sufficient | 24 |
+| delegated_sufficient | 25 |
 | not_delegated_insufficient | 8 |
-| not_delegated_partial | 24 |
-| not_delegated_sufficient | 2 |
+| not_delegated_partial | 25 |
+| not_delegated_sufficient | 3 |
 
 The utility labels are intentionally lightweight:
 
@@ -61,7 +61,7 @@ The utility labels are intentionally lightweight:
 | Path | Average ms | Median ms |
 | --- | ---: | ---: |
 | no_gateway_minimal_baseline | 0.005 | 0.006 |
-| policy_bounded_controller | 0.986 | 0.783 |
+| policy_bounded_controller | about 0.6 | about 0.5 |
 
 These measurements are local prototype timings, not production latency claims.
 
@@ -69,10 +69,10 @@ These measurements are local prototype timings, not production latency claims.
 
 | Approach | Delegated cases | Direct leakage findings | Leakage case rate | Findings per case |
 | --- | ---: | ---: | ---: | ---: |
-| no_gateway | 60 | 164 | 0.85 | 2.73 |
-| regex_only | 60 | 4 | 0.07 | 0.07 |
-| detector_only | 60 | 4 | 0.07 | 0.07 |
-| policy_bounded_controller | 26 | 0 | 0.00 | 0.00 |
+| no_gateway | 63 | 170 | 0.86 | 2.70 |
+| regex_only | 63 | 4 | 0.06 | 0.06 |
+| detector_only | 63 | 4 | 0.06 | 0.06 |
+| policy_bounded_controller | 27 | 0 | 0.00 | 0.00 |
 
 The baseline values count leakage findings, not probabilities. A single case
 can contain multiple leaked spans, so findings per case can exceed 1.0.
@@ -87,6 +87,9 @@ can contain multiple leaked spans, so findings per case can exceed 1.0.
 | B047 | Proprietary algorithm review | delegate_pseudocode_to_external_ai | Implementation detail is generalized before delegation. |
 | B055 | Support ticket with PII | delegate_sanitized_to_external_ai | PII placeholders preserve enough support-note utility. |
 | B060 | Support ticket with PII and config token | delegate_sanitized_to_external_ai | PII and config token are replaced before delegation. |
+| B061 | Source code with local/private target | local_process | Raw code remains inside the trusted boundary. |
+| B062 | Source code with approved external target | delegate_pseudocode_to_external_ai | Raw code is converted to pseudocode before delegation. |
+| B063 | Source code with high-risk external target | local_summary | No code-derived payload is sent externally. |
 
 ## Sanitized Delegated Payload Examples
 
@@ -112,6 +115,22 @@ Review this synthetic code for an authorization issue: [PSEUDOCODE_SUMMARY_1]
 
 [GENERALIZED_PROBLEM_STATEMENT]
 A private implementation detail was replaced with a high-level security question. Review the abstract control-flow or design issue without requiring raw source code.
+```
+
+Target-specific source-code behavior:
+
+```text
+local_private target:
+route = local_process
+external payload = none
+
+approved_external_ai target:
+route = delegate_pseudocode_to_external_ai
+external payload = pseudocode or generalized problem statement only
+
+high_risk_external_ai target:
+route = local_summary
+external payload = none
 ```
 
 ## Public-Safe Audit Example
@@ -143,4 +162,3 @@ do not appear in delegated payloads under the direct leakage oracle.
 
 The evidence does not claim that the prototype detects every possible sensitive
 span, prevents semantic leakage, or replaces enterprise DLP systems.
-

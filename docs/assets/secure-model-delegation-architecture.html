@@ -25,14 +25,14 @@
     body {
       margin: 0;
       width: 980px;
-      min-height: 2160px;
+      min-height: 2500px;
       font-family: Inter, "Segoe UI", Arial, sans-serif;
       color: var(--ink);
       background: var(--bg);
     }
     .canvas {
       width: 980px;
-      min-height: 2160px;
+      min-height: 2500px;
       padding: 30px 40px 36px;
       background: linear-gradient(180deg, #fbfaf5 0%, #f4f1e7 100%);
     }
@@ -161,8 +161,18 @@
         <div class="grid3">
           <div class="card"><strong>Conflict resolution</strong><span>When one request has multiple sensitive classes, the highest-risk policy path wins.</span></div>
           <div class="card"><strong>One-way risk</strong><span>Advisory ML may raise risk, but cannot lower hard policy restrictions.</span></div>
-          <div class="card"><strong>Target profile</strong><span>OpenAI and Claude are modeled as external policy profiles in the public prototype.</span></div>
+          <div class="card"><strong>Target profile</strong><span>Local/private, approved external, and high-risk external profiles can produce different routes for the same request.</span></div>
         </div>
+        <table class="policy-matrix" aria-label="source code target policy">
+          <thead>
+            <tr><th>Source-code target</th><th>Raw code</th><th>External payload</th><th>Route</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Local/private</td><td><span class="tag">allowed locally</span></td><td>none</td><td>local_process</td></tr>
+            <tr><td>Approved external</td><td><span class="tag deny">blocked</span></td><td>pseudocode</td><td>delegate_pseudocode</td></tr>
+            <tr><td>High-risk external</td><td><span class="tag deny">blocked</span></td><td>none</td><td>local_summary</td></tr>
+          </tbody>
+        </table>
         <div class="routes">
           <div class="route">Local process<small>answer inside boundary</small></div>
           <div class="route">Deny<small>refuse or explain why</small></div>

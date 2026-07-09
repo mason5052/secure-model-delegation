@@ -24,6 +24,9 @@ Diagram source: `docs/assets/secure-model-delegation-architecture.html`.
 - Trusted local gateway running in Python.
 - External AI is represented as a policy target profile, not a provider-specific
   route.
+- Current target profiles include `local_private`, `approved_external_ai`, and
+  `high_risk_external_ai`. The legacy `external_ai` profile is treated as an
+  approved external profile for compatibility.
 - Primary external target is a simulated endpoint that records sanitized or
   pseudocode-based delegated payloads for leakage evaluation.
 - Real provider API calls are out of scope for the current prototype and remain
@@ -33,6 +36,10 @@ Diagram source: `docs/assets/secure-model-delegation-architecture.html`.
   `simulated_external_endpoint`.
 - The controller resolves span-level actions into request-level routes using
   transformed payload safety plus remaining utility.
+- Source-code requests demonstrate target-specific control: raw source code can
+  be processed by a trusted local/private model, approved external targets get
+  pseudocode or a generalized problem statement only, and high-risk external
+  targets receive local summary only.
 
 ## Quick Start
 
@@ -93,6 +100,8 @@ Example workflow:
 4. Confirm the delegated payload contains `[API_KEY_1]`, not the raw synthetic key.
 5. Select `Incident detail plus internal topology`.
 6. Confirm the controller keeps the request local through `local_summary`.
+7. Select the source-code examples to compare local, approved external, and
+   high-risk external target profiles.
 
 This UI uses only the simulated external endpoint. It does not call real
 OpenAI, Claude, or any other external model API.
@@ -114,40 +123,40 @@ The audit log intentionally avoids storing raw secrets.
 
 ## Evaluation Summary
 
-The current synthetic benchmark contains 60 labeled cases. The latest local
+The current synthetic benchmark contains 63 labeled cases. The latest local
 validation run produced the following public-safe results:
 
 | Metric | Value |
 | --- | ---: |
-| Benchmark cases | 60 |
-| Delegated cases | 26 |
+| Benchmark cases | 63 |
+| Delegated cases | 27 |
 | Route accuracy against current labels | 1.00 |
 | Direct leakage findings | 0 |
 | Over-blocked delegation false positives | 0 |
 | Unsafe delegation false negatives | 0 |
 | Adversarial or mixed-risk cases | 15 |
 | Successful direct-leakage bypasses | 0 |
-| Average local controller latency | about 1 ms/request |
+| Average local controller latency | about 0.6 ms/request |
 
 Baseline comparison:
 
 | Approach | Delegated cases | Direct leakage findings | Leakage case rate |
 | --- | ---: | ---: | ---: |
-| no_gateway | 60 | 164 | 0.85 |
-| regex_only | 60 | 4 | 0.07 |
-| detector_only | 60 | 4 | 0.07 |
-| policy_bounded_controller | 26 | 0 | 0.00 |
+| no_gateway | 63 | 170 | 0.86 |
+| regex_only | 63 | 4 | 0.06 |
+| detector_only | 63 | 4 | 0.06 |
+| policy_bounded_controller | 27 | 0 | 0.00 |
 
 Route distribution:
 
 | Route | Count |
 | --- | ---: |
-| local_process | 7 |
-| local_summary | 21 |
+| local_process | 8 |
+| local_summary | 22 |
 | ask_clarification | 4 |
 | deny_request | 2 |
 | delegate_sanitized_to_external_ai | 20 |
-| delegate_pseudocode_to_external_ai | 6 |
+| delegate_pseudocode_to_external_ai | 7 |
 
 These results are limited to the current synthetic benchmark and direct leakage
 oracle. They do not prove full semantic privacy.

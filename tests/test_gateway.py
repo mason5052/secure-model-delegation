@@ -62,6 +62,50 @@ class GatewayTests(unittest.TestCase):
         self.assertEqual(result.route, "local_summary")
         self.assertIsNone(result.delegated_payload)
 
+    def test_local_private_target_can_process_raw_source_code_locally(self) -> None:
+        result = process_request(
+            RequestBundle(
+                case_id="T_LOCAL_CODE",
+                user_prompt="Review this code: function updateOrder(user){ return order.status = 'paid'; }",
+                target_profile="local_private",
+            ),
+            leakage_oracle={"must_not_contain": ["function updateOrder"]},
+            run_dir=self.tmp,
+        )
+        self.assertEqual(result.route, "local_process")
+        self.assertIsNone(result.delegated_payload)
+        self.assertIn("local_private_target_stays_inside_boundary", result.rule_ids)
+
+    def test_approved_external_target_gets_pseudocode_for_source_code(self) -> None:
+        result = process_request(
+            RequestBundle(
+                case_id="T_APPROVED_EXTERNAL_CODE",
+                user_prompt="Review this code: function updateOrder(user){ return order.status = 'paid'; }",
+                target_profile="approved_external_ai",
+            ),
+            leakage_oracle={"must_not_contain": ["function updateOrder", "order.status = 'paid'"]},
+            run_dir=self.tmp,
+        )
+        self.assertEqual(result.route, "delegate_pseudocode_to_external_ai")
+        self.assertIsNotNone(result.delegated_payload)
+        self.assertIn("[PSEUDOCODE_SUMMARY_", result.delegated_payload or "")
+        self.assertNotIn("function updateOrder", result.delegated_payload or "")
+        self.assertIn("source_code_requires_pseudocode", result.rule_ids)
+
+    def test_high_risk_external_target_gets_local_summary_for_source_code(self) -> None:
+        result = process_request(
+            RequestBundle(
+                case_id="T_HIGH_RISK_EXTERNAL_CODE",
+                user_prompt="Review this code: function updateOrder(user){ return order.status = 'paid'; }",
+                target_profile="high_risk_external_ai",
+            ),
+            leakage_oracle={"must_not_contain": ["function updateOrder"]},
+            run_dir=self.tmp,
+        )
+        self.assertEqual(result.route, "local_summary")
+        self.assertIsNone(result.delegated_payload)
+        self.assertIn("source_code_high_risk_external_local_summary_only", result.rule_ids)
+
     def test_internal_host_generic_troubleshooting_is_sanitized(self) -> None:
         result = process_request(
             RequestBundle(

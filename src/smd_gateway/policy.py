@@ -13,6 +13,25 @@ DELEGATION_ROUTES = {
     "delegate_pseudocode_to_external_ai",
 }
 
+LOCAL_TARGET_PROFILES = {
+    "local_private",
+    "local_model",
+    "private_model",
+    "trusted_local",
+}
+
+APPROVED_EXTERNAL_TARGET_PROFILES = {
+    "external_ai",
+    "approved_external_ai",
+    "openai_profile",
+    "claude_profile",
+}
+
+HIGH_RISK_EXTERNAL_TARGET_PROFILES = {
+    "high_risk_external_ai",
+    "untrusted_external_ai",
+}
+
 HIGH_RISK_LABELS = {
     "api_key",
     "auth_token",
@@ -41,6 +60,16 @@ def decide_policy(request: NormalizedRequest, spans: list[SensitiveSpan]) -> Pol
             utility_label="sufficient",
             reasons=(reasons or ["user requested local handling"]),
             rule_ids=rule_ids + ["explicit_local_handling_request"],
+        )
+
+    if _is_local_target(request.target_profile) and "system_prompt" not in labels:
+        return _decision(
+            request,
+            route="local_process",
+            hard_action="allow",
+            utility_label="sufficient",
+            reasons=(reasons or ["trusted local target profile selected"]),
+            rule_ids=rule_ids + ["local_private_target_stays_inside_boundary"],
         )
 
     if not spans:
@@ -153,6 +182,26 @@ def _code_route(
     reasons: list[str],
     rule_ids: list[str],
 ) -> PolicyDecision:
+    if _is_local_target(request.target_profile):
+        return _decision(
+            request,
+            route="local_process",
+            hard_action="allow",
+            utility_label="sufficient",
+            reasons=reasons + ["raw source code is allowed only inside the trusted local boundary"],
+            rule_ids=rule_ids + ["source_code_raw_allowed_for_local_private_only"],
+        )
+
+    if _is_high_risk_external_target(request.target_profile):
+        return _decision(
+            request,
+            route="local_summary",
+            hard_action="summarize_locally",
+            utility_label="partial",
+            reasons=reasons + ["high-risk external targets receive only a local summary for source-code requests"],
+            rule_ids=rule_ids + ["source_code_high_risk_external_local_summary_only"],
+        )
+
     if labels & (SECRET_LABELS | {"incident_detail", "system_prompt"}):
         return _decision(
             request,
@@ -184,6 +233,14 @@ def _code_route(
         rule_ids=rule_ids + ["source_code_requires_pseudocode"],
         advisory_route="delegate_pseudocode_to_external_ai",
     )
+
+
+def _is_local_target(target_profile: str) -> bool:
+    return target_profile in LOCAL_TARGET_PROFILES
+
+
+def _is_high_risk_external_target(target_profile: str) -> bool:
+    return target_profile in HIGH_RISK_EXTERNAL_TARGET_PROFILES
 
 
 def _decision(
