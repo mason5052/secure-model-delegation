@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote
 
+from .challenge_templates import CHALLENGE_TEMPLATES
 from .oracle import expected_fields, load_benchmark_oracle
 from .schema import validate_dataset
 from .templates import FAMILY_NAMES, TEMPLATES, template_count
@@ -18,8 +19,46 @@ BENCHMARK_NAME = "SMD-Bench-1400"
 BENCHMARK_VERSION = "1.0.0"
 GENERATOR_SEED = 6727
 FULL_VARIANTS_PER_TEMPLATE = 20
+CHALLENGE_VARIANTS_PER_TEMPLATE = 6
 TARGET_CYCLE = ("local_private", "approved_external_ai", "high_risk_external_ai")
 NAMES = ("Avery Stone", "Jordan Lee", "Morgan Reed", "Taylor Quinn", "Casey Brooks")
+REVIEW_SOURCE_FIELDS = [
+    "case_id",
+    "family",
+    "split",
+    "template_id",
+    "target_profile",
+    "case_type",
+    "is_adversarial",
+    "attack_family",
+    "input_request",
+    "expected_route",
+    "expected_transformation",
+    "expected_utility",
+    "review_status",
+]
+REVIEW_FIELDNAMES = [
+    *REVIEW_SOURCE_FIELDS,
+    "reviewer_route",
+    "reviewer_utility",
+    "reviewer_notes",
+]
+
+PROMPT_ATTACK_SCENARIOS = {
+    "prompt_injection_only",
+    "prompt_injection_sensitive",
+    "system_prompt_extraction",
+}
+EVASION_ATTACK_FAMILIES = {
+    "base64_secret",
+    "challenge_split_secret",
+    "encoded_service_key",
+    "pii_split_across_turns",
+    "separator_insertion",
+    "split_secret_across_turns",
+    "split_secret_with_benign_task",
+    "url_encoded_secret",
+}
 
 
 def generate_dataset(variants_per_template: int = FULL_VARIANTS_PER_TEMPLATE) -> list[dict[str, Any]]:
@@ -58,6 +97,7 @@ def generate_dataset(variants_per_template: int = FULL_VARIANTS_PER_TEMPLATE) ->
                     for item in expected["expected_span_actions"]
                 }
                 case_id = f"SMD-{family}-T{template_index:02d}-V{variant:03d}"
+                case_type = _case_type(definition)
                 record = {
                     "case_id": case_id,
                     "benchmark_version": BENCHMARK_VERSION,
@@ -71,9 +111,13 @@ def generate_dataset(variants_per_template: int = FULL_VARIANTS_PER_TEMPLATE) ->
                     "input_request": prompt,
                     "risk_classes": risk_classes,
                     "attack_family": str(definition["attack"]),
+                    "case_type": case_type,
+                    "is_adversarial": case_type in {"adversarial_evasion", "prompt_injection"},
                     **expected,
                     "leakage_oracle": _leakage_oracle(risk_classes, definition, values),
-                    "utility_oracle": _utility_oracle(expected["expected_utility"], prompt),
+                    "rule_based_utility_label": _rule_based_utility_label(
+                        expected["expected_utility"], prompt
+                    ),
                     "utility_context": {
                         "local_capability": 0.35,
                         "external_capability": 0.95,
@@ -90,11 +134,90 @@ def generate_dataset(variants_per_template: int = FULL_VARIANTS_PER_TEMPLATE) ->
                     "conversation_turns": turns,
                     "rationale": (
                         f"Coverage-balanced synthetic {FAMILY_NAMES[family].lower()} case using "
-                        f"independent oracle scenario {definition['scenario']}."
+                        f"the authored benchmark-label scenario {definition['scenario']}."
                     ),
                     "review_status": "pending",
                 }
                 records.append(record)
+    return records
+
+
+def generate_challenge_dataset(controller_freeze_commit: str) -> list[dict[str, Any]]:
+    if len(controller_freeze_commit) != 40:
+        raise ValueError("controller_freeze_commit must be a full Git SHA")
+    oracle = load_benchmark_oracle()
+    records: list[dict[str, Any]] = []
+    for family in sorted(CHALLENGE_TEMPLATES):
+        definitions = CHALLENGE_TEMPLATES[family]
+        if len(definitions) != 5:
+            raise ValueError(f"{family} must define exactly five challenge templates")
+        for template_index, definition in enumerate(definitions, start=1):
+            template_id = f"SMDC-{family}-T{template_index:02d}"
+            for variant in range(1, CHALLENGE_VARIANTS_PER_TEMPLATE + 1):
+                target_profile = TARGET_CYCLE[(variant - 1) % len(TARGET_CYCLE)]
+                values = _synthetic_values(family, template_index + 20, variant + 40)
+                base_prompt = _render(str(definition["text"]), values)
+                prompt, variation_axes = _apply_surface_variation(base_prompt, variant)
+                variation_axes["challenge_template"] = template_id
+                turns = [
+                    {"source": str(source), "text": _render(str(text), values)}
+                    for source, text in definition.get("turns", [])
+                ]
+                risk_classes = list(dict.fromkeys(str(item) for item in definition["risk"]))
+                expected = expected_fields(
+                    oracle,
+                    str(definition["scenario"]),
+                    target_profile,
+                    risk_classes,
+                )
+                expected_actions = {
+                    str(item["class"]): str(item["action"])
+                    for item in expected["expected_span_actions"]
+                }
+                case_type = _case_type(definition)
+                records.append(
+                    {
+                        "case_id": f"SMDC-{family}-T{template_index:02d}-V{variant:03d}",
+                        "benchmark_version": "1.0.0-challenge",
+                        "split": "challenge",
+                        "family": family,
+                        "family_name": FAMILY_NAMES[family],
+                        "template_id": template_id,
+                        "variant_id": f"V{variant:03d}",
+                        "target_profile": target_profile,
+                        "transport": "simulated_external_endpoint",
+                        "input_request": prompt,
+                        "risk_classes": risk_classes,
+                        "attack_family": str(definition["attack"]),
+                        "case_type": case_type,
+                        "is_adversarial": case_type in {"adversarial_evasion", "prompt_injection"},
+                        **expected,
+                        "leakage_oracle": _leakage_oracle(risk_classes, definition, values),
+                        "rule_based_utility_label": _rule_based_utility_label(
+                            expected["expected_utility"], prompt
+                        ),
+                        "utility_context": {
+                            "local_capability": 0.35,
+                            "external_capability": 0.95,
+                        },
+                        "ground_truth_evidence": _ground_truth_evidence(
+                            prompt,
+                            turns,
+                            risk_classes,
+                            definition,
+                            values,
+                            expected_actions,
+                        ),
+                        "variation_axes": variation_axes,
+                        "conversation_turns": turns,
+                        "rationale": (
+                            "Post-freeze challenge case labeled from the separately stored "
+                            "benchmark policy."
+                        ),
+                        "review_status": "pending",
+                        "controller_freeze_commit": controller_freeze_commit,
+                    }
+                )
     return records
 
 
@@ -124,6 +247,30 @@ def generate_all_artifacts(root: Path) -> dict[str, Any]:
     manifest_path = data_dir / "smd_bench_1400_manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
 
+    freeze = json.loads((root / "benchmark" / "challenge_freeze.json").read_text(encoding="utf-8"))
+    freeze_sha = str(freeze["controller_freeze_commit"])
+    challenge = generate_challenge_dataset(freeze_sha)
+    challenge_validation = validate_dataset(challenge, expected_count=210)
+    challenge_path = data_dir / "smd_challenge_210.jsonl"
+    _write_jsonl(challenge_path, challenge)
+    challenge_manifest = {
+        "benchmark": "SMD-Challenge-210",
+        "benchmark_version": "1.0.0-challenge",
+        "controller_freeze_commit": freeze_sha,
+        "case_count": len(challenge),
+        "template_count": len({case["template_id"] for case in challenge}),
+        "dataset_sha256": dataset_sha256(challenge),
+        "validation": challenge_validation,
+        "post_freeze_rule": freeze["rule"],
+        "human_review_status": "pending",
+    }
+    challenge_manifest_path = data_dir / "smd_challenge_210_manifest.json"
+    challenge_manifest_path.write_text(
+        json.dumps(challenge_manifest, indent=2, ensure_ascii=True) + "\n",
+        encoding="utf-8",
+    )
+    challenge_review = _write_challenge_review_artifacts(review_dir, challenge)
+
     return {
         "pilot_path": str(pilot_path),
         "pilot_validation": pilot_validation,
@@ -131,6 +278,10 @@ def generate_all_artifacts(root: Path) -> dict[str, Any]:
         "manifest_path": str(manifest_path),
         "full_validation": full_validation,
         "review": review_paths,
+        "challenge_path": str(challenge_path),
+        "challenge_manifest_path": str(challenge_manifest_path),
+        "challenge_validation": challenge_validation,
+        "challenge_review": challenge_review,
     }
 
 
@@ -170,6 +321,27 @@ def select_human_review_sample(cases: list[dict[str, Any]]) -> list[dict[str, An
         selected.extend(family_selected)
     if len(selected) != 210:
         raise ValueError(f"Human review sample must contain 210 cases, found {len(selected)}")
+    return sorted(selected, key=lambda item: item["case_id"])
+
+
+def select_second_reviewer_sample(cases: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    selected: list[dict[str, Any]] = []
+    by_family: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
+    for case in cases:
+        by_family[str(case["family"])].append(case)
+    for family in sorted(by_family):
+        development = sorted(
+            (case for case in by_family[family] if case["split"] == "development"),
+            key=lambda item: item["case_id"],
+        )
+        evaluation = sorted(
+            (case for case in by_family[family] if case["split"] == "template_evaluation"),
+            key=lambda item: item["case_id"],
+        )
+        selected.extend(development[:5])
+        selected.extend(evaluation[:5])
+    if len(selected) != 70:
+        raise ValueError(f"Second-review sample must contain 70 cases, found {len(selected)}")
     return sorted(selected, key=lambda item: item["case_id"])
 
 
@@ -473,7 +645,7 @@ def _leakage_oracle(
     }
 
 
-def _utility_oracle(expected_label: str, prompt: str) -> dict[str, Any]:
+def _rule_based_utility_label(expected_label: str, prompt: str) -> dict[str, Any]:
     intent_terms = [
         term
         for term in ("debug", "review", "explain", "summarize", "draft", "compare", "classify", "analyze")
@@ -507,7 +679,6 @@ def _manifest(
         "case_count": len(cases),
         "template_count": template_count(),
         "development_templates_per_family": 8,
-        "holdout_templates_per_family": 2,
         "template_evaluation_templates_per_family": 2,
         "dataset_sha256": digest,
         "validation": validation,
@@ -527,60 +698,131 @@ def dataset_sha256(cases: list[dict[str, Any]]) -> str:
 
 def _write_review_artifacts(review_dir: Path, cases: list[dict[str, Any]]) -> dict[str, Any]:
     csv_path = review_dir / "smd_bench_1400_human_review_sample.csv"
-    fieldnames = [
-        "case_id",
-        "family",
-        "split",
-        "template_id",
-        "target_profile",
-        "input_request",
-        "expected_route",
-        "expected_transformation",
-        "expected_utility",
-        "review_status",
-        "reviewer_route",
-        "reviewer_utility",
-        "reviewer_notes",
-    ]
-    with csv_path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
-        writer.writeheader()
-        for case in cases:
-            writer.writerow(
-                {
-                    **{key: case[key] for key in fieldnames[:10]},
-                    "reviewer_route": "",
-                    "reviewer_utility": "",
-                    "reviewer_notes": "",
-                }
-            )
+    review_rows = _write_review_csv(csv_path, cases)
+    second_reviewer = select_second_reviewer_sample(cases)
+    second_reviewer_path = review_dir / "smd_bench_1400_second_reviewer_sample.csv"
+    second_reviewer_rows = _write_review_csv(second_reviewer_path, second_reviewer)
 
     instructions_path = review_dir / "smd_bench_1400_review_instructions.md"
     instructions_path.write_text(
         "# SMD-Bench-1400 Human Review Instructions\n\n"
         "This stratified sample contains 210 synthetic cases: 30 per family, 10 per target profile, "
         "and 15 each from development and template evaluation. Every semantic template is represented.\n\n"
-        "For each row, Mason should independently review the expected route, transformation, utility, "
+        "For each row, the primary reviewer should independently review the expected route, transformation, utility, "
         "and rationale. Set `review_status` to `approved`, `corrected`, or `rejected` only after a real "
         "human review. Automated or AI-assisted checks do not count as human approval.\n\n"
         "Record corrections without changing labels merely to match controller output. If a label is "
-        "corrected, document why the oracle policy or template interpretation required the change.\n",
+        "corrected, document why the benchmark policy or template interpretation required the change.\n",
         encoding="utf-8",
     )
 
     summary_path = review_dir / "smd_bench_1400_review_summary.json"
+    status_counts = Counter(row["review_status"] or "pending" for row in review_rows)
+    second_review_complete = all(
+        row["reviewer_route"] and row["reviewer_utility"]
+        for row in second_reviewer_rows
+    )
     summary = {
         "sample_count": len(cases),
-        "status_counts": {"pending": len(cases), "approved": 0, "corrected": 0, "rejected": 0},
+        "status_counts": {
+            status: status_counts.get(status, 0)
+            for status in ("pending", "approved", "corrected", "rejected")
+        },
         "family_counts": dict(sorted(Counter(case["family"] for case in cases).items())),
         "target_counts": dict(sorted(Counter(case["target_profile"] for case in cases).items())),
         "split_counts": dict(sorted(Counter(case["split"] for case in cases).items())),
-        "human_review_complete": False,
+        "case_type_counts": dict(
+            sorted(Counter(case["case_type"] for case in cases).items())
+        ),
+        "adversarial_case_count": sum(bool(case["is_adversarial"]) for case in cases),
+        "second_reviewer_sample_count": len(second_reviewer),
+        "second_reviewer_status": "complete" if second_review_complete else "pending",
+        "human_review_complete": status_counts.get("pending", 0) == 0,
     }
     summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
     return {
         "sample_csv": str(csv_path),
+        "second_reviewer_csv": str(second_reviewer_path),
         "instructions": str(instructions_path),
         "summary": str(summary_path),
-        "pending_count": len(cases),
+        "pending_count": status_counts.get("pending", 0),
     }
+
+
+def _write_challenge_review_artifacts(
+    review_dir: Path,
+    cases: list[dict[str, Any]],
+) -> dict[str, Any]:
+    csv_path = review_dir / "smd_challenge_210_human_review.csv"
+    review_rows = _write_review_csv(csv_path, cases)
+    instructions_path = review_dir / "smd_challenge_210_review_instructions.md"
+    instructions_path.write_text(
+        "# SMD-Challenge-210 Human Review Instructions\n\n"
+        "Review all 210 post-freeze challenge cases without consulting controller output. "
+        "Validate the expected route, transformation, utility label, and target-specific "
+        "policy rationale. Keep failures and disagreements visible.\n",
+        encoding="utf-8",
+    )
+    summary_path = review_dir / "smd_challenge_210_review_summary.json"
+    status_counts = Counter(row["review_status"] or "pending" for row in review_rows)
+    summary = {
+        "sample_count": len(cases),
+        "status_counts": {
+            status: status_counts.get(status, 0)
+            for status in ("pending", "approved", "corrected", "rejected")
+        },
+        "family_counts": dict(sorted(Counter(case["family"] for case in cases).items())),
+        "target_counts": dict(sorted(Counter(case["target_profile"] for case in cases).items())),
+        "case_type_counts": dict(
+            sorted(Counter(case["case_type"] for case in cases).items())
+        ),
+        "adversarial_case_count": sum(bool(case["is_adversarial"]) for case in cases),
+        "human_review_complete": status_counts.get("pending", 0) == 0,
+    }
+    summary_path.write_text(
+        json.dumps(summary, indent=2, ensure_ascii=True) + "\n",
+        encoding="utf-8",
+    )
+    return {
+        "sample_csv": str(csv_path),
+        "instructions": str(instructions_path),
+        "summary": str(summary_path),
+        "pending_count": status_counts.get("pending", 0),
+    }
+
+
+def _write_review_csv(path: Path, cases: list[dict[str, Any]]) -> list[dict[str, str]]:
+    existing: dict[str, dict[str, str]] = {}
+    if path.is_file():
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            existing = {row["case_id"]: row for row in csv.DictReader(handle)}
+    rows: list[dict[str, str]] = []
+    for case in cases:
+        previous = existing.get(str(case["case_id"]), {})
+        row = {key: case[key] for key in REVIEW_SOURCE_FIELDS}
+        for field in ("review_status", "reviewer_route", "reviewer_utility", "reviewer_notes"):
+            if previous.get(field, "").strip():
+                row[field] = previous[field].strip()
+        row.setdefault("reviewer_route", "")
+        row.setdefault("reviewer_utility", "")
+        row.setdefault("reviewer_notes", "")
+        rows.append({key: str(row[key]) for key in REVIEW_FIELDNAMES})
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=REVIEW_FIELDNAMES)
+        writer.writeheader()
+        writer.writerows(rows)
+    return rows
+
+
+def _case_type(definition: dict[str, Any]) -> str:
+    scenario = str(definition["scenario"])
+    attack_family = str(definition["attack"])
+    if scenario in PROMPT_ATTACK_SCENARIOS:
+        return "prompt_injection"
+    if attack_family in EVASION_ATTACK_FAMILIES:
+        return "adversarial_evasion"
+    if scenario == "benign_unclear" or attack_family == "hard_negative":
+        return "benign_stress"
+    if definition["risk"]:
+        return "routine_sensitive"
+    return "benign_public"

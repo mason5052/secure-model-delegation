@@ -1,35 +1,17 @@
 # Preserved Failure Analysis
 
-## Regression Transformation Failure
+## SMD-Bench-1400
 
-During final validation, legacy regression case `B025` initially produced one
-direct and one canonicalized leakage finding. The source-code detector matched
-only the JavaScript declaration prefix and left a following return statement in
-the generalized payload.
+The main benchmark achieved 0.941429 end-to-end policy conformance and 0.996429 controller-only conformance. Seventy-two expected external delegations were handled locally. These disagreements remain visible rather than being relabeled to match the controller.
 
-Classification: transformation failure caused by an incomplete source-code
-span. The benchmark label was not changed. The detector was updated to treat a
-JavaScript declaration and its adjacent return statement as one code span, and
-a dedicated regression test was added. After the implementation fix, `B025`
-and the complete 63-case regression set produced zero automatic leakage
-findings.
+Evidence detection achieved macro F1 0.935488. The weakest main-set evidence class was `internal_infrastructure`, where broad contextual patterns produced false positives. This demonstrates why detector performance must be separated from controller-only evaluation.
 
-## Utility Disagreements
+Rule-based utility-label agreement was 0.915. Weight sensitivity changed route conformance from 0.744286 to 0.990714. By construction, the sensitivity analysis re-scores only routes already admitted by hard policy; it therefore evaluates operational preference sensitivity, not the security boundary itself.
 
-Six SMD-Bench cases remain disagreements between the runtime utility heuristic
-and the independent utility oracle. All belong to one F4 internal service-mesh
-template for the local target: the heuristic reports `sufficient`, while the
-oracle reports `partial`.
+## SMD-Challenge-210
 
-Classification: utility mismatch. These labels were intentionally not changed
-to match the controller output. They remain visible in
-`10-utility-results.json` and reduce overall utility-oracle agreement to
-0.995714.
+The post-freeze challenge achieved 0.876190 end-to-end policy conformance and 0.914286 controller-only conformance. It produced no security-relevant target-policy violation and no automatic direct, canonicalized, or structural leakage. Eighteen cases were overblocked.
 
-## Pilot Findings
+The challenge detector macro F1 was 0.867244. `proprietary_code` recall was zero in its unseen phrasing, and `internal_infrastructure` F1 was 0.363636. These failures were discovered after the controller freeze and have not been used to tune the controller.
 
-The pilot gate also exposed encoded-secret and injection coverage misses plus
-false-positive evidence patterns. Those implementation defects were corrected
-before full generation. No label was changed merely to obtain a passing route
-result. The final 140-case pilot and 1,400-case benchmark pass the automated
-schema, duplication, distribution, route, and leakage gates.
+The challenge provides a less optimistic post-freeze stress signal than the authored main-template score because its lower performance and class-specific failures are preserved. It is not independent external validation, and its human review remains pending.

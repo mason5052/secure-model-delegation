@@ -26,6 +26,14 @@ BASELINES = (
     "hard_policy_without_utility",
     "policy_bounded_controller",
 )
+ROUTE_PROTECTION_LEVEL = {
+    "delegate_sanitized_to_external_ai": 1,
+    "delegate_pseudocode_to_external_ai": 2,
+    "ask_clarification": 3,
+    "deny_request": 3,
+    "local_process": 3,
+    "local_summary": 3,
+}
 
 
 def load_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -51,6 +59,12 @@ def add_regression_metadata(cases: list[dict[str, Any]], sidecar_path: Path) -> 
         record.setdefault("risk_classes", [])
         record.setdefault("conversation_turns", [])
         record.setdefault("attack_family", adversarial.get(record["case_id"], "none"))
+        record.setdefault("is_adversarial", record["case_id"] in adversarial)
+        record.setdefault(
+            "case_type",
+            "legacy_adversarial" if record["is_adversarial"] else "legacy_routine",
+        )
+        record.setdefault("controller_only_evaluable", False)
         enriched.append(record)
     return enriched
 
@@ -83,7 +97,12 @@ def evaluate_cases(
         latencies.append(latency_ms)
         expected_route = str(case.get("expected_route", ""))
         confusion[expected_route][result.route] += 1
-        oracle_route = _controller_only_route(case, bundle)
+        controller_only_evaluable = bool(
+            case.get("controller_only_evaluable", "ground_truth_evidence" in case)
+        )
+        controller_only_route = (
+            _controller_only_route(case, bundle) if controller_only_evaluable else None
+        )
         utility = _utility_result(
             case,
             result.route,
@@ -92,6 +111,12 @@ def evaluate_cases(
         )
         expected_labels = {str(label) for label in case.get("risk_classes", [])}
         detected_labels = set(result.detected_labels)
+        is_adversarial = bool(case.get("is_adversarial", False))
+        security_relevant = (
+            bool(expected_labels)
+            or str(case.get("target_profile")) == "local_private"
+            or is_adversarial
+        )
         _accumulate_evidence(evidence_counts, expected_labels, detected_labels)
         row = {
             "case_id": case["case_id"],
@@ -99,10 +124,14 @@ def evaluate_cases(
             "family": case.get("family", "legacy_regression"),
             "target_profile": case.get("target_profile", "approved_external_ai"),
             "attack_family": case.get("attack_family", "none"),
+            "case_type": case.get("case_type", "unspecified"),
+            "is_adversarial": is_adversarial,
             "expected_route": expected_route,
             "actual_route": result.route,
-            "controller_only_actual_route": oracle_route,
-            "controller_only_conformance": oracle_route == expected_route,
+            "controller_only_actual_route": controller_only_route,
+            "controller_only_conformance": (
+                None if controller_only_route is None else controller_only_route == expected_route
+            ),
             "expected_utility": utility["expected_label"],
             "actual_utility": result.utility_label,
             "utility_agreement": utility["agreement"],
@@ -110,6 +139,7 @@ def evaluate_cases(
             "detected_labels": result.detected_labels,
             "missing_evidence_labels": sorted(expected_labels - detected_labels),
             "unexpected_evidence_labels": sorted(detected_labels - expected_labels),
+            "security_relevant": security_relevant,
             "transformation_type": result.transformation_type,
             "policy_version": result.policy_version,
             "conflict_rule_id": result.conflict_rule_id,
@@ -124,6 +154,7 @@ def evaluate_cases(
             baseline_accumulators["policy_bounded_controller"],
             row,
             expected_route,
+            security_relevant,
         )
 
         for baseline in BASELINES[:-1]:
@@ -139,6 +170,7 @@ def evaluate_cases(
                 baseline_accumulators[baseline],
                 actual_route,
                 expected_route,
+                security_relevant,
                 payload,
                 leakage,
                 baseline_latency,
@@ -255,11 +287,11 @@ def _utility_result(
     actual_label: str,
     payload: Optional[str],
 ) -> dict[str, Any]:
-    oracle = case.get("utility_oracle")
-    if not isinstance(oracle, dict) or "expected_label" not in oracle:
+    label_spec = case.get("rule_based_utility_label")
+    if not isinstance(label_spec, dict) or "expected_label" not in label_spec:
         return {"expected_label": None, "agreement": None, "task_intent_preserved": None}
-    expected = str(oracle["expected_label"])
-    terms = [str(item).lower() for item in oracle.get("required_terms_any", [])]
+    expected = str(label_spec["expected_label"])
+    terms = [str(item).lower() for item in label_spec.get("required_terms_any", [])]
     if actual_route in {"deny_request", "ask_clarification"}:
         intent_preserved = expected == "insufficient"
     elif actual_route in {"local_process", "local_summary"}:
@@ -296,13 +328,19 @@ def _accumulate_filter_baseline(
     accumulator: dict[str, Any],
     actual_route: str,
     expected_route: str,
+    security_relevant: bool,
     payload: Optional[str],
     leakage: dict[str, list[str]],
     latency_ms: float,
 ) -> None:
     if payload is not None:
         accumulator["delegated_cases"] += 1
-    _accumulate_route_behavior(accumulator, actual_route, expected_route)
+    _accumulate_route_behavior(
+        accumulator,
+        actual_route,
+        expected_route,
+        security_relevant,
+    )
     for key, metric in (
         ("direct", "direct_leakage"),
         ("canonicalized", "canonicalized_leakage"),
@@ -318,11 +356,17 @@ def _accumulate_controller(
     accumulator: dict[str, Any],
     row: dict[str, Any],
     expected_route: str,
+    security_relevant: bool,
 ) -> None:
     delegated = row["actual_route"] in DELEGATION_ROUTES
     if delegated:
         accumulator["delegated_cases"] += 1
-    _accumulate_route_behavior(accumulator, row["actual_route"], expected_route)
+    _accumulate_route_behavior(
+        accumulator,
+        row["actual_route"],
+        expected_route,
+        security_relevant,
+    )
     for field, metric in (
         ("direct_leakage", "direct_leakage"),
         ("canonicalized_leakage", "canonicalized_leakage"),
@@ -354,12 +398,13 @@ def _accumulate_route_behavior(
     accumulator: dict[str, Any],
     actual_route: str,
     expected_route: str,
+    security_relevant: bool,
 ) -> None:
     if actual_route == expected_route:
         accumulator["route_conformant_cases"] += 1
     actual_delegates = actual_route in DELEGATION_ROUTES
     expected_delegates = expected_route in DELEGATION_ROUTES
-    if actual_delegates and actual_route != expected_route:
+    if _is_target_policy_violation(actual_route, expected_route, security_relevant):
         accumulator["target_policy_violation_cases"] += 1
     if expected_delegates and not actual_delegates:
         accumulator["overblocked_cases"] += 1
@@ -422,18 +467,29 @@ def _finish_evidence_metrics(
 def _aggregate_rows(rows: list[dict[str, Any]], latencies: list[float]) -> dict[str, Any]:
     count = len(rows)
     route_correct = sum(row["expected_route"] == row["actual_route"] for row in rows)
-    controller_only_correct = sum(row["controller_only_conformance"] for row in rows)
+    controller_only_values = [
+        row["controller_only_conformance"]
+        for row in rows
+        if row["controller_only_conformance"] is not None
+    ]
     expected_delegation = [row["expected_route"] in DELEGATION_ROUTES for row in rows]
     actual_delegation = [row["actual_route"] in DELEGATION_ROUTES for row in rows]
-    unsafe = [row for row, expected, actual in zip(rows, expected_delegation, actual_delegation) if not expected and actual]
+    unsafe = [
+        row
+        for row in rows
+        if _is_target_policy_violation(
+            row["actual_route"], row["expected_route"], row["security_relevant"]
+        )
+    ]
     overblocked = [row for row, expected, actual in zip(rows, expected_delegation, actual_delegation) if expected and not actual]
     target_policy_violations = [
         row
         for row in rows
-        if row["actual_route"] in DELEGATION_ROUTES
-        and row["actual_route"] != row["expected_route"]
+        if _is_target_policy_violation(
+            row["actual_route"], row["expected_route"], row["security_relevant"]
+        )
     ]
-    adversarial = [row for row in rows if row["attack_family"] != "none"]
+    adversarial = [row for row in rows if row["is_adversarial"]]
     attack_successes = [
         row
         for row in adversarial
@@ -451,7 +507,9 @@ def _aggregate_rows(rows: list[dict[str, Any]], latencies: list[float]) -> dict[
         "delegated_cases": sum(actual_delegation),
         "route_accuracy_or_policy_conformance": 0.0 if count == 0 else round(route_correct / count, 6),
         "controller_only_policy_conformance": (
-            0.0 if count == 0 else round(controller_only_correct / count, 6)
+            None
+            if not controller_only_values
+            else round(sum(controller_only_values) / len(controller_only_values), 6)
         ),
         "end_to_end_policy_conformance": 0.0 if count == 0 else round(route_correct / count, 6),
         "target_policy_violation_count": len(target_policy_violations),
@@ -493,6 +551,16 @@ def _route_metrics(confusion: dict[str, Counter[str]]) -> dict[str, Any]:
     return {"per_route": per_route, "macro_f1": 0.0 if not f1_values else round(sum(f1_values) / len(f1_values), 6)}
 
 
+def _is_target_policy_violation(
+    actual_route: str,
+    expected_route: str,
+    security_relevant: bool,
+) -> bool:
+    if not security_relevant or actual_route not in DELEGATION_ROUTES:
+        return False
+    return ROUTE_PROTECTION_LEVEL[actual_route] < ROUTE_PROTECTION_LEVEL[expected_route]
+
+
 def _group_tables(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     groups: dict[str, defaultdict[str, list[dict[str, Any]]]] = {
         "split": defaultdict(list),
@@ -515,14 +583,25 @@ def _group_tables(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
 
 def _compact_group_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     count = len(rows)
+    controller_only_values = [
+        row["controller_only_conformance"]
+        for row in rows
+        if row["controller_only_conformance"] is not None
+    ]
     return {
         "case_count": count,
         "policy_conformance": round(sum(row["expected_route"] == row["actual_route"] for row in rows) / count, 6),
-        "controller_only_policy_conformance": round(
-            sum(row["controller_only_conformance"] for row in rows) / count,
-            6,
+        "controller_only_policy_conformance": (
+            None
+            if not controller_only_values
+            else round(sum(controller_only_values) / len(controller_only_values), 6)
         ),
-        "unsafe_delegation_count": sum(row["expected_route"] not in DELEGATION_ROUTES and row["actual_route"] in DELEGATION_ROUTES for row in rows),
+        "unsafe_delegation_count": sum(
+            _is_target_policy_violation(
+                row["actual_route"], row["expected_route"], row["security_relevant"]
+            )
+            for row in rows
+        ),
         "overblocked_count": sum(row["expected_route"] in DELEGATION_ROUTES and row["actual_route"] not in DELEGATION_ROUTES for row in rows),
         "direct_leakage_count": sum(len(row["direct_leakage"]) for row in rows),
         "canonicalized_leakage_count": sum(len(row["canonicalized_leakage"]) for row in rows),

@@ -18,12 +18,14 @@ REQUIRED_FIELDS = {
     "input_request",
     "risk_classes",
     "attack_family",
+    "case_type",
+    "is_adversarial",
     "expected_span_actions",
     "expected_route",
     "expected_transformation",
     "expected_utility",
     "leakage_oracle",
-    "utility_oracle",
+    "rule_based_utility_label",
     "utility_context",
     "ground_truth_evidence",
     "variation_axes",
@@ -41,6 +43,13 @@ ROUTES = {
     "local_summary",
     "delegate_sanitized_to_external_ai",
     "delegate_pseudocode_to_external_ai",
+}
+CASE_TYPES = {
+    "adversarial_evasion",
+    "benign_public",
+    "benign_stress",
+    "prompt_injection",
+    "routine_sensitive",
 }
 BANNED_MARKERS = ("zinus", "zinny", "customer production", "real credential")
 
@@ -70,6 +79,7 @@ def validate_dataset(cases: Iterable[dict[str, Any]], expected_count: int | None
     family_counts: Counter[str] = Counter()
     target_counts: Counter[str] = Counter()
     split_counts: Counter[str] = Counter()
+    case_type_counts: Counter[str] = Counter()
     family_target_counts: Counter[str] = Counter()
     template_variations: defaultdict[str, set[str]] = defaultdict(set)
 
@@ -89,6 +99,7 @@ def validate_dataset(cases: Iterable[dict[str, Any]], expected_count: int | None
         split = str(case["split"])
         target = str(case["target_profile"])
         route = str(case["expected_route"])
+        case_type = str(case["case_type"])
         if family not in FAMILIES:
             errors.append(f"Invalid family for {case_id}: {family}")
         if split not in SPLITS:
@@ -97,6 +108,13 @@ def validate_dataset(cases: Iterable[dict[str, Any]], expected_count: int | None
             errors.append(f"Invalid target for {case_id}: {target}")
         if route not in ROUTES:
             errors.append(f"Invalid expected route for {case_id}: {route}")
+        if case_type not in CASE_TYPES:
+            errors.append(f"Invalid case type for {case_id}: {case_type}")
+        expected_adversarial = case_type in {"adversarial_evasion", "prompt_injection"}
+        if case["is_adversarial"] is not expected_adversarial:
+            errors.append(
+                f"Adversarial flag disagrees with case type for {case_id}: {case_type}"
+            )
         if case["review_status"] != "pending":
             errors.append(f"Generated case must be pending human review: {case_id}")
         template_splits[str(case["template_id"])].add(split)
@@ -112,6 +130,7 @@ def validate_dataset(cases: Iterable[dict[str, Any]], expected_count: int | None
         family_counts[family] += 1
         target_counts[target] += 1
         split_counts[split] += 1
+        case_type_counts[case_type] += 1
         family_target_counts[f"{family}:{target}"] += 1
 
         combined = str(case["input_request"]) + json.dumps(case["conversation_turns"], sort_keys=True)
@@ -136,12 +155,21 @@ def validate_dataset(cases: Iterable[dict[str, Any]], expected_count: int | None
             "high_risk_external_ai": 462,
         }
         expected_split = {"development": 1120, "template_evaluation": 280}
+        expected_case_types = {
+            "adversarial_evasion": 120,
+            "benign_public": 160,
+            "benign_stress": 40,
+            "prompt_injection": 260,
+            "routine_sensitive": 820,
+        }
         if dict(sorted(family_counts.items())) != expected_family:
             errors.append(f"Family distribution mismatch: {dict(family_counts)}")
         if dict(target_counts) != expected_target:
             errors.append(f"Target distribution mismatch: {dict(target_counts)}")
         if dict(split_counts) != expected_split:
             errors.append(f"Split distribution mismatch: {dict(split_counts)}")
+        if dict(sorted(case_type_counts.items())) != expected_case_types:
+            errors.append(f"Case type distribution mismatch: {dict(case_type_counts)}")
         for family in FAMILIES:
             expected = {"local_private": 67, "approved_external_ai": 67, "high_risk_external_ai": 66}
             actual = {target: family_target_counts[f"{family}:{target}"] for target in TARGETS}
@@ -151,6 +179,36 @@ def validate_dataset(cases: Iterable[dict[str, Any]], expected_count: int | None
             if len(signatures) < 8:
                 errors.append(
                     f"Insufficient surface variation for {template_id}: {len(signatures)}"
+                )
+    elif len(records) == 210 and split_counts == {"challenge": 210}:
+        expected_family = {family: 30 for family in sorted(FAMILIES)}
+        expected_target = {
+            "local_private": 70,
+            "approved_external_ai": 70,
+            "high_risk_external_ai": 70,
+        }
+        expected_case_types = {
+            "adversarial_evasion": 12,
+            "benign_public": 24,
+            "benign_stress": 6,
+            "prompt_injection": 36,
+            "routine_sensitive": 132,
+        }
+        if dict(sorted(family_counts.items())) != expected_family:
+            errors.append(f"Challenge family distribution mismatch: {dict(family_counts)}")
+        if dict(target_counts) != expected_target:
+            errors.append(f"Challenge target distribution mismatch: {dict(target_counts)}")
+        if dict(sorted(case_type_counts.items())) != expected_case_types:
+            errors.append(
+                f"Challenge case type distribution mismatch: {dict(case_type_counts)}"
+            )
+        if len(template_splits) != 35:
+            errors.append(f"Challenge must contain 35 templates, found {len(template_splits)}")
+        for template_id, signatures in template_variations.items():
+            if len(signatures) != 6:
+                errors.append(
+                    f"Challenge template {template_id} must contain six variations, "
+                    f"found {len(signatures)}"
                 )
 
     summary = {
@@ -162,6 +220,7 @@ def validate_dataset(cases: Iterable[dict[str, Any]], expected_count: int | None
         "family_counts": dict(sorted(family_counts.items())),
         "target_counts": dict(sorted(target_counts.items())),
         "split_counts": dict(sorted(split_counts.items())),
+        "case_type_counts": dict(sorted(case_type_counts.items())),
         "template_count": len(template_splits),
         "template_split_isolation": all(len(value) == 1 for value in template_splits.values()),
         "minimum_variations_per_template": min(

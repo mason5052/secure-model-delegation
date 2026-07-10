@@ -1,15 +1,22 @@
 {
   "benchmark": "63-case regression set",
   "case_count": 63,
-  "delegated_cases": 27,
-  "route_accuracy_or_policy_conformance": 1.0,
+  "delegated_cases": 25,
+  "route_accuracy_or_policy_conformance": 0.904762,
+  "controller_only_policy_conformance": null,
+  "end_to_end_policy_conformance": 0.904762,
+  "target_policy_violation_count": 0,
+  "target_policy_violation_rate": 0.0,
   "unsafe_delegation_false_negatives": {
     "count": 0,
     "case_ids": []
   },
   "overblocked_delegation_false_positives": {
-    "count": 0,
-    "case_ids": []
+    "count": 2,
+    "case_ids": [
+      "B042",
+      "B048"
+    ]
   },
   "direct_leakage_count": 0,
   "canonicalized_leakage_count": 0,
@@ -17,57 +24,57 @@
   "adversarial_case_count": 15,
   "adversarial_attack_success_count": 0,
   "adversarial_attack_success_rate": 0.0,
-  "utility_oracle_labeled_cases": 0,
-  "utility_oracle_agreement": null,
+  "rule_based_utility_labeled_cases": 0,
+  "rule_based_utility_label_agreement": null,
   "task_intent_preservation_rate": null,
   "utility_distribution": {
     "insufficient": 11,
-    "partial": 21,
-    "sufficient": 31
+    "partial": 20,
+    "sufficient": 32
   },
   "utility_distribution_by_route": {
     "ask_clarification": {
-      "insufficient": 4
+      "insufficient": 1
     },
     "delegate_pseudocode_to_external_ai": {
       "sufficient": 7
     },
     "delegate_sanitized_to_external_ai": {
-      "partial": 2,
-      "sufficient": 18
+      "partial": 1,
+      "sufficient": 17
     },
     "deny_request": {
       "insufficient": 2
     },
     "local_process": {
       "insufficient": 1,
-      "partial": 1,
-      "sufficient": 6
+      "partial": 2,
+      "sufficient": 8
     },
     "local_summary": {
-      "insufficient": 4,
-      "partial": 18
+      "insufficient": 7,
+      "partial": 17
     }
   },
-  "clarification_rate": 0.063492,
+  "clarification_rate": 0.015873,
   "route_distribution": {
-    "ask_clarification": 4,
+    "ask_clarification": 1,
     "delegate_pseudocode_to_external_ai": 7,
-    "delegate_sanitized_to_external_ai": 20,
+    "delegate_sanitized_to_external_ai": 18,
     "deny_request": 2,
-    "local_process": 8,
-    "local_summary": 22
+    "local_process": 11,
+    "local_summary": 24
   },
   "latency_ms": {
-    "p50": 0.692,
-    "p95": 1.292
+    "p50": 0.791,
+    "p95": 1.201
   },
   "route_metrics": {
     "per_route": {
       "ask_clarification": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
+        "recall": 0.25,
+        "f1": 0.4,
         "support": 4
       },
       "delegate_pseudocode_to_external_ai": {
@@ -78,8 +85,8 @@
       },
       "delegate_sanitized_to_external_ai": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
+        "recall": 0.9,
+        "f1": 0.947368,
         "support": 20
       },
       "deny_request": {
@@ -89,29 +96,31 @@
         "support": 2
       },
       "local_process": {
-        "precision": 1.0,
+        "precision": 0.727273,
         "recall": 1.0,
-        "f1": 1.0,
+        "f1": 0.842105,
         "support": 8
       },
       "local_summary": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
+        "precision": 0.875,
+        "recall": 0.954545,
+        "f1": 0.913043,
         "support": 22
       }
     },
-    "macro_f1": 1.0
+    "macro_f1": 0.85042
   },
   "confusion_matrix": {
     "ask_clarification": {
-      "ask_clarification": 4
+      "ask_clarification": 1,
+      "local_summary": 3
     },
     "delegate_pseudocode_to_external_ai": {
       "delegate_pseudocode_to_external_ai": 7
     },
     "delegate_sanitized_to_external_ai": {
-      "delegate_sanitized_to_external_ai": 20
+      "delegate_sanitized_to_external_ai": 18,
+      "local_process": 2
     },
     "deny_request": {
       "deny_request": 2
@@ -120,12 +129,16 @@
       "local_process": 8
     },
     "local_summary": {
-      "local_summary": 22
+      "local_process": 1,
+      "local_summary": 21
     }
   },
   "baseline_comparison": {
     "no_gateway": {
       "delegated_cases": 63,
+      "route_conformant_cases": 20,
+      "target_policy_violation_cases": 15,
+      "overblocked_cases": 0,
       "direct_leakage_findings": 170,
       "direct_leakage_cases": 54,
       "canonicalized_leakage_findings": 119,
@@ -135,39 +148,17 @@
       "direct_leakage_case_rate": 0.857143,
       "canonicalized_leakage_case_rate": 0.84127,
       "structural_code_leakage_case_rate": 0.0,
-      "latency_ms_p50": 0.015,
-      "latency_ms_p95": 0.019
+      "route_conformant_rate": 0.31746,
+      "target_policy_violation_rate": 0.238095,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 0.022,
+      "latency_ms_p95": 0.026
     },
-    "regex_secret_pii_filter": {
-      "delegated_cases": 63,
-      "direct_leakage_findings": 77,
-      "direct_leakage_cases": 40,
-      "canonicalized_leakage_findings": 64,
-      "canonicalized_leakage_cases": 40,
-      "structural_code_leakage_findings": 0,
-      "structural_code_leakage_cases": 0,
-      "direct_leakage_case_rate": 0.634921,
-      "canonicalized_leakage_case_rate": 0.634921,
-      "structural_code_leakage_case_rate": 0.0,
-      "latency_ms_p50": 0.228,
-      "latency_ms_p95": 0.308
-    },
-    "all_detectors_filter_only": {
-      "delegated_cases": 63,
-      "direct_leakage_findings": 4,
-      "direct_leakage_cases": 4,
-      "canonicalized_leakage_findings": 3,
-      "canonicalized_leakage_cases": 3,
-      "structural_code_leakage_findings": 0,
-      "structural_code_leakage_cases": 0,
-      "direct_leakage_case_rate": 0.063492,
-      "canonicalized_leakage_case_rate": 0.047619,
-      "structural_code_leakage_case_rate": 0.0,
-      "latency_ms_p50": 0.238,
-      "latency_ms_p95": 0.31
-    },
-    "policy_bounded_controller": {
-      "delegated_cases": 27,
+    "always_local": {
+      "delegated_cases": 0,
+      "route_conformant_cases": 8,
+      "target_policy_violation_cases": 0,
+      "overblocked_cases": 27,
       "direct_leakage_findings": 0,
       "direct_leakage_cases": 0,
       "canonicalized_leakage_findings": 0,
@@ -177,47 +168,273 @@
       "direct_leakage_case_rate": 0.0,
       "canonicalized_leakage_case_rate": 0.0,
       "structural_code_leakage_case_rate": 0.0,
-      "latency_ms_p50": 0.692,
-      "latency_ms_p95": 1.292
+      "route_conformant_rate": 0.126984,
+      "target_policy_violation_rate": 0.0,
+      "overblocked_rate": 0.428571,
+      "latency_ms_p50": 0.003,
+      "latency_ms_p95": 0.004
+    },
+    "regex_secret_pii_filter": {
+      "delegated_cases": 63,
+      "route_conformant_cases": 20,
+      "target_policy_violation_cases": 15,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 77,
+      "direct_leakage_cases": 40,
+      "canonicalized_leakage_findings": 64,
+      "canonicalized_leakage_cases": 40,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.634921,
+      "canonicalized_leakage_case_rate": 0.634921,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.31746,
+      "target_policy_violation_rate": 0.238095,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 0.242,
+      "latency_ms_p95": 0.293
+    },
+    "all_detectors_filter_only": {
+      "delegated_cases": 63,
+      "route_conformant_cases": 20,
+      "target_policy_violation_cases": 15,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 4,
+      "direct_leakage_cases": 4,
+      "canonicalized_leakage_findings": 3,
+      "canonicalized_leakage_cases": 3,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.063492,
+      "canonicalized_leakage_case_rate": 0.047619,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.31746,
+      "target_policy_violation_rate": 0.238095,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 0.252,
+      "latency_ms_p95": 0.297
+    },
+    "target_agnostic_controller": {
+      "delegated_cases": 27,
+      "route_conformant_cases": 55,
+      "target_policy_violation_cases": 1,
+      "overblocked_cases": 2,
+      "direct_leakage_findings": 0,
+      "direct_leakage_cases": 0,
+      "canonicalized_leakage_findings": 0,
+      "canonicalized_leakage_cases": 0,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.0,
+      "canonicalized_leakage_case_rate": 0.0,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.873016,
+      "target_policy_violation_rate": 0.015873,
+      "overblocked_rate": 0.031746,
+      "latency_ms_p50": 0.735,
+      "latency_ms_p95": 1.183
+    },
+    "hard_policy_without_utility": {
+      "delegated_cases": 33,
+      "route_conformant_cases": 57,
+      "target_policy_violation_cases": 0,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 2,
+      "direct_leakage_cases": 2,
+      "canonicalized_leakage_findings": 2,
+      "canonicalized_leakage_cases": 2,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.031746,
+      "canonicalized_leakage_case_rate": 0.031746,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.904762,
+      "target_policy_violation_rate": 0.0,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 0.913,
+      "latency_ms_p95": 1.329
+    },
+    "policy_bounded_controller": {
+      "delegated_cases": 25,
+      "route_conformant_cases": 57,
+      "target_policy_violation_cases": 0,
+      "overblocked_cases": 2,
+      "direct_leakage_findings": 0,
+      "direct_leakage_cases": 0,
+      "canonicalized_leakage_findings": 0,
+      "canonicalized_leakage_cases": 0,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.0,
+      "canonicalized_leakage_case_rate": 0.0,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.904762,
+      "target_policy_violation_rate": 0.0,
+      "overblocked_rate": 0.031746,
+      "latency_ms_p50": 0.791,
+      "latency_ms_p95": 1.201
     }
+  },
+  "evidence_detection": {
+    "unit": "case-level evidence-class presence",
+    "per_class": {
+      "api_key": {
+        "tp": 0,
+        "fp": 7,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "auth_token": {
+        "tp": 0,
+        "fp": 4,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "config_secret": {
+        "tp": 0,
+        "fp": 13,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "incident_detail": {
+        "tp": 0,
+        "fp": 8,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "internal_hostname": {
+        "tp": 0,
+        "fp": 8,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "internal_infrastructure": {
+        "tp": 0,
+        "fp": 8,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "pii_email": {
+        "tp": 0,
+        "fp": 10,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "pii_name": {
+        "tp": 0,
+        "fp": 8,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "pii_phone": {
+        "tp": 0,
+        "fp": 5,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "private_ip": {
+        "tp": 0,
+        "fp": 6,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "prompt_injection": {
+        "tp": 0,
+        "fp": 14,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "proprietary_code": {
+        "tp": 0,
+        "fp": 2,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "source_code": {
+        "tp": 0,
+        "fp": 16,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "system_prompt": {
+        "tp": 0,
+        "fp": 2,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    },
+    "micro_precision": 0.0,
+    "micro_recall": 0.0,
+    "micro_f1": 0.0,
+    "macro_f1": 0.0
   },
   "by_split": {
     "regression": {
       "case_count": 63,
-      "policy_conformance": 1.0,
+      "policy_conformance": 0.904762,
+      "controller_only_policy_conformance": null,
       "unsafe_delegation_count": 0,
-      "overblocked_count": 0,
+      "overblocked_count": 2,
       "direct_leakage_count": 0,
       "canonicalized_leakage_count": 0,
       "structural_code_leakage_count": 0,
       "utility_agreement": null,
       "route_distribution": {
-        "ask_clarification": 4,
+        "ask_clarification": 1,
         "delegate_pseudocode_to_external_ai": 7,
-        "delegate_sanitized_to_external_ai": 20,
+        "delegate_sanitized_to_external_ai": 18,
         "deny_request": 2,
-        "local_process": 8,
-        "local_summary": 22
+        "local_process": 11,
+        "local_summary": 24
       }
     }
   },
   "by_family": {
     "legacy_regression": {
       "case_count": 63,
-      "policy_conformance": 1.0,
+      "policy_conformance": 0.904762,
+      "controller_only_policy_conformance": null,
       "unsafe_delegation_count": 0,
-      "overblocked_count": 0,
+      "overblocked_count": 2,
       "direct_leakage_count": 0,
       "canonicalized_leakage_count": 0,
       "structural_code_leakage_count": 0,
       "utility_agreement": null,
       "route_distribution": {
-        "ask_clarification": 4,
+        "ask_clarification": 1,
         "delegate_pseudocode_to_external_ai": 7,
-        "delegate_sanitized_to_external_ai": 20,
+        "delegate_sanitized_to_external_ai": 18,
         "deny_request": 2,
-        "local_process": 8,
-        "local_summary": 22
+        "local_process": 11,
+        "local_summary": 24
       }
     }
   },
@@ -225,6 +442,7 @@
     "approved_external_ai": {
       "case_count": 1,
       "policy_conformance": 1.0,
+      "controller_only_policy_conformance": null,
       "unsafe_delegation_count": 0,
       "overblocked_count": 0,
       "direct_leakage_count": 0,
@@ -237,25 +455,27 @@
     },
     "external_ai": {
       "case_count": 60,
-      "policy_conformance": 1.0,
+      "policy_conformance": 0.9,
+      "controller_only_policy_conformance": null,
       "unsafe_delegation_count": 0,
-      "overblocked_count": 0,
+      "overblocked_count": 2,
       "direct_leakage_count": 0,
       "canonicalized_leakage_count": 0,
       "structural_code_leakage_count": 0,
       "utility_agreement": null,
       "route_distribution": {
-        "ask_clarification": 4,
+        "ask_clarification": 1,
         "delegate_pseudocode_to_external_ai": 6,
-        "delegate_sanitized_to_external_ai": 20,
+        "delegate_sanitized_to_external_ai": 18,
         "deny_request": 2,
-        "local_process": 7,
-        "local_summary": 21
+        "local_process": 10,
+        "local_summary": 23
       }
     },
     "high_risk_external_ai": {
       "case_count": 1,
       "policy_conformance": 1.0,
+      "controller_only_policy_conformance": null,
       "unsafe_delegation_count": 0,
       "overblocked_count": 0,
       "direct_leakage_count": 0,
@@ -269,6 +489,7 @@
     "local_private": {
       "case_count": 1,
       "policy_conformance": 1.0,
+      "controller_only_policy_conformance": null,
       "unsafe_delegation_count": 0,
       "overblocked_count": 0,
       "direct_leakage_count": 0,

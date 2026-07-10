@@ -1,13 +1,15 @@
 {
   "regression": {
     "ask_clarification": {
-      "ask_clarification": 4
+      "ask_clarification": 1,
+      "local_summary": 3
     },
     "delegate_pseudocode_to_external_ai": {
       "delegate_pseudocode_to_external_ai": 7
     },
     "delegate_sanitized_to_external_ai": {
-      "delegate_sanitized_to_external_ai": 20
+      "delegate_sanitized_to_external_ai": 18,
+      "local_process": 2
     },
     "deny_request": {
       "deny_request": 2
@@ -16,7 +18,8 @@
       "local_process": 8
     },
     "local_summary": {
-      "local_summary": 22
+      "local_process": 1,
+      "local_summary": 21
     }
   },
   "smd_bench_1400": {
@@ -27,16 +30,43 @@
       "delegate_pseudocode_to_external_ai": 46
     },
     "delegate_sanitized_to_external_ai": {
-      "delegate_sanitized_to_external_ai": 479
+      "delegate_sanitized_to_external_ai": 407,
+      "local_process": 67,
+      "local_summary": 5
     },
     "deny_request": {
       "deny_request": 60
     },
     "local_process": {
-      "local_process": 530
+      "local_process": 520,
+      "local_summary": 10
     },
     "local_summary": {
       "local_summary": 272
+    }
+  },
+  "smd_challenge_210": {
+    "ask_clarification": {
+      "delegate_sanitized_to_external_ai": 1,
+      "local_summary": 3
+    },
+    "delegate_pseudocode_to_external_ai": {
+      "delegate_pseudocode_to_external_ai": 6
+    },
+    "delegate_sanitized_to_external_ai": {
+      "delegate_sanitized_to_external_ai": 46,
+      "local_process": 12,
+      "local_summary": 6
+    },
+    "deny_request": {
+      "deny_request": 12
+    },
+    "local_process": {
+      "local_process": 74
+    },
+    "local_summary": {
+      "local_process": 4,
+      "local_summary": 46
     }
   },
   "route_metrics": {
@@ -55,8 +85,8 @@
       },
       "delegate_sanitized_to_external_ai": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
+        "recall": 0.849687,
+        "f1": 0.918736,
         "support": 479
       },
       "deny_request": {
@@ -66,18 +96,18 @@
         "support": 60
       },
       "local_process": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
+        "precision": 0.88586,
+        "recall": 0.981132,
+        "f1": 0.931065,
         "support": 530
       },
       "local_summary": {
-        "precision": 1.0,
+        "precision": 0.947735,
         "recall": 1.0,
-        "f1": 1.0,
+        "f1": 0.973166,
         "support": 272
       }
     },
-    "macro_f1": 1.0
+    "macro_f1": 0.970495
   }
 }

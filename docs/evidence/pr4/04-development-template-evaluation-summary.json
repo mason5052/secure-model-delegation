@@ -1,42 +1,44 @@
 {
   "split_counts": {
     "development": 1120,
-    "holdout": 280
+    "template_evaluation": 280
   },
   "template_count": 70,
   "template_split_isolation": true,
   "development": {
     "case_count": 1120,
-    "policy_conformance": 1.0,
+    "policy_conformance": 0.964286,
+    "controller_only_policy_conformance": 0.997321,
     "unsafe_delegation_count": 0,
-    "overblocked_count": 0,
+    "overblocked_count": 30,
     "direct_leakage_count": 0,
     "canonicalized_leakage_count": 0,
     "structural_code_leakage_count": 0,
-    "utility_agreement": 0.994643,
+    "utility_agreement": 0.915179,
     "route_distribution": {
       "delegate_pseudocode_to_external_ai": 39,
-      "delegate_sanitized_to_external_ai": 397,
+      "delegate_sanitized_to_external_ai": 367,
       "deny_request": 60,
-      "local_process": 439,
-      "local_summary": 185
+      "local_process": 456,
+      "local_summary": 198
     }
   },
-  "holdout": {
+  "template_evaluation": {
     "case_count": 280,
-    "policy_conformance": 1.0,
+    "policy_conformance": 0.85,
+    "controller_only_policy_conformance": 0.992857,
     "unsafe_delegation_count": 0,
-    "overblocked_count": 0,
+    "overblocked_count": 42,
     "direct_leakage_count": 0,
     "canonicalized_leakage_count": 0,
     "structural_code_leakage_count": 0,
-    "utility_agreement": 1.0,
+    "utility_agreement": 0.914286,
     "route_distribution": {
       "ask_clarification": 13,
       "delegate_pseudocode_to_external_ai": 7,
-      "delegate_sanitized_to_external_ai": 82,
-      "local_process": 91,
-      "local_summary": 87
+      "delegate_sanitized_to_external_ai": 40,
+      "local_process": 131,
+      "local_summary": 89
     }
   }
 }

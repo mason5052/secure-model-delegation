@@ -13,5 +13,12 @@
     "high_risk_external_ai": 462,
     "local_private": 469
   },
+  "case_type_counts": {
+    "adversarial_evasion": 120,
+    "benign_public": 160,
+    "benign_stress": 40,
+    "prompt_injection": 260,
+    "routine_sensitive": 820
+  },
   "coverage_note": "Balanced security coverage; not an estimate of enterprise workload frequency."
 }

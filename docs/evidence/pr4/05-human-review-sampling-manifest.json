@@ -1,28 +1,72 @@
 {
-  "sample_count": 210,
-  "status_counts": {
-    "pending": 210,
-    "approved": 0,
-    "corrected": 0,
-    "rejected": 0
+  "smd_bench_1400": {
+    "sample_count": 210,
+    "status_counts": {
+      "pending": 210,
+      "approved": 0,
+      "corrected": 0,
+      "rejected": 0
+    },
+    "family_counts": {
+      "F1": 30,
+      "F2": 30,
+      "F3": 30,
+      "F4": 30,
+      "F5": 30,
+      "F6": 30,
+      "F7": 30
+    },
+    "target_counts": {
+      "approved_external_ai": 70,
+      "high_risk_external_ai": 70,
+      "local_private": 70
+    },
+    "split_counts": {
+      "development": 105,
+      "template_evaluation": 105
+    },
+    "case_type_counts": {
+      "adversarial_evasion": 15,
+      "benign_public": 15,
+      "benign_stress": 15,
+      "prompt_injection": 35,
+      "routine_sensitive": 130
+    },
+    "adversarial_case_count": 50,
+    "second_reviewer_sample_count": 70,
+    "second_reviewer_status": "pending",
+    "human_review_complete": false
   },
-  "family_counts": {
-    "F1": 30,
-    "F2": 30,
-    "F3": 30,
-    "F4": 30,
-    "F5": 30,
-    "F6": 30,
-    "F7": 30
-  },
-  "target_counts": {
-    "approved_external_ai": 70,
-    "high_risk_external_ai": 70,
-    "local_private": 70
-  },
-  "split_counts": {
-    "development": 105,
-    "holdout": 105
-  },
-  "human_review_complete": false
+  "smd_challenge_210": {
+    "sample_count": 210,
+    "status_counts": {
+      "pending": 210,
+      "approved": 0,
+      "corrected": 0,
+      "rejected": 0
+    },
+    "family_counts": {
+      "F1": 30,
+      "F2": 30,
+      "F3": 30,
+      "F4": 30,
+      "F5": 30,
+      "F6": 30,
+      "F7": 30
+    },
+    "target_counts": {
+      "approved_external_ai": 70,
+      "high_risk_external_ai": 70,
+      "local_private": 70
+    },
+    "case_type_counts": {
+      "adversarial_evasion": 12,
+      "benign_public": 24,
+      "benign_stress": 6,
+      "prompt_injection": 36,
+      "routine_sensitive": 132
+    },
+    "adversarial_case_count": 48,
+    "human_review_complete": false
+  }
 }

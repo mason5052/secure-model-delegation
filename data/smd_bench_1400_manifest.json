@@ -7,9 +7,8 @@
   "case_count": 1400,
   "template_count": 70,
   "development_templates_per_family": 8,
-  "holdout_templates_per_family": 2,
   "template_evaluation_templates_per_family": 2,
-  "dataset_sha256": "abffa7ef65de9a2dd59259073a3074996dcb3a879146ad7700bb0e5e92f35281",
+  "dataset_sha256": "099fb9693d46ca91497b3b5a580bd3fa5184205352ad4d315535f060ee152b6e",
   "validation": {
     "valid": true,
     "errors": [],
@@ -33,6 +32,13 @@
     "split_counts": {
       "development": 1120,
       "template_evaluation": 280
+    },
+    "case_type_counts": {
+      "adversarial_evasion": 120,
+      "benign_public": 160,
+      "benign_stress": 40,
+      "prompt_injection": 260,
+      "routine_sensitive": 820
     },
     "template_count": 70,
     "template_split_isolation": true,
@@ -60,6 +66,12 @@
     },
     "split_counts": {
       "development": 112
+    },
+    "case_type_counts": {
+      "adversarial_evasion": 10,
+      "benign_public": 16,
+      "prompt_injection": 22,
+      "routine_sensitive": 64
     },
     "template_count": 56,
     "template_split_isolation": true,

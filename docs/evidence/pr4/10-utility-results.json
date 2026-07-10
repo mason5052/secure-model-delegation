@@ -1,11 +1,11 @@
 {
-  "utility_oracle_labeled_cases": 1400,
-  "utility_oracle_agreement": 0.995714,
+  "rule_based_utility_labeled_cases": 1400,
+  "rule_based_utility_label_agreement": 0.915,
   "task_intent_preservation_rate": 1.0,
   "utility_distribution": {
-    "insufficient": 160,
-    "partial": 240,
-    "sufficient": 1000
+    "insufficient": 89,
+    "partial": 260,
+    "sufficient": 1051
   },
   "utility_distribution_by_route": {
     "ask_clarification": {
@@ -15,27 +15,84 @@
       "sufficient": 46
     },
     "delegate_sanitized_to_external_ai": {
-      "partial": 14,
-      "sufficient": 465
+      "sufficient": 407
     },
     "deny_request": {
-      "insufficient": 60
+      "insufficient": 27,
+      "partial": 1,
+      "sufficient": 32
     },
     "local_process": {
-      "insufficient": 34,
-      "partial": 7,
-      "sufficient": 489
+      "insufficient": 20,
+      "partial": 1,
+      "sufficient": 566
     },
     "local_summary": {
-      "insufficient": 53,
-      "partial": 219
+      "insufficient": 29,
+      "partial": 258
     }
   },
   "mismatches": [
     {
+      "case_id": "SMD-F1-T09-V013",
+      "family": "F1",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "sufficient",
+      "actual_utility": "insufficient"
+    },
+    {
+      "case_id": "SMD-F1-T09-V014",
+      "family": "F1",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "sufficient",
+      "actual_utility": "insufficient"
+    },
+    {
+      "case_id": "SMD-F2-T05-V013",
+      "family": "F2",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "sufficient",
+      "actual_utility": "insufficient"
+    },
+    {
+      "case_id": "SMD-F2-T05-V014",
+      "family": "F2",
+      "target_profile": "local_private",
+      "expected_utility": "sufficient",
+      "actual_utility": "insufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V001",
+      "family": "F4",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V002",
+      "family": "F4",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
       "case_id": "SMD-F4-T03-V003",
       "family": "F4",
       "target_profile": "local_private",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V004",
+      "family": "F4",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V005",
+      "family": "F4",
+      "target_profile": "high_risk_external_ai",
       "expected_utility": "partial",
       "actual_utility": "sufficient"
     },
@@ -47,9 +104,37 @@
       "actual_utility": "sufficient"
     },
     {
+      "case_id": "SMD-F4-T03-V007",
+      "family": "F4",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V008",
+      "family": "F4",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
       "case_id": "SMD-F4-T03-V009",
       "family": "F4",
       "target_profile": "local_private",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V010",
+      "family": "F4",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V011",
+      "family": "F4",
+      "target_profile": "high_risk_external_ai",
       "expected_utility": "partial",
       "actual_utility": "sufficient"
     },
@@ -61,9 +146,37 @@
       "actual_utility": "sufficient"
     },
     {
+      "case_id": "SMD-F4-T03-V013",
+      "family": "F4",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V014",
+      "family": "F4",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
       "case_id": "SMD-F4-T03-V015",
       "family": "F4",
       "target_profile": "local_private",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V016",
+      "family": "F4",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V017",
+      "family": "F4",
+      "target_profile": "high_risk_external_ai",
       "expected_utility": "partial",
       "actual_utility": "sufficient"
     },
@@ -73,6 +186,686 @@
       "target_profile": "local_private",
       "expected_utility": "partial",
       "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V019",
+      "family": "F4",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V020",
+      "family": "F4",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T01-V017",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "sufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T01-V018",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "sufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T01-V020",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "sufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T04-V017",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "sufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T04-V018",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "sufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T04-V020",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "sufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T06-V002",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T06-V004",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T06-V007",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T06-V010",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T06-V011",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T06-V012",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T06-V015",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T06-V017",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T06-V018",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T06-V019",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T06-V020",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T07-V002",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T07-V004",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T07-V007",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T07-V010",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T07-V011",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T07-V012",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T07-V015",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T07-V017",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T07-V018",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T07-V019",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T07-V020",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T08-V002",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T08-V004",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T08-V007",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T08-V010",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T08-V011",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T08-V012",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T08-V015",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T08-V017",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T08-V018",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T08-V019",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T08-V020",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T09-V002",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T09-V004",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T09-V007",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T09-V010",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T09-V011",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T09-V012",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T09-V015",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T09-V017",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T09-V018",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T09-V019",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T09-V020",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T10-V002",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T10-V004",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T10-V007",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T10-V010",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T10-V011",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T10-V012",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T10-V015",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T10-V017",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T10-V018",
+      "family": "F5",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F5-T10-V019",
+      "family": "F5",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F5-T10-V020",
+      "family": "F5",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F6-T03-V013",
+      "family": "F6",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "sufficient",
+      "actual_utility": "insufficient"
+    },
+    {
+      "case_id": "SMD-F6-T03-V014",
+      "family": "F6",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "sufficient",
+      "actual_utility": "insufficient"
+    },
+    {
+      "case_id": "SMD-F7-T03-V016",
+      "family": "F7",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "sufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F7-T03-V017",
+      "family": "F7",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "sufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F7-T03-V019",
+      "family": "F7",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "sufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F7-T03-V020",
+      "family": "F7",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "sufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F7-T04-V001",
+      "family": "F7",
+      "target_profile": "local_private",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T04-V004",
+      "family": "F7",
+      "target_profile": "local_private",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T04-V007",
+      "family": "F7",
+      "target_profile": "local_private",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T04-V010",
+      "family": "F7",
+      "target_profile": "local_private",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T04-V013",
+      "family": "F7",
+      "target_profile": "local_private",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T04-V019",
+      "family": "F7",
+      "target_profile": "local_private",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T06-V002",
+      "family": "F7",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T06-V004",
+      "family": "F7",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T06-V007",
+      "family": "F7",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T06-V010",
+      "family": "F7",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T06-V011",
+      "family": "F7",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F7-T06-V012",
+      "family": "F7",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T06-V015",
+      "family": "F7",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T06-V017",
+      "family": "F7",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T06-V018",
+      "family": "F7",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T06-V019",
+      "family": "F7",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T06-V020",
+      "family": "F7",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T08-V002",
+      "family": "F7",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T08-V004",
+      "family": "F7",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F7-T08-V007",
+      "family": "F7",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F7-T08-V010",
+      "family": "F7",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F7-T08-V011",
+      "family": "F7",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T08-V012",
+      "family": "F7",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F7-T08-V015",
+      "family": "F7",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F7-T08-V017",
+      "family": "F7",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F7-T08-V018",
+      "family": "F7",
+      "target_profile": "approved_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F7-T08-V019",
+      "family": "F7",
+      "target_profile": "high_risk_external_ai",
+      "expected_utility": "insufficient",
+      "actual_utility": "partial"
+    },
+    {
+      "case_id": "SMD-F7-T08-V020",
+      "family": "F7",
+      "target_profile": "local_private",
+      "expected_utility": "insufficient",
+      "actual_utility": "sufficient"
     }
-  ]
+  ],
+  "challenge_rule_based_utility_label_agreement": 0.895238
 }

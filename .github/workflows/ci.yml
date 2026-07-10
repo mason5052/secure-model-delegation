@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -39,7 +41,12 @@ jobs:
           data/smd_bench_112_development_pilot.jsonl
           data/smd_bench_1400.jsonl
           data/smd_bench_1400_manifest.json
+          data/smd_challenge_210.jsonl
+          data/smd_challenge_210_manifest.json
           data/review
+
+      - name: Verify post-freeze controller integrity
+        run: python scripts/check_controller_freeze.py
 
       - name: Evaluate the 112-case development pilot without external APIs
         run: >-
@@ -50,5 +57,38 @@ jobs:
           --benchmark-name SMD-Bench-112-development-pilot
           --summary-only
 
+      - name: Evaluate SMD-Bench-1400
+        run: >-
+          python scripts/run_eval.py
+          --dataset data/smd_bench_1400.jsonl
+          --run-dir runs/ci-main
+          --output runs/ci-main/report.json
+          --benchmark-name SMD-Bench-1400
+          --summary-only
+
+      - name: Evaluate main utility-weight sensitivity
+        run: >-
+          python scripts/run_utility_sensitivity.py
+          --report runs/ci-main/report.json
+          --output runs/ci-main/utility-sensitivity.json
+
       - name: Smoke test local web UI and simulated endpoint
         run: python scripts/smoke_web.py
+
+      - name: Evaluate the post-freeze challenge set
+        run: >-
+          python scripts/run_eval.py
+          --dataset data/smd_challenge_210.jsonl
+          --run-dir runs/ci-challenge
+          --output runs/ci-challenge/report.json
+          --benchmark-name SMD-Challenge-210
+          --summary-only
+
+      - name: Evaluate challenge utility-weight sensitivity
+        run: >-
+          python scripts/run_utility_sensitivity.py
+          --report runs/ci-challenge/report.json
+          --output runs/ci-challenge/utility-sensitivity.json
+
+      - name: Validate pending human-review agreement workflow
+        run: python scripts/summarize_human_review.py --output docs/evidence/pr4/20-human-review-agreement.json

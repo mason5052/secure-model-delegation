@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import hashlib
 import json
 import shutil
@@ -9,9 +10,14 @@ from collections import Counter
 from pathlib import Path
 
 from smd_bench import generator
-from smd_bench.generator import generate_dataset, select_human_review_sample
+from smd_bench.generator import (
+    generate_challenge_dataset,
+    generate_dataset,
+    select_human_review_sample,
+    select_second_reviewer_sample,
+)
 from smd_bench.schema import validate_dataset
-from smd_gateway.evaluation import evaluate_cases
+from smd_gateway.evaluation import _is_target_policy_violation, evaluate_cases
 
 
 def _digest(records: list[dict]) -> str:
@@ -98,6 +104,59 @@ class SmdBenchTests(unittest.TestCase):
         self.assertEqual({item["review_status"] for item in sample}, {"pending"})
         for family in {item["family"] for item in sample}:
             self.assertEqual(len({item["template_id"] for item in sample if item["family"] == family}), 10)
+        second_reviewer = select_second_reviewer_sample(sample)
+        self.assertEqual(len(second_reviewer), 70)
+        self.assertEqual(
+            Counter(item["family"] for item in second_reviewer),
+            {f"F{i}": 10 for i in range(1, 8)},
+        )
+
+    def test_post_freeze_challenge_is_balanced_and_separate(self) -> None:
+        challenge = generate_challenge_dataset("d1d13cd3822a00b8c5cbd64d3a5ff90552c0159b")
+        summary = validate_dataset(challenge, expected_count=210)
+        self.assertTrue(summary["valid"])
+        self.assertEqual(summary["split_counts"], {"challenge": 210})
+        self.assertEqual(summary["template_count"], 35)
+        self.assertEqual(
+            summary["target_counts"],
+            {"approved_external_ai": 70, "high_risk_external_ai": 70, "local_private": 70},
+        )
+        main_template_ids = {case["template_id"] for case in generate_dataset(1)}
+        self.assertTrue(main_template_ids.isdisjoint({case["template_id"] for case in challenge}))
+
+    def test_adversarial_taxonomy_does_not_treat_every_sensitive_case_as_attack(self) -> None:
+        cases = generate_dataset(1)
+        by_attack = {case["attack_family"]: case for case in cases}
+        self.assertEqual(by_attack["plain_api_key"]["case_type"], "routine_sensitive")
+        self.assertFalse(by_attack["plain_api_key"]["is_adversarial"])
+        self.assertEqual(by_attack["unclear_task"]["case_type"], "benign_stress")
+        self.assertFalse(by_attack["unclear_task"]["is_adversarial"])
+        self.assertEqual(by_attack["url_encoded_secret"]["case_type"], "adversarial_evasion")
+        self.assertTrue(by_attack["url_encoded_secret"]["is_adversarial"])
+        self.assertEqual(by_attack["bypass_policy"]["case_type"], "prompt_injection")
+        self.assertTrue(by_attack["bypass_policy"]["is_adversarial"])
+
+    def test_review_regeneration_preserves_human_annotations(self) -> None:
+        path = self.tmp / "review.csv"
+        case = generate_dataset(1)[0]
+        generator._write_review_csv(path, [case])
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            row = next(csv.DictReader(handle))
+        row.update(
+            {
+                "review_status": "approved",
+                "reviewer_route": case["expected_route"],
+                "reviewer_utility": case["expected_utility"],
+                "reviewer_notes": "Reviewed independently.",
+            }
+        )
+        with path.open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=generator.REVIEW_FIELDNAMES)
+            writer.writeheader()
+            writer.writerow(row)
+        regenerated = generator._write_review_csv(path, [case])
+        self.assertEqual(regenerated[0]["review_status"], "approved")
+        self.assertEqual(regenerated[0]["reviewer_notes"], "Reviewed independently.")
 
     def test_repeated_evaluation_is_deterministic_except_latency(self) -> None:
         cases = generate_dataset(2)[:12]
@@ -118,6 +177,51 @@ class SmdBenchTests(unittest.TestCase):
         self.assertGreater(
             report["baseline_comparison"]["no_gateway"]["target_policy_violation_rate"],
             0.0,
+        )
+
+    def test_legacy_regression_does_not_report_unlabeled_controller_only_score(self) -> None:
+        cases = [
+            {
+                "case_id": "legacy-1",
+                "target_profile": "approved_external_ai",
+                "input_request": "Explain public API authentication guidance.",
+                "expected_route": "delegate_sanitized_to_external_ai",
+                "leakage_oracle": {},
+                "controller_only_evaluable": False,
+            }
+        ]
+        report = evaluate_cases(cases, self.tmp / "legacy", "legacy-check")
+        self.assertIsNone(report["controller_only_policy_conformance"])
+        self.assertIsNone(report["by_split"]["regression"]["controller_only_policy_conformance"])
+
+    def test_target_policy_violation_requires_weaker_external_protection(self) -> None:
+        self.assertTrue(
+            _is_target_policy_violation(
+                "delegate_sanitized_to_external_ai",
+                "delegate_pseudocode_to_external_ai",
+                True,
+            )
+        )
+        self.assertFalse(
+            _is_target_policy_violation(
+                "delegate_pseudocode_to_external_ai",
+                "delegate_sanitized_to_external_ai",
+                True,
+            )
+        )
+        self.assertFalse(
+            _is_target_policy_violation(
+                "local_summary",
+                "delegate_sanitized_to_external_ai",
+                True,
+            )
+        )
+        self.assertFalse(
+            _is_target_policy_violation(
+                "delegate_sanitized_to_external_ai",
+                "ask_clarification",
+                False,
+            )
         )
 
 

@@ -1,0 +1,244 @@
+{
+  "smd_bench_1400": {
+    "unit": "case-level evidence-class presence",
+    "per_class": {
+      "api_key": {
+        "tp": 320,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "auth_token": {
+        "tp": 80,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "config_secret": {
+        "tp": 260,
+        "fp": 40,
+        "fn": 20,
+        "precision": 0.866667,
+        "recall": 0.928571,
+        "f1": 0.896552
+      },
+      "incident_detail": {
+        "tp": 160,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "internal_hostname": {
+        "tp": 200,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "internal_infrastructure": {
+        "tp": 80,
+        "fp": 180,
+        "fn": 0,
+        "precision": 0.307692,
+        "recall": 1.0,
+        "f1": 0.470588
+      },
+      "pii_email": {
+        "tp": 240,
+        "fp": 0,
+        "fn": 20,
+        "precision": 1.0,
+        "recall": 0.923077,
+        "f1": 0.96
+      },
+      "pii_name": {
+        "tp": 140,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "pii_phone": {
+        "tp": 80,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "private_ip": {
+        "tp": 80,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "prompt_injection": {
+        "tp": 240,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "proprietary_code": {
+        "tp": 40,
+        "fp": 20,
+        "fn": 0,
+        "precision": 0.666667,
+        "recall": 1.0,
+        "f1": 0.8
+      },
+      "source_code": {
+        "tp": 240,
+        "fp": 15,
+        "fn": 0,
+        "precision": 0.941176,
+        "recall": 1.0,
+        "f1": 0.969697
+      },
+      "system_prompt": {
+        "tp": 60,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    },
+    "micro_precision": 0.89697,
+    "micro_recall": 0.982301,
+    "micro_f1": 0.937698,
+    "macro_f1": 0.935488
+  },
+  "smd_challenge_210": {
+    "unit": "case-level evidence-class presence",
+    "per_class": {
+      "api_key": {
+        "tp": 24,
+        "fp": 6,
+        "fn": 0,
+        "precision": 0.8,
+        "recall": 1.0,
+        "f1": 0.888889
+      },
+      "auth_token": {
+        "tp": 18,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "config_secret": {
+        "tp": 48,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "incident_detail": {
+        "tp": 24,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "internal_hostname": {
+        "tp": 48,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "internal_infrastructure": {
+        "tp": 12,
+        "fp": 36,
+        "fn": 6,
+        "precision": 0.25,
+        "recall": 0.666667,
+        "f1": 0.363636
+      },
+      "pii_email": {
+        "tp": 36,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "pii_name": {
+        "tp": 24,
+        "fp": 0,
+        "fn": 6,
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1": 0.888889
+      },
+      "pii_phone": {
+        "tp": 18,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "private_ip": {
+        "tp": 18,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "prompt_injection": {
+        "tp": 42,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "proprietary_code": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 6,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "source_code": {
+        "tp": 42,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "system_prompt": {
+        "tp": 12,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    },
+    "micro_precision": 0.897059,
+    "micro_recall": 0.953125,
+    "micro_f1": 0.924242,
+    "macro_f1": 0.867244
+  }
+}

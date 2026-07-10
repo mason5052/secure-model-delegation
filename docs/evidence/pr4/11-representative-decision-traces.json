@@ -48,7 +48,7 @@
       "target_resolved:approved_external_ai",
       "allowed_routes_calculated",
       "transformed_payload_checked",
-      "utility_compared",
+      "all_allowed_routes_scored",
       "final_route_selected"
     ]
   },
@@ -264,13 +264,17 @@
     "span_actions": [],
     "candidate_routes": [
       "ask_clarification",
-      "delegate_pseudocode_to_external_ai",
       "delegate_sanitized_to_external_ai",
       "deny_request",
       "local_process",
       "local_summary"
     ],
-    "eliminated_routes": [],
+    "eliminated_routes": [
+      {
+        "route": "delegate_pseudocode_to_external_ai",
+        "reason": "not_allowed_by_class_or_target_policy"
+      }
+    ],
     "conflict_rule_id": null,
     "conflict_priority": null,
     "transformation_type": "redaction_and_generalization",
@@ -280,7 +284,9 @@
       "policy_loaded:0.3",
       "target_resolved:approved_external_ai",
       "allowed_routes_calculated",
-      "utility_compared"
+      "transformed_payload_checked",
+      "all_allowed_routes_scored",
+      "final_route_selected"
     ]
   },
   {

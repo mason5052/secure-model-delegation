@@ -1,0 +1,218 @@
+{
+  "smd_bench_1400": {
+    "benchmark": "SMD-Bench-1400",
+    "profiles": {
+      "balanced": {
+        "weights": {
+          "task_adequacy": 0.45,
+          "information_retention": 0.25,
+          "model_capability_fit": 0.2,
+          "operational_cost": 0.1
+        },
+        "case_count": 1400,
+        "utility_scored_case_count": 492,
+        "policy_conformance": 0.941429,
+        "route_changes_from_balanced": 0,
+        "route_distribution": {
+          "ask_clarification": 13,
+          "delegate_pseudocode_to_external_ai": 46,
+          "delegate_sanitized_to_external_ai": 407,
+          "deny_request": 60,
+          "local_process": 587,
+          "local_summary": 287
+        },
+        "safety_note": "All compared routes were already inside the hard-policy allowed set."
+      },
+      "task_heavy": {
+        "weights": {
+          "task_adequacy": 0.6,
+          "information_retention": 0.15,
+          "model_capability_fit": 0.2,
+          "operational_cost": 0.05
+        },
+        "case_count": 1400,
+        "utility_scored_case_count": 492,
+        "policy_conformance": 0.988571,
+        "route_changes_from_balanced": 66,
+        "route_distribution": {
+          "ask_clarification": 13,
+          "delegate_pseudocode_to_external_ai": 46,
+          "delegate_sanitized_to_external_ai": 473,
+          "deny_request": 60,
+          "local_process": 521,
+          "local_summary": 287
+        },
+        "safety_note": "All compared routes were already inside the hard-policy allowed set."
+      },
+      "retention_heavy": {
+        "weights": {
+          "task_adequacy": 0.35,
+          "information_retention": 0.4,
+          "model_capability_fit": 0.2,
+          "operational_cost": 0.05
+        },
+        "case_count": 1400,
+        "utility_scored_case_count": 492,
+        "policy_conformance": 0.906429,
+        "route_changes_from_balanced": 56,
+        "route_distribution": {
+          "ask_clarification": 13,
+          "delegate_pseudocode_to_external_ai": 46,
+          "delegate_sanitized_to_external_ai": 358,
+          "deny_request": 60,
+          "local_process": 641,
+          "local_summary": 282
+        },
+        "safety_note": "All compared routes were already inside the hard-policy allowed set."
+      },
+      "capability_heavy": {
+        "weights": {
+          "task_adequacy": 0.35,
+          "information_retention": 0.2,
+          "model_capability_fit": 0.4,
+          "operational_cost": 0.05
+        },
+        "case_count": 1400,
+        "utility_scored_case_count": 492,
+        "policy_conformance": 0.990714,
+        "route_changes_from_balanced": 72,
+        "route_distribution": {
+          "ask_clarification": 16,
+          "delegate_pseudocode_to_external_ai": 46,
+          "delegate_sanitized_to_external_ai": 476,
+          "deny_request": 60,
+          "local_process": 520,
+          "local_summary": 282
+        },
+        "safety_note": "All compared routes were already inside the hard-policy allowed set."
+      },
+      "cost_sensitive": {
+        "weights": {
+          "task_adequacy": 0.4,
+          "information_retention": 0.2,
+          "model_capability_fit": 0.15,
+          "operational_cost": 0.25
+        },
+        "case_count": 1400,
+        "utility_scored_case_count": 492,
+        "policy_conformance": 0.744286,
+        "route_changes_from_balanced": 276,
+        "route_distribution": {
+          "ask_clarification": 13,
+          "delegate_pseudocode_to_external_ai": 46,
+          "delegate_sanitized_to_external_ai": 131,
+          "deny_request": 60,
+          "local_process": 863,
+          "local_summary": 287
+        },
+        "safety_note": "All compared routes were already inside the hard-policy allowed set."
+      }
+    }
+  },
+  "smd_challenge_210": {
+    "benchmark": "SMD-Challenge-210",
+    "profiles": {
+      "balanced": {
+        "weights": {
+          "task_adequacy": 0.45,
+          "information_retention": 0.25,
+          "model_capability_fit": 0.2,
+          "operational_cost": 0.1
+        },
+        "case_count": 210,
+        "utility_scored_case_count": 68,
+        "policy_conformance": 0.87619,
+        "route_changes_from_balanced": 0,
+        "route_distribution": {
+          "delegate_pseudocode_to_external_ai": 6,
+          "delegate_sanitized_to_external_ai": 47,
+          "deny_request": 12,
+          "local_process": 90,
+          "local_summary": 55
+        },
+        "safety_note": "All compared routes were already inside the hard-policy allowed set."
+      },
+      "task_heavy": {
+        "weights": {
+          "task_adequacy": 0.6,
+          "information_retention": 0.15,
+          "model_capability_fit": 0.2,
+          "operational_cost": 0.05
+        },
+        "case_count": 210,
+        "utility_scored_case_count": 68,
+        "policy_conformance": 0.933333,
+        "route_changes_from_balanced": 12,
+        "route_distribution": {
+          "delegate_pseudocode_to_external_ai": 6,
+          "delegate_sanitized_to_external_ai": 59,
+          "deny_request": 12,
+          "local_process": 78,
+          "local_summary": 55
+        },
+        "safety_note": "All compared routes were already inside the hard-policy allowed set."
+      },
+      "retention_heavy": {
+        "weights": {
+          "task_adequacy": 0.35,
+          "information_retention": 0.4,
+          "model_capability_fit": 0.2,
+          "operational_cost": 0.05
+        },
+        "case_count": 210,
+        "utility_scored_case_count": 68,
+        "policy_conformance": 0.866667,
+        "route_changes_from_balanced": 14,
+        "route_distribution": {
+          "delegate_pseudocode_to_external_ai": 6,
+          "delegate_sanitized_to_external_ai": 48,
+          "deny_request": 12,
+          "local_process": 98,
+          "local_summary": 46
+        },
+        "safety_note": "All compared routes were already inside the hard-policy allowed set."
+      },
+      "capability_heavy": {
+        "weights": {
+          "task_adequacy": 0.35,
+          "information_retention": 0.2,
+          "model_capability_fit": 0.4,
+          "operational_cost": 0.05
+        },
+        "case_count": 210,
+        "utility_scored_case_count": 68,
+        "policy_conformance": 0.933333,
+        "route_changes_from_balanced": 21,
+        "route_distribution": {
+          "ask_clarification": 6,
+          "delegate_pseudocode_to_external_ai": 6,
+          "delegate_sanitized_to_external_ai": 62,
+          "deny_request": 12,
+          "local_process": 78,
+          "local_summary": 46
+        },
+        "safety_note": "All compared routes were already inside the hard-policy allowed set."
+      },
+      "cost_sensitive": {
+        "weights": {
+          "task_adequacy": 0.4,
+          "information_retention": 0.2,
+          "model_capability_fit": 0.15,
+          "operational_cost": 0.25
+        },
+        "case_count": 210,
+        "utility_scored_case_count": 68,
+        "policy_conformance": 0.733333,
+        "route_changes_from_balanced": 30,
+        "route_distribution": {
+          "delegate_pseudocode_to_external_ai": 6,
+          "delegate_sanitized_to_external_ai": 17,
+          "deny_request": 12,
+          "local_process": 120,
+          "local_summary": 55
+        },
+        "safety_note": "All compared routes were already inside the hard-policy allowed set."
+      }
+    }
+  }
+}
