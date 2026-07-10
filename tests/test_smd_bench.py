@@ -61,10 +61,11 @@ class SmdBenchTests(unittest.TestCase):
         self.assertEqual(first, second)
 
     def test_pilot_and_full_schema_validation(self) -> None:
-        pilot = generate_dataset(2)
-        pilot_summary = validate_dataset(pilot, expected_count=140)
+        pilot = [case for case in generate_dataset(2) if case["split"] == "development"]
+        pilot_summary = validate_dataset(pilot, expected_count=112)
         self.assertTrue(pilot_summary["valid"])
         self.assertEqual(pilot_summary["normalized_duplicate_count"], 0)
+        self.assertEqual(set(pilot_summary["split_counts"]), {"development"})
 
         full = generate_dataset(20)
         full_summary = validate_dataset(full, expected_count=1400)
@@ -74,8 +75,13 @@ class SmdBenchTests(unittest.TestCase):
             full_summary["target_counts"],
             {"approved_external_ai": 469, "high_risk_external_ai": 462, "local_private": 469},
         )
-        self.assertEqual(full_summary["split_counts"], {"development": 1120, "holdout": 280})
+        self.assertEqual(
+            full_summary["split_counts"],
+            {"development": 1120, "template_evaluation": 280},
+        )
         self.assertTrue(full_summary["template_split_isolation"])
+        self.assertEqual(full_summary["minimum_variations_per_template"], 20)
+        self.assertTrue(all(case["ground_truth_evidence"] or not case["risk_classes"] for case in full))
 
     def test_human_review_sample_is_stratified_and_pending(self) -> None:
         sample = select_human_review_sample(generate_dataset(20))
@@ -85,7 +91,10 @@ class SmdBenchTests(unittest.TestCase):
             Counter(item["target_profile"] for item in sample),
             {"local_private": 70, "approved_external_ai": 70, "high_risk_external_ai": 70},
         )
-        self.assertEqual(Counter(item["split"] for item in sample), {"development": 105, "holdout": 105})
+        self.assertEqual(
+            Counter(item["split"] for item in sample),
+            {"development": 105, "template_evaluation": 105},
+        )
         self.assertEqual({item["review_status"] for item in sample}, {"pending"})
         for family in {item["family"] for item in sample}:
             self.assertEqual(len({item["template_id"] for item in sample if item["family"] == family}), 10)
@@ -95,6 +104,21 @@ class SmdBenchTests(unittest.TestCase):
         first = evaluate_cases(cases, self.tmp / "first", "determinism-check")
         second = evaluate_cases(cases, self.tmp / "second", "determinism-check")
         self.assertEqual(_without_latency(first), _without_latency(second))
+
+    def test_evaluation_separates_controller_and_detector_performance(self) -> None:
+        cases = generate_dataset(2)[:12]
+        report = evaluate_cases(cases, self.tmp / "separation", "separation-check")
+        self.assertIn("controller_only_policy_conformance", report)
+        self.assertIn("end_to_end_policy_conformance", report)
+        self.assertIn("evidence_detection", report)
+        self.assertEqual(
+            report["baseline_comparison"]["always_local"]["target_policy_violation_rate"],
+            0.0,
+        )
+        self.assertGreater(
+            report["baseline_comparison"]["no_gateway"]["target_policy_violation_rate"],
+            0.0,
+        )
 
 
 if __name__ == "__main__":

@@ -39,6 +39,7 @@ def write_audit_log(
         "transformation_type": decision.transformation_type,
         "policy_version": decision.policy_version,
         "utility_assessment": decision.utility_assessment,
+        "route_utility_scores": decision.route_utility_scores,
         "decision_trace": decision.decision_trace,
         "reasons": decision.reasons,
         "external_ref": external_ref,

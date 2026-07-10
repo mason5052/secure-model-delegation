@@ -12,6 +12,10 @@ from smd_gateway import process_request
 from smd_gateway.evaluation import _baseline_payload
 from smd_gateway.leakage import evaluate_leakage
 from smd_gateway.request_model import RequestBundle, SourceChunk
+from smd_gateway.policy import decide_policy
+from smd_gateway.policy_config import load_policy_config
+from smd_gateway.normalizer import assemble_request
+from smd_gateway.request_model import SensitiveSpan
 
 
 class HardeningTests(unittest.TestCase):
@@ -158,6 +162,67 @@ class HardeningTests(unittest.TestCase):
         self.assertFalse(record["raw_input_stored"])
         self.assertEqual(record["policy_version"], "0.3")
         self.assertIn("allowed_routes_calculated", record["decision_trace"])
+        self.assertIn("route_utility_scores", record)
+
+    def test_selected_route_is_always_inside_policy_allowed_set(self) -> None:
+        policy = load_policy_config()
+        for target in policy.target_profiles:
+            for label, class_policy in policy.sensitive_classes.items():
+                request = assemble_request(
+                    RequestBundle(
+                        case_id=f"INVARIANT_{target}_{label}",
+                        user_prompt="Analyze this synthetic security request with enough context.",
+                        target_profile=target,
+                    )
+                )
+                span = SensitiveSpan(
+                    start=0,
+                    end=0,
+                    text="",
+                    label=label,
+                    detector="test_oracle",
+                    policy_action=class_policy.default_span_action,
+                    severity=class_policy.severity,
+                )
+                decision = decide_policy(request, [span], policy=policy)
+                self.assertIn(decision.route, decision.candidate_routes)
+
+    def test_route_specific_utility_scores_every_allowed_candidate(self) -> None:
+        result = process_request(
+            RequestBundle(
+                case_id="UTILITY_ALL_ROUTES",
+                user_prompt="Explain public authentication guidance with enough context.",
+            ),
+            run_dir=self.tmp,
+        )
+        self.assertEqual(set(result.route_utility_scores), set(result.candidate_routes))
+        selected_score = result.route_utility_scores[result.route]["score"]
+        self.assertEqual(
+            selected_score,
+            max(item["score"] for item in result.route_utility_scores.values()),
+        )
+
+    def test_source_code_target_policy_changes_allowed_route_set(self) -> None:
+        prompt = "Review this code: function internalFlow(user){ return user.isAdmin; }"
+        approved = process_request(
+            RequestBundle(
+                case_id="TARGET_APPROVED",
+                user_prompt=prompt,
+                target_profile="approved_external_ai",
+            ),
+            run_dir=self.tmp / "approved",
+        )
+        high_risk = process_request(
+            RequestBundle(
+                case_id="TARGET_HIGH_RISK",
+                user_prompt=prompt,
+                target_profile="high_risk_external_ai",
+            ),
+            run_dir=self.tmp / "high-risk",
+        )
+        self.assertIn("delegate_pseudocode_to_external_ai", approved.candidate_routes)
+        self.assertNotIn("delegate_pseudocode_to_external_ai", high_risk.candidate_routes)
+        self.assertEqual(high_risk.route, "local_summary")
 
 
 if __name__ == "__main__":

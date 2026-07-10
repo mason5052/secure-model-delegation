@@ -6,7 +6,7 @@ from typing import Optional
 from .leakage import evaluate_leakage
 from .policy_config import ConflictRule, PolicyConfig, load_policy_config
 from .request_model import NormalizedRequest, PolicyDecision, SensitiveSpan
-from .router import assess_utility
+from .router import assess_utility, score_allowed_routes, select_highest_utility_route
 from .sanitizer import sanitize_text, transformation_type_for_route
 
 
@@ -35,6 +35,7 @@ def decide_policy(
     request: NormalizedRequest,
     spans: list[SensitiveSpan],
     policy: Optional[PolicyConfig] = None,
+    use_utility: bool = True,
 ) -> PolicyDecision:
     policy = policy or load_policy_config()
     canonical_target = policy.canonical_target(request.target_profile)
@@ -76,44 +77,22 @@ def decide_policy(
             rule_ids=["hard_policy_first", conflict.rule_id],
             conflict=conflict,
             trace=trace,
+            route_utility_scores={},
         )
 
-    if not spans:
-        assessment = assess_utility(request.text)
-        selected = (
-            "ask_clarification"
-            if assessment["label"] == "insufficient"
-            else "delegate_sanitized_to_external_ai"
-        )
-        if selected not in candidates:
-            selected = _safe_fallback(candidates)
-        rule_id = (
-            "utility_insufficient_requires_clarification"
-            if selected == "ask_clarification"
-            else "safe_public_request_can_delegate"
-        )
-        trace.append("utility_compared")
-        return _finalize(
-            request=request,
-            policy=policy,
-            route=selected,
-            canonical_target=canonical_target,
-            spans=spans,
-            candidates=candidates,
-            eliminated=eliminated,
-            span_actions=span_actions,
-            reasons=reasons + (["insufficient task context"] if selected == "ask_clarification" else ["no sensitive spans detected"]),
-            rule_ids=["hard_policy_first", rule_id],
-            conflict=None,
-            trace=trace,
-        )
-
-    selected = _select_transformed_route(request, spans, policy, candidates)
-    trace.extend(["transformed_payload_checked", "utility_compared", "final_route_selected"])
+    selected, route_scores, candidates, newly_eliminated = _select_policy_constrained_route(
+        request,
+        spans,
+        policy,
+        candidates,
+        use_utility=use_utility,
+    )
+    eliminated.extend(newly_eliminated)
+    trace.extend(["transformed_payload_checked", "all_allowed_routes_scored", "final_route_selected"])
     rule_id = (
-        "transformed_payload_safety_plus_remaining_utility"
-        if selected in DELEGATION_ROUTES
-        else "utility_insufficient_blocks_delegation"
+        "policy_constrained_utility_argmax"
+        if use_utility
+        else "hard_policy_preference_without_utility"
     )
     return _finalize(
         request=request,
@@ -124,10 +103,11 @@ def decide_policy(
         candidates=candidates,
         eliminated=eliminated,
         span_actions=span_actions,
-        reasons=reasons,
+        reasons=reasons + (["no sensitive spans detected"] if not spans else []),
         rule_ids=["hard_policy_first", rule_id],
         conflict=None,
         trace=trace,
+        route_utility_scores=route_scores,
     )
 
 
@@ -140,6 +120,11 @@ def _allowed_routes(
     for label in sorted(labels):
         class_policy = policy.class_policy(label)
         candidates &= set(class_policy.allowed_routes) | SAFE_LOCAL_ROUTES
+        target_directive = class_policy.target_policy.get(canonical_target)
+        if target_directive:
+            candidates &= _routes_for_target_directive(target_directive)
+    if not labels & {"source_code", "proprietary_code"}:
+        candidates.discard("delegate_pseudocode_to_external_ai")
     if canonical_target == "local_private":
         candidates &= SAFE_LOCAL_ROUTES
     if not candidates:
@@ -149,6 +134,24 @@ def _allowed_routes(
         for route in sorted(set(policy.route_labels) - candidates)
     ]
     return candidates, eliminated
+
+
+def _routes_for_target_directive(directive: str) -> set[str]:
+    mappings = {
+        "allow_raw_local_processing": {"local_process"},
+        "delegate_pseudocode_only": {
+            "local_process",
+            "local_summary",
+            "ask_clarification",
+            "deny_request",
+            "delegate_pseudocode_to_external_ai",
+        },
+        "local_summary_only": {"local_summary", "deny_request"},
+    }
+    try:
+        return mappings[directive]
+    except KeyError as exc:
+        raise ValueError(f"Unknown target policy directive: {directive}") from exc
 
 
 def _request_flags(request: NormalizedRequest) -> set[str]:
@@ -184,34 +187,49 @@ def _first_matching_conflict(
     return None
 
 
-def _select_transformed_route(
+def _select_policy_constrained_route(
     request: NormalizedRequest,
     spans: list[SensitiveSpan],
     policy: PolicyConfig,
     candidates: set[str],
-) -> str:
-    scored: list[tuple[float, str]] = []
+    use_utility: bool,
+) -> tuple[str, dict[str, dict[str, object]], set[str], list[dict[str, str]]]:
+    safe_candidates = set(candidates)
+    eliminated: list[dict[str, str]] = []
+    route_payloads: dict[str, str] = {}
     for route in sorted(candidates):
-        if route in DELEGATION_ROUTES:
-            payload = sanitize_text(request.text, spans, route=route, policy=policy)
-            leakage = evaluate_leakage(
-                payload,
-                {"must_not_contain": [span.text for span in spans if span.text]},
-            )
-            if any(leakage.values()):
-                continue
-            assessment = assess_utility(payload)
-            if assessment["label"] == "insufficient":
-                continue
-            score = float(assessment["score"]) * 1000 + policy.route_preference[route]
-            scored.append((score, route))
-    if scored:
-        return max(scored)[1]
-    if "local_summary" in candidates and any(span.label in HIGH_RISK_LABELS for span in spans):
-        return "local_summary"
-    if "ask_clarification" in candidates:
-        return "ask_clarification"
-    return _safe_fallback(candidates)
+        if route not in DELEGATION_ROUTES:
+            route_payloads[route] = request.text
+            continue
+        payload = sanitize_text(request.text, spans, route=route, policy=policy)
+        leakage = evaluate_leakage(
+            payload,
+            {"must_not_contain": [span.text for span in spans if span.text]},
+        )
+        if any(leakage.values()):
+            safe_candidates.discard(route)
+            eliminated.append({"route": route, "reason": "transformed_payload_failed_safety_check"})
+            continue
+        route_payloads[route] = payload
+
+    if not safe_candidates:
+        safe_candidates = {"deny_request"}
+        route_payloads["deny_request"] = request.text
+    route_scores = score_allowed_routes(
+        request,
+        spans,
+        safe_candidates,
+        route_payloads,
+        policy,
+    )
+    if use_utility:
+        selected = select_highest_utility_route(route_scores, policy)
+    else:
+        selected = max(
+            safe_candidates,
+            key=lambda route: (policy.route_preference[route], route),
+        )
+    return selected, route_scores, safe_candidates, eliminated
 
 
 def _safe_fallback(candidates: set[str]) -> str:
@@ -234,11 +252,18 @@ def _finalize(
     rule_ids: list[str],
     conflict: Optional[ConflictRule],
     trace: list[str],
+    route_utility_scores: dict[str, dict[str, object]],
 ) -> PolicyDecision:
     assessment_text = request.text
     if route in DELEGATION_ROUTES:
         assessment_text = sanitize_text(request.text, spans, route=route, policy=policy)
     assessment = assess_utility(assessment_text)
+    if route in route_utility_scores:
+        assessment = {
+            **assessment,
+            "decision_score": route_utility_scores[route]["score"],
+            "route_components": route_utility_scores[route],
+        }
     hard_action = {
         "deny_request": "deny_span",
         "local_summary": "summarize_locally",
@@ -268,6 +293,7 @@ def _finalize(
         transformation_type=transformation_type_for_route(route),
         policy_version=policy.version,
         utility_assessment=assessment,
+        route_utility_scores=route_utility_scores,
         decision_trace=trace,
     )
 

@@ -36,18 +36,18 @@ jobs:
       - name: Verify checked-in benchmark artifacts are reproducible
         run: >-
           git diff --exit-code --
-          data/smd_bench_140_pilot.jsonl
+          data/smd_bench_112_development_pilot.jsonl
           data/smd_bench_1400.jsonl
           data/smd_bench_1400_manifest.json
           data/review
 
-      - name: Evaluate the 140-case pilot without external APIs
+      - name: Evaluate the 112-case development pilot without external APIs
         run: >-
           python scripts/run_eval.py
-          --dataset data/smd_bench_140_pilot.jsonl
+          --dataset data/smd_bench_112_development_pilot.jsonl
           --run-dir runs/ci-pilot
           --output runs/ci-pilot/report.json
-          --benchmark-name SMD-Bench-140-pilot
+          --benchmark-name SMD-Bench-112-development-pilot
           --summary-only
 
       - name: Smoke test local web UI and simulated endpoint

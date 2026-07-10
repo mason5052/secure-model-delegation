@@ -92,6 +92,9 @@ class PolicyConfig:
     sensitive_classes: dict[str, SensitiveClassPolicy]
     conflict_rules: tuple[ConflictRule, ...]
     route_preference: dict[str, int]
+    utility_weights: dict[str, float]
+    utility_defaults: dict[str, float]
+    route_operational_cost: dict[str, float]
     leakage_oracle_defaults: dict[str, Any]
     target_aliases: dict[str, str]
     source_path: Path
@@ -249,6 +252,50 @@ def _parse_policy(raw: dict[str, Any], source_path: Path) -> PolicyConfig:
             f"route_preference must cover every route; missing={sorted(missing)}, extra={sorted(extra)}"
         )
 
+    utility_raw = _required_mapping(raw, "utility_model")
+    utility_weights = _float_mapping(
+        _required_mapping(utility_raw, "weights"),
+        "utility_model.weights",
+    )
+    expected_components = {
+        "task_adequacy",
+        "information_retention",
+        "model_capability_fit",
+        "operational_cost",
+    }
+    if set(utility_weights) != expected_components:
+        raise PolicyConfigError(
+            "utility_model.weights must define exactly "
+            f"{sorted(expected_components)}"
+        )
+    if abs(sum(utility_weights.values()) - 1.0) > 1e-9:
+        raise PolicyConfigError("utility_model.weights must sum to 1.0")
+
+    utility_defaults = _float_mapping(
+        _required_mapping(utility_raw, "defaults"),
+        "utility_model.defaults",
+    )
+    required_defaults = {"local_capability", "external_capability"}
+    if not required_defaults <= set(utility_defaults):
+        raise PolicyConfigError(
+            f"utility_model.defaults is missing {sorted(required_defaults - set(utility_defaults))}"
+        )
+
+    route_operational_cost = _float_mapping(
+        _required_mapping(utility_raw, "route_operational_cost"),
+        "utility_model.route_operational_cost",
+    )
+    if set(route_operational_cost) != set(route_labels):
+        raise PolicyConfigError("utility_model.route_operational_cost must cover every route")
+    for field_name, values in (
+        ("utility_model.weights", utility_weights),
+        ("utility_model.defaults", utility_defaults),
+        ("utility_model.route_operational_cost", route_operational_cost),
+    ):
+        invalid = {key: value for key, value in values.items() if not 0.0 <= value <= 1.0}
+        if invalid:
+            raise PolicyConfigError(f"{field_name} values must be in [0, 1]: {invalid}")
+
     leakage_defaults = raw.get("leakage_oracle_defaults", {})
     if not isinstance(leakage_defaults, dict):
         raise PolicyConfigError("leakage_oracle_defaults must be a mapping")
@@ -263,6 +310,9 @@ def _parse_policy(raw: dict[str, Any], source_path: Path) -> PolicyConfig:
         sensitive_classes=sensitive_classes,
         conflict_rules=tuple(conflict_rules),
         route_preference=route_preference,
+        utility_weights=utility_weights,
+        utility_defaults=utility_defaults,
+        route_operational_cost=route_operational_cost,
         leakage_oracle_defaults=leakage_defaults,
         target_aliases=target_aliases,
         source_path=source_path,
@@ -289,3 +339,13 @@ def _string_list(value: Any, field_name: str) -> list[str]:
     if not all(isinstance(item, str) and item.strip() for item in value):
         raise PolicyConfigError(f"{field_name} must contain only non-empty strings")
     return [item.strip() for item in value]
+
+
+def _float_mapping(value: dict[str, Any], field_name: str) -> dict[str, float]:
+    output: dict[str, float] = {}
+    for key, item in value.items():
+        try:
+            output[str(key)] = float(item)
+        except (TypeError, ValueError) as exc:
+            raise PolicyConfigError(f"{field_name}.{key} must be numeric") from exc
+    return output

@@ -8,7 +8,8 @@
   "template_count": 70,
   "development_templates_per_family": 8,
   "holdout_templates_per_family": 2,
-  "dataset_sha256": "92a062374d72fc68fc4721f9fbdc646dfd18ec81eda2d3aa3e4450e428af54b3",
+  "template_evaluation_templates_per_family": 2,
+  "dataset_sha256": "abffa7ef65de9a2dd59259073a3074996dcb3a879146ad7700bb0e5e92f35281",
   "validation": {
     "valid": true,
     "errors": [],
@@ -31,37 +32,39 @@
     },
     "split_counts": {
       "development": 1120,
-      "holdout": 280
+      "template_evaluation": 280
     },
     "template_count": 70,
-    "template_split_isolation": true
+    "template_split_isolation": true,
+    "minimum_variations_per_template": 20
   },
   "pilot_validation": {
     "valid": true,
     "errors": [],
-    "case_count": 140,
-    "unique_case_ids": 140,
+    "case_count": 112,
+    "unique_case_ids": 112,
     "normalized_duplicate_count": 0,
     "family_counts": {
-      "F1": 20,
-      "F2": 20,
-      "F3": 20,
-      "F4": 20,
-      "F5": 20,
-      "F6": 20,
-      "F7": 20
+      "F1": 16,
+      "F2": 16,
+      "F3": 16,
+      "F4": 16,
+      "F5": 16,
+      "F6": 16,
+      "F7": 16
     },
     "target_counts": {
-      "approved_external_ai": 49,
-      "high_risk_external_ai": 42,
-      "local_private": 49
+      "approved_external_ai": 35,
+      "high_risk_external_ai": 35,
+      "local_private": 42
     },
     "split_counts": {
-      "development": 112,
-      "holdout": 28
+      "development": 112
     },
-    "template_count": 70,
-    "template_split_isolation": true
+    "template_count": 56,
+    "template_split_isolation": true,
+    "minimum_variations_per_template": 2
   },
+  "pilot_scope": "development templates only",
   "human_review_status": "pending"
 }

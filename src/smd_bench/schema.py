@@ -24,13 +24,16 @@ REQUIRED_FIELDS = {
     "expected_utility",
     "leakage_oracle",
     "utility_oracle",
+    "utility_context",
+    "ground_truth_evidence",
+    "variation_axes",
     "conversation_turns",
     "rationale",
     "review_status",
 }
 FAMILIES = {f"F{index}" for index in range(1, 8)}
 TARGETS = {"local_private", "approved_external_ai", "high_risk_external_ai"}
-SPLITS = {"development", "holdout"}
+SPLITS = {"development", "template_evaluation", "challenge"}
 ROUTES = {
     "local_process",
     "deny_request",
@@ -68,6 +71,7 @@ def validate_dataset(cases: Iterable[dict[str, Any]], expected_count: int | None
     target_counts: Counter[str] = Counter()
     split_counts: Counter[str] = Counter()
     family_target_counts: Counter[str] = Counter()
+    template_variations: defaultdict[str, set[str]] = defaultdict(set)
 
     if expected_count is not None and len(records) != expected_count:
         errors.append(f"Expected {expected_count} cases, found {len(records)}")
@@ -96,6 +100,15 @@ def validate_dataset(cases: Iterable[dict[str, Any]], expected_count: int | None
         if case["review_status"] != "pending":
             errors.append(f"Generated case must be pending human review: {case_id}")
         template_splits[str(case["template_id"])].add(split)
+        variation_axes = case["variation_axes"]
+        if not isinstance(variation_axes, dict) or not variation_axes:
+            errors.append(f"Invalid variation_axes for {case_id}")
+        else:
+            template_variations[str(case["template_id"])].add(
+                json.dumps(variation_axes, sort_keys=True)
+            )
+        if not isinstance(case["ground_truth_evidence"], list):
+            errors.append(f"Invalid ground_truth_evidence for {case_id}")
         family_counts[family] += 1
         target_counts[target] += 1
         split_counts[split] += 1
@@ -122,7 +135,7 @@ def validate_dataset(cases: Iterable[dict[str, Any]], expected_count: int | None
             "approved_external_ai": 469,
             "high_risk_external_ai": 462,
         }
-        expected_split = {"development": 1120, "holdout": 280}
+        expected_split = {"development": 1120, "template_evaluation": 280}
         if dict(sorted(family_counts.items())) != expected_family:
             errors.append(f"Family distribution mismatch: {dict(family_counts)}")
         if dict(target_counts) != expected_target:
@@ -134,6 +147,11 @@ def validate_dataset(cases: Iterable[dict[str, Any]], expected_count: int | None
             actual = {target: family_target_counts[f"{family}:{target}"] for target in TARGETS}
             if actual != expected:
                 errors.append(f"Family target distribution mismatch for {family}: {actual}")
+        for template_id, signatures in template_variations.items():
+            if len(signatures) < 8:
+                errors.append(
+                    f"Insufficient surface variation for {template_id}: {len(signatures)}"
+                )
 
     summary = {
         "valid": not errors,
@@ -146,6 +164,10 @@ def validate_dataset(cases: Iterable[dict[str, Any]], expected_count: int | None
         "split_counts": dict(sorted(split_counts.items())),
         "template_count": len(template_splits),
         "template_split_isolation": all(len(value) == 1 for value in template_splits.values()),
+        "minimum_variations_per_template": min(
+            (len(value) for value in template_variations.values()),
+            default=0,
+        ),
     }
     if errors:
         raise ValueError("SMD-Bench validation failed:\n- " + "\n- ".join(errors[:30]))

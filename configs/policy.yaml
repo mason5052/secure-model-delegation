@@ -394,6 +394,23 @@ route_preference:
   ask_clarification: 30
   deny_request: 0
 
+utility_model:
+  weights:
+    task_adequacy: 0.45
+    information_retention: 0.25
+    model_capability_fit: 0.20
+    operational_cost: 0.10
+  defaults:
+    local_capability: 0.35
+    external_capability: 0.95
+  route_operational_cost:
+    local_process: 0.35
+    local_summary: 0.25
+    ask_clarification: 0.20
+    deny_request: 0.10
+    delegate_sanitized_to_external_ai: 0.65
+    delegate_pseudocode_to_external_ai: 0.60
+
 leakage_oracle_defaults:
   check_exact_span_match: true
   check_case_insensitive_match: true

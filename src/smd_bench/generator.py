@@ -32,14 +32,14 @@ def generate_dataset(variants_per_template: int = FULL_VARIANTS_PER_TEMPLATE) ->
         if len(definitions) != 10:
             raise ValueError(f"{family} must define exactly 10 semantic templates")
         for template_index, definition in enumerate(definitions, start=1):
-            split = "development" if template_index <= 8 else "holdout"
+            split = "development" if template_index <= 8 else "template_evaluation"
             template_id = f"{family}-T{template_index:02d}"
             for variant in range(1, variants_per_template + 1):
                 global_index = (template_index - 1) * FULL_VARIANTS_PER_TEMPLATE + (variant - 1)
                 target_profile = TARGET_CYCLE[global_index % len(TARGET_CYCLE)]
                 values = _synthetic_values(family, template_index, variant)
-                prompt = _render(str(definition["text"]), values)
-                prompt += f" Synthetic case reference {family}-T{template_index:02d}-V{variant:03d}."
+                base_prompt = _render(str(definition["text"]), values)
+                prompt, variation_axes = _apply_surface_variation(base_prompt, variant)
                 turns = [
                     {"source": str(source), "text": _render(str(text), values)}
                     for source, text in definition.get("turns", [])
@@ -53,6 +53,10 @@ def generate_dataset(variants_per_template: int = FULL_VARIANTS_PER_TEMPLATE) ->
                 )
                 if definition.get("utility_override"):
                     expected["expected_utility"] = str(definition["utility_override"])
+                expected_actions = {
+                    str(item["class"]): str(item["action"])
+                    for item in expected["expected_span_actions"]
+                }
                 case_id = f"SMD-{family}-T{template_index:02d}-V{variant:03d}"
                 record = {
                     "case_id": case_id,
@@ -70,6 +74,19 @@ def generate_dataset(variants_per_template: int = FULL_VARIANTS_PER_TEMPLATE) ->
                     **expected,
                     "leakage_oracle": _leakage_oracle(risk_classes, definition, values),
                     "utility_oracle": _utility_oracle(expected["expected_utility"], prompt),
+                    "utility_context": {
+                        "local_capability": 0.35,
+                        "external_capability": 0.95,
+                    },
+                    "ground_truth_evidence": _ground_truth_evidence(
+                        prompt,
+                        turns,
+                        risk_classes,
+                        definition,
+                        values,
+                        expected_actions,
+                    ),
+                    "variation_axes": variation_axes,
                     "conversation_turns": turns,
                     "rationale": (
                         f"Coverage-balanced synthetic {FAMILY_NAMES[family].lower()} case using "
@@ -87,9 +104,13 @@ def generate_all_artifacts(root: Path) -> dict[str, Any]:
     data_dir.mkdir(parents=True, exist_ok=True)
     review_dir.mkdir(parents=True, exist_ok=True)
 
-    pilot = generate_dataset(variants_per_template=2)
-    pilot_validation = validate_dataset(pilot, expected_count=140)
-    pilot_path = data_dir / "smd_bench_140_pilot.jsonl"
+    pilot = [
+        case
+        for case in generate_dataset(variants_per_template=2)
+        if case["split"] == "development"
+    ]
+    pilot_validation = validate_dataset(pilot, expected_count=112)
+    pilot_path = data_dir / "smd_bench_112_development_pilot.jsonl"
     _write_jsonl(pilot_path, pilot)
 
     full = generate_dataset(variants_per_template=20)
@@ -121,7 +142,7 @@ def select_human_review_sample(cases: list[dict[str, Any]]) -> list[dict[str, An
 
     for family in sorted(by_family):
         family_selected: list[dict[str, Any]] = []
-        for split in ("development", "holdout"):
+        for split in ("development", "template_evaluation"):
             templates = sorted(
                 {str(case["template_id"]) for case in by_family[family] if case["split"] == split}
             )
@@ -158,7 +179,7 @@ def _assert_review_family_distribution(family: str, cases: list[dict[str, Any]])
     template_count_for_family = len({str(case["template_id"]) for case in cases})
     if len(cases) != 30 or any(target_counts[target] != 10 for target in TARGET_CYCLE):
         raise ValueError(f"Invalid review target sample for {family}: {dict(target_counts)}")
-    if split_counts != {"development": 15, "holdout": 15}:
+    if split_counts != {"development": 15, "template_evaluation": 15}:
         raise ValueError(f"Invalid review split sample for {family}: {dict(split_counts)}")
     if template_count_for_family != 10:
         raise ValueError(f"Review sample does not cover all templates for {family}")
@@ -207,6 +228,205 @@ def _render(template: str, values: dict[str, str]) -> str:
     for key, value in values.items():
         rendered = rendered.replace("{" + key + "}", value)
     return rendered
+
+
+def _apply_surface_variation(text: str, variant: int) -> tuple[str, dict[str, str]]:
+    style_index = (variant - 1) % 5
+    wording_index = ((variant - 1) // 5) % 4
+    prefixes = (
+        "",
+        "For a synthetic security review, ",
+        "Consider this enterprise-style work request: ",
+        "A user submitted the following synthetic task. ",
+        "Context for a controlled evaluation: ",
+    )
+    wording_maps = (
+        {},
+        {
+            "Debug": "Diagnose",
+            "Review": "Assess",
+            "Explain": "Describe",
+            "Summarize": "Produce a concise summary of",
+        },
+        {
+            "Draft": "Prepare",
+            "Compare": "Examine",
+            "Analyze": "Evaluate",
+            "Create": "Produce",
+        },
+        {
+            "Troubleshoot": "Investigate",
+            "Rewrite": "Rephrase",
+            "Suggest": "Recommend",
+            "Classify": "Determine the class of",
+        },
+    )
+    response_constraints = (
+        "Focus on the immediate cause.",
+        "Keep the response concise.",
+        "State the safest next step.",
+        "Separate observations from recommendations.",
+        "Use a short operational explanation.",
+        "Avoid repeating sensitive values.",
+        "Explain the decision in plain language.",
+        "Return a brief analyst note.",
+        "Prioritize the security impact.",
+        "Identify the minimum useful context.",
+        "Give a high-level troubleshooting path.",
+        "Describe any remaining uncertainty.",
+        "Preserve the original task intent.",
+        "Use an enterprise support tone.",
+        "Provide a compact risk assessment.",
+        "Call out assumptions explicitly.",
+        "Limit the answer to relevant guidance.",
+        "Recommend a privacy-safe response.",
+        "Summarize the reasoning before the action.",
+        "End with one practical recommendation.",
+    )
+    rendered = text
+    for original, replacement in wording_maps[wording_index].items():
+        if rendered.startswith(original):
+            rendered = replacement + rendered[len(original) :]
+            break
+    if style_index == 2:
+        rendered = prefixes[style_index] + rendered
+    elif style_index == 3:
+        rendered = prefixes[style_index] + "Request details: " + rendered
+    elif style_index == 4:
+        rendered = prefixes[style_index] + rendered + " Provide only task-relevant guidance."
+    else:
+        rendered = prefixes[style_index] + rendered
+    rendered = rendered + " " + response_constraints[variant - 1]
+    return rendered, {
+        "surface_style": f"style_{style_index + 1}",
+        "task_wording": f"wording_{wording_index + 1}",
+        "variant_signature": f"S{style_index + 1}-W{wording_index + 1}",
+        "response_constraint": f"constraint_{variant:02d}",
+    }
+
+
+def _ground_truth_evidence(
+    prompt: str,
+    turns: list[dict[str, str]],
+    risk_classes: list[str],
+    definition: dict[str, Any],
+    values: dict[str, str],
+    expected_actions: dict[str, str],
+) -> list[dict[str, Any]]:
+    sources = [("user_prompt", prompt)] + [
+        (f"conversation_turn:{index}", str(turn["text"]))
+        for index, turn in enumerate(turns, start=1)
+    ]
+    evidence: list[dict[str, Any]] = []
+    for label in risk_classes:
+        candidates = _ground_truth_candidates(label, definition, values)
+        located = False
+        for source_chunk, source_text in sources:
+            for candidate, representation in candidates:
+                start = source_text.lower().find(candidate.lower())
+                if start < 0:
+                    continue
+                located = True
+                evidence.append(
+                    {
+                        "class": label,
+                        "source_chunk": source_chunk,
+                        "start": start,
+                        "end": start + len(candidate),
+                        "text": candidate,
+                        "canonical_value_id": hashlib.sha256(
+                            candidate.encode("utf-8")
+                        ).hexdigest()[:16],
+                        "representation": representation,
+                        "expected_span_action": expected_actions.get(label, "allow"),
+                    }
+                )
+        if not located:
+            evidence.append(
+                {
+                    "class": label,
+                    "source_chunk": "semantic_context",
+                    "start": None,
+                    "end": None,
+                    "text": None,
+                    "canonical_value_id": None,
+                    "representation": "semantic",
+                    "expected_span_action": expected_actions.get(label, "allow"),
+                }
+            )
+    return evidence
+
+
+def _ground_truth_candidates(
+    label: str,
+    definition: dict[str, Any],
+    values: dict[str, str],
+) -> list[tuple[str, str]]:
+    direct: dict[str, list[tuple[str, str]]] = {
+        "api_key": [
+            (values["key"], "plain"),
+            (values["service_key"], "plain"),
+            (values["spaced_key"], "separator_obfuscated"),
+            (values["url_key"], "url_encoded"),
+            (values["b64_key"], "base64_encoded"),
+        ],
+        "auth_token": [(values["token"], "plain")],
+        "config_secret": [
+            (values["service_key"], "plain"),
+            (values["password"], "plain"),
+        ],
+        "pii_name": [(values["name"], "plain")],
+        "pii_email": [(values["email"], "plain")],
+        "pii_phone": [(values["phone"], "plain")],
+        "internal_hostname": [(values["host"], "plain")],
+        "private_ip": [(values["ip"], "plain")],
+        "source_code": [(values["code"], "source_code")],
+        "proprietary_code": [
+            (values["code"], "source_code"),
+            ("private payment module", "semantic_phrase"),
+            ("unreleased algorithm", "semantic_phrase"),
+            ("internal source code", "semantic_phrase"),
+        ],
+        "internal_infrastructure": [
+            ("service mesh", "semantic_phrase"),
+            ("privileged subnet", "semantic_phrase"),
+            ("internal topology", "semantic_phrase"),
+            ("privileged admin subnet", "semantic_phrase"),
+        ],
+        "incident_detail": [
+            ("incident timeline", "semantic_phrase"),
+            ("lateral movement", "semantic_phrase"),
+            ("forensic log", "semantic_phrase"),
+            ("detection rule", "semantic_phrase"),
+            ("security alert", "semantic_phrase"),
+            ("exfiltration", "semantic_phrase"),
+        ],
+        "system_prompt": [
+            ("system prompt", "semantic_phrase"),
+            ("hidden router instructions", "semantic_phrase"),
+            ("internal agent instructions", "semantic_phrase"),
+        ],
+        "prompt_injection": [
+            ("ignore previous", "instruction"),
+            ("bypass policy", "instruction"),
+            ("send all secrets", "instruction"),
+            ("disable the gateway", "instruction"),
+            ("aWdub3JlIHByZXZpb3Vz", "base64_encoded"),
+        ],
+    }
+    candidates = list(direct.get(label, []))
+    if definition.get("attack") in {
+        "split_secret_across_turns",
+        "split_secret_injection",
+        "split_secret_with_benign_task",
+    } and label in {"api_key", "config_secret"}:
+        candidates.extend(
+            [
+                ("SERVICE_KEY=synthetic-split-", "split_fragment"),
+                (values["split_tail"], "split_fragment"),
+            ]
+        )
+    return candidates
 
 
 def _leakage_oracle(
@@ -288,9 +508,11 @@ def _manifest(
         "template_count": template_count(),
         "development_templates_per_family": 8,
         "holdout_templates_per_family": 2,
+        "template_evaluation_templates_per_family": 2,
         "dataset_sha256": digest,
         "validation": validation,
         "pilot_validation": pilot_validation,
+        "pilot_scope": "development templates only",
         "human_review_status": "pending",
     }
 
@@ -337,7 +559,7 @@ def _write_review_artifacts(review_dir: Path, cases: list[dict[str, Any]]) -> di
     instructions_path.write_text(
         "# SMD-Bench-1400 Human Review Instructions\n\n"
         "This stratified sample contains 210 synthetic cases: 30 per family, 10 per target profile, "
-        "and 15 each from development and holdout. Every semantic template is represented.\n\n"
+        "and 15 each from development and template evaluation. Every semantic template is represented.\n\n"
         "For each row, Mason should independently review the expected route, transformation, utility, "
         "and rationale. Set `review_status` to `approved`, `corrected`, or `rejected` only after a real "
         "human review. Automated or AI-assisted checks do not count as human approval.\n\n"

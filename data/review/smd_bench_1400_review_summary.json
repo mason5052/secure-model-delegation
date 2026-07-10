@@ -22,7 +22,7 @@
   },
   "split_counts": {
     "development": 105,
-    "holdout": 105
+    "template_evaluation": 105
   },
   "human_review_complete": false
 }

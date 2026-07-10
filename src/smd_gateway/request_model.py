@@ -64,6 +64,7 @@ class PolicyDecision:
     transformation_type: str = "none"
     policy_version: str = "unknown"
     utility_assessment: dict[str, Any] = field(default_factory=dict)
+    route_utility_scores: dict[str, dict[str, Any]] = field(default_factory=dict)
     decision_trace: list[str] = field(default_factory=list)
 
 
@@ -94,6 +95,7 @@ class GatewayResult:
     transformation_type: str = "none"
     policy_version: str = "unknown"
     utility_assessment: dict[str, Any] = field(default_factory=dict)
+    route_utility_scores: dict[str, dict[str, Any]] = field(default_factory=dict)
     decision_trace: list[str] = field(default_factory=list)
     direct_leakage_found: list[str] = field(default_factory=list)
     canonicalized_leakage_found: list[str] = field(default_factory=list)

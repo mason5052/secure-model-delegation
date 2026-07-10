@@ -19,12 +19,14 @@ def process_request(
     leakage_oracle: Optional[Any] = None,
     run_dir: Union[str, Path] = "runs",
     policy_path: Optional[Union[str, Path]] = None,
+    evidence_override: Optional[list[Any]] = None,
+    use_utility: bool = True,
 ) -> GatewayResult:
     run_path = Path(run_dir)
     policy = load_policy_config(policy_path)
     request = assemble_request(bundle)
-    spans = detect_sensitive_spans(request, policy=policy)
-    decision = decide_policy(request, spans, policy=policy)
+    spans = evidence_override if evidence_override is not None else detect_sensitive_spans(request, policy=policy)
+    decision = decide_policy(request, spans, policy=policy, use_utility=use_utility)
 
     delegated_payload: Optional[str] = None
     external_ref: Optional[str] = None
@@ -77,6 +79,7 @@ def process_request(
         transformation_type=decision.transformation_type,
         policy_version=decision.policy_version,
         utility_assessment=decision.utility_assessment,
+        route_utility_scores=decision.route_utility_scores,
         decision_trace=decision.decision_trace,
         direct_leakage_found=leakage["direct"],
         canonicalized_leakage_found=leakage["canonicalized"],
