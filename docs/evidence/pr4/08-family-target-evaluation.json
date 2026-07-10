@@ -1,0 +1,403 @@
+{
+  "by_family": {
+    "F1": {
+      "case_count": 200,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 120,
+        "local_process": 67,
+        "local_summary": 13
+      }
+    },
+    "F2": {
+      "case_count": 200,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 133,
+        "local_process": 67
+      }
+    },
+    "F3": {
+      "case_count": 200,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "delegate_pseudocode_to_external_ai": 46,
+        "local_process": 67,
+        "local_summary": 87
+      }
+    },
+    "F4": {
+      "case_count": 200,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 0.97,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 66,
+        "local_process": 67,
+        "local_summary": 67
+      }
+    },
+    "F5": {
+      "case_count": 200,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "deny_request": 40,
+        "local_process": 120,
+        "local_summary": 40
+      }
+    },
+    "F6": {
+      "case_count": 200,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "ask_clarification": 13,
+        "delegate_sanitized_to_external_ai": 120,
+        "local_process": 67
+      }
+    },
+    "F7": {
+      "case_count": 200,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 40,
+        "deny_request": 20,
+        "local_process": 75,
+        "local_summary": 65
+      }
+    }
+  },
+  "by_family_target": {
+    "F1:approved_external_ai": {
+      "case_count": 67,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 61,
+        "local_summary": 6
+      }
+    },
+    "F1:high_risk_external_ai": {
+      "case_count": 66,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 59,
+        "local_summary": 7
+      }
+    },
+    "F1:local_private": {
+      "case_count": 67,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "local_process": 67
+      }
+    },
+    "F2:approved_external_ai": {
+      "case_count": 67,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 67
+      }
+    },
+    "F2:high_risk_external_ai": {
+      "case_count": 66,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 66
+      }
+    },
+    "F2:local_private": {
+      "case_count": 67,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "local_process": 67
+      }
+    },
+    "F3:approved_external_ai": {
+      "case_count": 67,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "delegate_pseudocode_to_external_ai": 46,
+        "local_summary": 21
+      }
+    },
+    "F3:high_risk_external_ai": {
+      "case_count": 66,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "local_summary": 66
+      }
+    },
+    "F3:local_private": {
+      "case_count": 67,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "local_process": 67
+      }
+    },
+    "F4:approved_external_ai": {
+      "case_count": 67,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 33,
+        "local_summary": 34
+      }
+    },
+    "F4:high_risk_external_ai": {
+      "case_count": 66,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 33,
+        "local_summary": 33
+      }
+    },
+    "F4:local_private": {
+      "case_count": 67,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 0.910448,
+      "route_distribution": {
+        "local_process": 67
+      }
+    },
+    "F5:approved_external_ai": {
+      "case_count": 67,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "deny_request": 14,
+        "local_process": 33,
+        "local_summary": 20
+      }
+    },
+    "F5:high_risk_external_ai": {
+      "case_count": 66,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "deny_request": 13,
+        "local_process": 33,
+        "local_summary": 20
+      }
+    },
+    "F5:local_private": {
+      "case_count": 67,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "deny_request": 13,
+        "local_process": 54
+      }
+    },
+    "F6:approved_external_ai": {
+      "case_count": 67,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "ask_clarification": 7,
+        "delegate_sanitized_to_external_ai": 60
+      }
+    },
+    "F6:high_risk_external_ai": {
+      "case_count": 66,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "ask_clarification": 6,
+        "delegate_sanitized_to_external_ai": 60
+      }
+    },
+    "F6:local_private": {
+      "case_count": 67,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "local_process": 67
+      }
+    },
+    "F7:approved_external_ai": {
+      "case_count": 67,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 20,
+        "deny_request": 7,
+        "local_process": 7,
+        "local_summary": 33
+      }
+    },
+    "F7:high_risk_external_ai": {
+      "case_count": 66,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 20,
+        "deny_request": 7,
+        "local_process": 7,
+        "local_summary": 32
+      }
+    },
+    "F7:local_private": {
+      "case_count": 67,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "deny_request": 6,
+        "local_process": 61
+      }
+    }
+  }
+}

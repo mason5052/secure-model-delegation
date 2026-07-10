@@ -1,0 +1,67 @@
+{
+  "benchmark": "SMD-Bench-1400",
+  "benchmark_version": "1.0.0",
+  "generator_seed": 6727,
+  "generation_model": "70 semantic templates x 20 synthetic variants",
+  "coverage_note": "Balanced security coverage; not an estimate of enterprise workload frequency.",
+  "case_count": 1400,
+  "template_count": 70,
+  "development_templates_per_family": 8,
+  "holdout_templates_per_family": 2,
+  "dataset_sha256": "748324bde0b8acc5cdbcbb9033ec2e661a5a53609729ea8dfa70a1459500af1e",
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "case_count": 1400,
+    "unique_case_ids": 1400,
+    "normalized_duplicate_count": 0,
+    "family_counts": {
+      "F1": 200,
+      "F2": 200,
+      "F3": 200,
+      "F4": 200,
+      "F5": 200,
+      "F6": 200,
+      "F7": 200
+    },
+    "target_counts": {
+      "approved_external_ai": 469,
+      "high_risk_external_ai": 462,
+      "local_private": 469
+    },
+    "split_counts": {
+      "development": 1120,
+      "holdout": 280
+    },
+    "template_count": 70,
+    "template_split_isolation": true
+  },
+  "pilot_validation": {
+    "valid": true,
+    "errors": [],
+    "case_count": 140,
+    "unique_case_ids": 140,
+    "normalized_duplicate_count": 0,
+    "family_counts": {
+      "F1": 20,
+      "F2": 20,
+      "F3": 20,
+      "F4": 20,
+      "F5": 20,
+      "F6": 20,
+      "F7": 20
+    },
+    "target_counts": {
+      "approved_external_ai": 49,
+      "high_risk_external_ai": 42,
+      "local_private": 49
+    },
+    "split_counts": {
+      "development": 112,
+      "holdout": 28
+    },
+    "template_count": 70,
+    "template_split_isolation": true
+  },
+  "human_review_status": "pending"
+}

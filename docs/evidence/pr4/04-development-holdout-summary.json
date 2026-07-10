@@ -1,0 +1,42 @@
+{
+  "split_counts": {
+    "development": 1120,
+    "holdout": 280
+  },
+  "template_count": 70,
+  "template_split_isolation": true,
+  "development": {
+    "case_count": 1120,
+    "policy_conformance": 1.0,
+    "unsafe_delegation_count": 0,
+    "overblocked_count": 0,
+    "direct_leakage_count": 0,
+    "canonicalized_leakage_count": 0,
+    "structural_code_leakage_count": 0,
+    "utility_agreement": 0.994643,
+    "route_distribution": {
+      "delegate_pseudocode_to_external_ai": 39,
+      "delegate_sanitized_to_external_ai": 397,
+      "deny_request": 60,
+      "local_process": 439,
+      "local_summary": 185
+    }
+  },
+  "holdout": {
+    "case_count": 280,
+    "policy_conformance": 1.0,
+    "unsafe_delegation_count": 0,
+    "overblocked_count": 0,
+    "direct_leakage_count": 0,
+    "canonicalized_leakage_count": 0,
+    "structural_code_leakage_count": 0,
+    "utility_agreement": 1.0,
+    "route_distribution": {
+      "ask_clarification": 13,
+      "delegate_pseudocode_to_external_ai": 7,
+      "delegate_sanitized_to_external_ai": 82,
+      "local_process": 91,
+      "local_summary": 87
+    }
+  }
+}

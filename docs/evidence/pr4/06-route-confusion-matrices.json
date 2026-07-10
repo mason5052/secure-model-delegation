@@ -1,0 +1,83 @@
+{
+  "regression": {
+    "ask_clarification": {
+      "ask_clarification": 4
+    },
+    "delegate_pseudocode_to_external_ai": {
+      "delegate_pseudocode_to_external_ai": 7
+    },
+    "delegate_sanitized_to_external_ai": {
+      "delegate_sanitized_to_external_ai": 20
+    },
+    "deny_request": {
+      "deny_request": 2
+    },
+    "local_process": {
+      "local_process": 8
+    },
+    "local_summary": {
+      "local_summary": 22
+    }
+  },
+  "smd_bench_1400": {
+    "ask_clarification": {
+      "ask_clarification": 13
+    },
+    "delegate_pseudocode_to_external_ai": {
+      "delegate_pseudocode_to_external_ai": 46
+    },
+    "delegate_sanitized_to_external_ai": {
+      "delegate_sanitized_to_external_ai": 479
+    },
+    "deny_request": {
+      "deny_request": 60
+    },
+    "local_process": {
+      "local_process": 530
+    },
+    "local_summary": {
+      "local_summary": 272
+    }
+  },
+  "route_metrics": {
+    "per_route": {
+      "ask_clarification": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 13
+      },
+      "delegate_pseudocode_to_external_ai": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 46
+      },
+      "delegate_sanitized_to_external_ai": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 479
+      },
+      "deny_request": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      },
+      "local_process": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 530
+      },
+      "local_summary": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 272
+      }
+    },
+    "macro_f1": 1.0
+  }
+}

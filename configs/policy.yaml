@@ -1,4 +1,4 @@
-version: "0.2"
+version: "0.3"
 project: "Secure Model Delegation"
 
 span_actions:
@@ -25,6 +25,10 @@ utility_labels:
 target_profiles:
   local_private:
     trust_level: trusted
+    aliases:
+      - local_model
+      - private_model
+      - trusted_local
     source_code_policy: allow_raw_local_processing
     notes: "Raw source code may be processed inside the trusted local/private boundary."
   approved_external_ai:
@@ -37,6 +41,8 @@ target_profiles:
     notes: "External assistance may receive pseudocode or a generalized problem statement, not raw private source code."
   high_risk_external_ai:
     trust_level: high_risk
+    aliases:
+      - untrusted_external_ai
     source_code_policy: local_summary_only
     notes: "High-risk external targets do not receive raw code or pseudocode; the gateway keeps source-code requests local."
 
@@ -90,6 +96,21 @@ sensitive_classes:
     leakage_patterns:
       - "(?i)(password|secret|token|key)\\s*="
     notes: "Configuration secrets are transformed, not sent raw."
+
+  pii_name:
+    severity: medium
+    default_span_action: replace_with_placeholder
+    placeholder: "[PERSON]"
+    raw_external_delegation: false
+    allowed_routes:
+      - local_process
+      - local_summary
+      - delegate_sanitized_to_external_ai
+    escalates_with:
+      - incident_detail
+      - prompt_injection
+    leakage_patterns: []
+    notes: "Person names are replaced when a contextual detector identifies them."
 
   pii_email:
     severity: medium
@@ -280,24 +301,98 @@ sensitive_classes:
 conflict_resolution:
   strategy: "transformed_payload_safety_plus_remaining_utility"
   rules:
-    - id: hard_denied_raw_spans_never_cross_boundary
+    - id: system_prompt_never_crosses_boundary
+      priority: 120
+      when_all_labels:
+        - system_prompt
+      force_route: deny_request
+      effect: "deny extraction of hidden controller instructions"
+    - id: explicit_local_handling_request
+      priority: 115
+      when_request_flags:
+        - explicit_local_only
+      force_route: local_process
+      effect: "honor an explicit request to stay inside the trusted boundary"
+    - id: local_private_target_stays_inside_boundary
+      priority: 110
+      target_profiles:
+        - local_private
+      force_route: local_process
+      effect: "keep requests inside the trusted local target"
+    - id: cross_turn_sensitive_history_stays_local
+      priority: 105
+      when_request_flags:
+        - cross_turn_sensitive
+      force_route: local_summary
+      effect: "do not reconstruct or delegate a secret assembled across turns"
+    - id: source_code_with_high_risk_context_stays_local
       priority: 100
-      effect: "block_or_transform_before_delegation"
-    - id: source_code_requires_pseudocode
-      priority: 90
-      effect: "raw_code_external_delegation_denied"
-    - id: source_code_target_profile_matrix
-      priority: 88
-      effect: "local_private_allows_raw_code_approved_external_gets_pseudocode_high_risk_external_gets_local_summary"
+      when_any_labels:
+        - source_code
+        - proprietary_code
+      when_any_companion_labels:
+        - api_key
+        - auth_token
+        - config_secret
+        - incident_detail
+        - system_prompt
+      force_route: local_summary
+      effect: "keep code combined with high-risk context local"
+    - id: source_code_high_risk_external_local_summary_only
+      priority: 95
+      when_any_labels:
+        - source_code
+        - proprietary_code
+      target_profiles:
+        - high_risk_external_ai
+      force_route: local_summary
+      effect: "high-risk external targets receive no code-derived payload"
     - id: prompt_injection_is_risk_amplifier
+      priority: 90
+      when_all_labels:
+        - prompt_injection
+      when_any_companion_labels:
+        - api_key
+        - auth_token
+        - config_secret
+        - source_code
+        - proprietary_code
+        - incident_detail
+        - system_prompt
+      force_route: local_summary
+      effect: "keep mixed prompt-injection and sensitive context local"
+    - id: incident_detail_stays_local
+      priority: 85
+      when_all_labels:
+        - incident_detail
+      force_route: local_summary
+      effect: "summarize detailed incident context inside the trusted boundary"
+    - id: prompt_injection_is_data_not_authority
       priority: 80
-      effect: "remove_as_instruction_and_raise_risk"
-    - id: incident_topology_stays_local
+      when_all_labels:
+        - prompt_injection
+      force_route: local_process
+      effect: "treat an isolated injection cue as untrusted data"
+    - id: source_code_target_profile_matrix
       priority: 75
-      effect: "route_to_local_summary_when_incident_detail_combines_with_topology"
+      when_any_labels:
+        - source_code
+        - proprietary_code
+      target_profiles:
+        - approved_external_ai
+      force_route: delegate_pseudocode_to_external_ai
+      effect: "approved external targets receive a generalized problem statement"
     - id: transformed_payload_must_retain_utility
       priority: 70
       effect: "route_to_local_summary_or_clarification_if_utility_insufficient"
+
+route_preference:
+  delegate_sanitized_to_external_ai: 100
+  delegate_pseudocode_to_external_ai: 95
+  local_process: 90
+  local_summary: 60
+  ask_clarification: 30
+  deny_request: 0
 
 leakage_oracle_defaults:
   check_exact_span_match: true

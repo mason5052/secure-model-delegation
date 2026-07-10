@@ -1,0 +1,78 @@
+{
+  "utility_oracle_labeled_cases": 1400,
+  "utility_oracle_agreement": 0.995714,
+  "task_intent_preservation_rate": 1.0,
+  "utility_distribution": {
+    "insufficient": 160,
+    "partial": 240,
+    "sufficient": 1000
+  },
+  "utility_distribution_by_route": {
+    "ask_clarification": {
+      "insufficient": 13
+    },
+    "delegate_pseudocode_to_external_ai": {
+      "sufficient": 46
+    },
+    "delegate_sanitized_to_external_ai": {
+      "partial": 14,
+      "sufficient": 465
+    },
+    "deny_request": {
+      "insufficient": 60
+    },
+    "local_process": {
+      "insufficient": 34,
+      "partial": 7,
+      "sufficient": 489
+    },
+    "local_summary": {
+      "insufficient": 53,
+      "partial": 219
+    }
+  },
+  "mismatches": [
+    {
+      "case_id": "SMD-F4-T03-V003",
+      "family": "F4",
+      "target_profile": "local_private",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V006",
+      "family": "F4",
+      "target_profile": "local_private",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V009",
+      "family": "F4",
+      "target_profile": "local_private",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V012",
+      "family": "F4",
+      "target_profile": "local_private",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V015",
+      "family": "F4",
+      "target_profile": "local_private",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    },
+    {
+      "case_id": "SMD-F4-T03-V018",
+      "family": "F4",
+      "target_profile": "local_private",
+      "expected_utility": "partial",
+      "actual_utility": "sufficient"
+    }
+  ]
+}

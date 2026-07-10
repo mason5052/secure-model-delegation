@@ -1,0 +1,28 @@
+{
+  "sample_count": 210,
+  "status_counts": {
+    "pending": 210,
+    "approved": 0,
+    "corrected": 0,
+    "rejected": 0
+  },
+  "family_counts": {
+    "F1": 30,
+    "F2": 30,
+    "F3": 30,
+    "F4": 30,
+    "F5": 30,
+    "F6": 30,
+    "F7": 30
+  },
+  "target_counts": {
+    "approved_external_ai": 70,
+    "high_risk_external_ai": 70,
+    "local_private": 70
+  },
+  "split_counts": {
+    "development": 105,
+    "holdout": 105
+  },
+  "human_review_complete": false
+}

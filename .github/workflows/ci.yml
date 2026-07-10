@@ -1,0 +1,54 @@
+name: Simulated-endpoint validation
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONPATH: src
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Run unit and integration tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Regenerate deterministic benchmark artifacts
+        run: python scripts/generate_smd_bench.py
+
+      - name: Verify checked-in benchmark artifacts are reproducible
+        run: >-
+          git diff --exit-code --
+          data/smd_bench_140_pilot.jsonl
+          data/smd_bench_1400.jsonl
+          data/smd_bench_1400_manifest.json
+          data/review
+
+      - name: Evaluate the 140-case pilot without external APIs
+        run: >-
+          python scripts/run_eval.py
+          --dataset data/smd_bench_140_pilot.jsonl
+          --run-dir runs/ci-pilot
+          --output runs/ci-pilot/report.json
+          --benchmark-name SMD-Bench-140-pilot
+          --summary-only
+
+      - name: Smoke test local web UI and simulated endpoint
+        run: python scripts/smoke_web.py

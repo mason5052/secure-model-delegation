@@ -1,0 +1,288 @@
+{
+  "benchmark": "63-case regression set",
+  "case_count": 63,
+  "delegated_cases": 27,
+  "route_accuracy_or_policy_conformance": 1.0,
+  "unsafe_delegation_false_negatives": {
+    "count": 0,
+    "case_ids": []
+  },
+  "overblocked_delegation_false_positives": {
+    "count": 0,
+    "case_ids": []
+  },
+  "direct_leakage_count": 0,
+  "canonicalized_leakage_count": 0,
+  "structural_code_leakage_count": 0,
+  "adversarial_case_count": 15,
+  "adversarial_attack_success_count": 0,
+  "adversarial_attack_success_rate": 0.0,
+  "utility_oracle_labeled_cases": 0,
+  "utility_oracle_agreement": null,
+  "task_intent_preservation_rate": null,
+  "utility_distribution": {
+    "insufficient": 11,
+    "partial": 21,
+    "sufficient": 31
+  },
+  "utility_distribution_by_route": {
+    "ask_clarification": {
+      "insufficient": 4
+    },
+    "delegate_pseudocode_to_external_ai": {
+      "sufficient": 7
+    },
+    "delegate_sanitized_to_external_ai": {
+      "partial": 2,
+      "sufficient": 18
+    },
+    "deny_request": {
+      "insufficient": 2
+    },
+    "local_process": {
+      "insufficient": 1,
+      "partial": 1,
+      "sufficient": 6
+    },
+    "local_summary": {
+      "insufficient": 4,
+      "partial": 18
+    }
+  },
+  "clarification_rate": 0.063492,
+  "route_distribution": {
+    "ask_clarification": 4,
+    "delegate_pseudocode_to_external_ai": 7,
+    "delegate_sanitized_to_external_ai": 20,
+    "deny_request": 2,
+    "local_process": 8,
+    "local_summary": 22
+  },
+  "latency_ms": {
+    "p50": 0.692,
+    "p95": 1.292
+  },
+  "route_metrics": {
+    "per_route": {
+      "ask_clarification": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 4
+      },
+      "delegate_pseudocode_to_external_ai": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 7
+      },
+      "delegate_sanitized_to_external_ai": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 20
+      },
+      "deny_request": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 2
+      },
+      "local_process": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 8
+      },
+      "local_summary": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 22
+      }
+    },
+    "macro_f1": 1.0
+  },
+  "confusion_matrix": {
+    "ask_clarification": {
+      "ask_clarification": 4
+    },
+    "delegate_pseudocode_to_external_ai": {
+      "delegate_pseudocode_to_external_ai": 7
+    },
+    "delegate_sanitized_to_external_ai": {
+      "delegate_sanitized_to_external_ai": 20
+    },
+    "deny_request": {
+      "deny_request": 2
+    },
+    "local_process": {
+      "local_process": 8
+    },
+    "local_summary": {
+      "local_summary": 22
+    }
+  },
+  "baseline_comparison": {
+    "no_gateway": {
+      "delegated_cases": 63,
+      "direct_leakage_findings": 170,
+      "direct_leakage_cases": 54,
+      "canonicalized_leakage_findings": 119,
+      "canonicalized_leakage_cases": 53,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.857143,
+      "canonicalized_leakage_case_rate": 0.84127,
+      "structural_code_leakage_case_rate": 0.0,
+      "latency_ms_p50": 0.015,
+      "latency_ms_p95": 0.019
+    },
+    "regex_secret_pii_filter": {
+      "delegated_cases": 63,
+      "direct_leakage_findings": 77,
+      "direct_leakage_cases": 40,
+      "canonicalized_leakage_findings": 64,
+      "canonicalized_leakage_cases": 40,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.634921,
+      "canonicalized_leakage_case_rate": 0.634921,
+      "structural_code_leakage_case_rate": 0.0,
+      "latency_ms_p50": 0.228,
+      "latency_ms_p95": 0.308
+    },
+    "all_detectors_filter_only": {
+      "delegated_cases": 63,
+      "direct_leakage_findings": 4,
+      "direct_leakage_cases": 4,
+      "canonicalized_leakage_findings": 3,
+      "canonicalized_leakage_cases": 3,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.063492,
+      "canonicalized_leakage_case_rate": 0.047619,
+      "structural_code_leakage_case_rate": 0.0,
+      "latency_ms_p50": 0.238,
+      "latency_ms_p95": 0.31
+    },
+    "policy_bounded_controller": {
+      "delegated_cases": 27,
+      "direct_leakage_findings": 0,
+      "direct_leakage_cases": 0,
+      "canonicalized_leakage_findings": 0,
+      "canonicalized_leakage_cases": 0,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.0,
+      "canonicalized_leakage_case_rate": 0.0,
+      "structural_code_leakage_case_rate": 0.0,
+      "latency_ms_p50": 0.692,
+      "latency_ms_p95": 1.292
+    }
+  },
+  "by_split": {
+    "regression": {
+      "case_count": 63,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": null,
+      "route_distribution": {
+        "ask_clarification": 4,
+        "delegate_pseudocode_to_external_ai": 7,
+        "delegate_sanitized_to_external_ai": 20,
+        "deny_request": 2,
+        "local_process": 8,
+        "local_summary": 22
+      }
+    }
+  },
+  "by_family": {
+    "legacy_regression": {
+      "case_count": 63,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": null,
+      "route_distribution": {
+        "ask_clarification": 4,
+        "delegate_pseudocode_to_external_ai": 7,
+        "delegate_sanitized_to_external_ai": 20,
+        "deny_request": 2,
+        "local_process": 8,
+        "local_summary": 22
+      }
+    }
+  },
+  "by_target_profile": {
+    "approved_external_ai": {
+      "case_count": 1,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": null,
+      "route_distribution": {
+        "delegate_pseudocode_to_external_ai": 1
+      }
+    },
+    "external_ai": {
+      "case_count": 60,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": null,
+      "route_distribution": {
+        "ask_clarification": 4,
+        "delegate_pseudocode_to_external_ai": 6,
+        "delegate_sanitized_to_external_ai": 20,
+        "deny_request": 2,
+        "local_process": 7,
+        "local_summary": 21
+      }
+    },
+    "high_risk_external_ai": {
+      "case_count": 1,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": null,
+      "route_distribution": {
+        "local_summary": 1
+      }
+    },
+    "local_private": {
+      "case_count": 1,
+      "policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": null,
+      "route_distribution": {
+        "local_process": 1
+      }
+    }
+  },
+  "semantic_leakage": {
+    "automatic_evaluation": false,
+    "manual_review_required": true,
+    "note": "Automatic results cover direct, canonicalized/encoded, and structural code-detail leakage only."
+  }
+}

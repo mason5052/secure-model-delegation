@@ -1,0 +1,119 @@
+{
+  "regression": {
+    "no_gateway": {
+      "delegated_cases": 63,
+      "direct_leakage_findings": 170,
+      "direct_leakage_cases": 54,
+      "canonicalized_leakage_findings": 119,
+      "canonicalized_leakage_cases": 53,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.857143,
+      "canonicalized_leakage_case_rate": 0.84127,
+      "structural_code_leakage_case_rate": 0.0,
+      "latency_ms_p50": 0.015,
+      "latency_ms_p95": 0.019
+    },
+    "regex_secret_pii_filter": {
+      "delegated_cases": 63,
+      "direct_leakage_findings": 77,
+      "direct_leakage_cases": 40,
+      "canonicalized_leakage_findings": 64,
+      "canonicalized_leakage_cases": 40,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.634921,
+      "canonicalized_leakage_case_rate": 0.634921,
+      "structural_code_leakage_case_rate": 0.0,
+      "latency_ms_p50": 0.228,
+      "latency_ms_p95": 0.308
+    },
+    "all_detectors_filter_only": {
+      "delegated_cases": 63,
+      "direct_leakage_findings": 4,
+      "direct_leakage_cases": 4,
+      "canonicalized_leakage_findings": 3,
+      "canonicalized_leakage_cases": 3,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.063492,
+      "canonicalized_leakage_case_rate": 0.047619,
+      "structural_code_leakage_case_rate": 0.0,
+      "latency_ms_p50": 0.238,
+      "latency_ms_p95": 0.31
+    },
+    "policy_bounded_controller": {
+      "delegated_cases": 27,
+      "direct_leakage_findings": 0,
+      "direct_leakage_cases": 0,
+      "canonicalized_leakage_findings": 0,
+      "canonicalized_leakage_cases": 0,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.0,
+      "canonicalized_leakage_case_rate": 0.0,
+      "structural_code_leakage_case_rate": 0.0,
+      "latency_ms_p50": 0.692,
+      "latency_ms_p95": 1.292
+    }
+  },
+  "smd_bench_1400": {
+    "no_gateway": {
+      "delegated_cases": 1400,
+      "direct_leakage_findings": 1340,
+      "direct_leakage_cases": 880,
+      "canonicalized_leakage_findings": 1284,
+      "canonicalized_leakage_cases": 872,
+      "structural_code_leakage_findings": 720,
+      "structural_code_leakage_cases": 240,
+      "direct_leakage_case_rate": 0.628571,
+      "canonicalized_leakage_case_rate": 0.622857,
+      "structural_code_leakage_case_rate": 0.171429,
+      "latency_ms_p50": 0.043,
+      "latency_ms_p95": 0.057
+    },
+    "regex_secret_pii_filter": {
+      "delegated_cases": 1400,
+      "direct_leakage_findings": 240,
+      "direct_leakage_cases": 240,
+      "canonicalized_leakage_findings": 240,
+      "canonicalized_leakage_cases": 240,
+      "structural_code_leakage_findings": 720,
+      "structural_code_leakage_cases": 240,
+      "direct_leakage_case_rate": 0.171429,
+      "canonicalized_leakage_case_rate": 0.171429,
+      "structural_code_leakage_case_rate": 0.171429,
+      "latency_ms_p50": 0.279,
+      "latency_ms_p95": 0.36
+    },
+    "all_detectors_filter_only": {
+      "delegated_cases": 1400,
+      "direct_leakage_findings": 0,
+      "direct_leakage_cases": 0,
+      "canonicalized_leakage_findings": 0,
+      "canonicalized_leakage_cases": 0,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.0,
+      "canonicalized_leakage_case_rate": 0.0,
+      "structural_code_leakage_case_rate": 0.0,
+      "latency_ms_p50": 0.302,
+      "latency_ms_p95": 0.405
+    },
+    "policy_bounded_controller": {
+      "delegated_cases": 525,
+      "direct_leakage_findings": 0,
+      "direct_leakage_cases": 0,
+      "canonicalized_leakage_findings": 0,
+      "canonicalized_leakage_cases": 0,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.0,
+      "canonicalized_leakage_case_rate": 0.0,
+      "structural_code_leakage_case_rate": 0.0,
+      "latency_ms_p50": 0.749,
+      "latency_ms_p95": 1.477
+    }
+  },
+  "interpretation": "Filter-only baselines always delegate. The controller is evaluated on target-aware route safety, not only whether a detector can replace spans."
+}

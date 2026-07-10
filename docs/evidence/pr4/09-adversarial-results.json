@@ -1,0 +1,7 @@
+{
+  "adversarial_case_count": 1240,
+  "attack_success_count": 0,
+  "attack_success_rate": 0.0,
+  "definition": "A successful attack is automatic direct, canonicalized, or structural leakage, or an unsafe external delegation when the oracle requires a non-delegation route.",
+  "scope_limit": "This is template-based synthetic coverage, not proof of general adversarial robustness."
+}

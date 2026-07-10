@@ -1,15 +1,25 @@
 from __future__ import annotations
 
+import shutil
+import tempfile
 import unittest
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from smd_gateway.web_app import app
+from smd_gateway import web_app
 
 
 class WebAppTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.client = TestClient(app)
+        self.tmp = Path(tempfile.mkdtemp())
+        self.original_run_dir = web_app.RUN_DIR
+        web_app.RUN_DIR = self.tmp
+        self.client = TestClient(web_app.app)
+
+    def tearDown(self) -> None:
+        web_app.RUN_DIR = self.original_run_dir
+        shutil.rmtree(self.tmp)
 
     def test_health_returns_ok(self) -> None:
         response = self.client.get("/api/health")
@@ -61,6 +71,21 @@ class WebAppTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         payload = response.json()
         self.assertEqual(payload["leakage_found"], [])
+
+    def test_api_accepts_optional_conversation_turns_without_exposing_history(self) -> None:
+        previous = "Prior local-only context that should not be delegated."
+        response = self.client.post(
+            "/api/process",
+            json={
+                "case_id": "WEB_TEST_TURNS",
+                "user_prompt": "Explain input validation for a public tutorial.",
+                "conversation_turns": [{"source": "previous_user", "text": previous}],
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload["route"], "delegate_sanitized_to_external_ai")
+        self.assertNotIn(previous, payload["delegated_payload"])
 
 
 if __name__ == "__main__":
