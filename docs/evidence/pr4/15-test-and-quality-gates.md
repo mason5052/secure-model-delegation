@@ -5,7 +5,7 @@ endpoint. It did not call a real external AI provider.
 
 ## Automated Tests
 
-- Python unit and integration tests: 37 passed
+- Python unit and integration tests: 38 passed
 - Existing 63-case route regression: 63 of 63 policy-conformant
 - Regression direct leakage findings: 0
 - Regression canonicalized or encoded leakage findings: 0

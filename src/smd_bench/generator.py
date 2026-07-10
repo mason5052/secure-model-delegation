@@ -99,7 +99,7 @@ def generate_all_artifacts(root: Path) -> dict[str, Any]:
 
     review_sample = select_human_review_sample(full)
     review_paths = _write_review_artifacts(review_dir, review_sample)
-    manifest = _manifest(full, full_path, full_validation, pilot_validation)
+    manifest = _manifest(full, full_validation, pilot_validation)
     manifest_path = data_dir / "smd_bench_1400_manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
 
@@ -274,11 +274,10 @@ def _write_jsonl(path: Path, records: list[dict[str, Any]]) -> None:
 
 def _manifest(
     cases: list[dict[str, Any]],
-    path: Path,
     validation: dict[str, Any],
     pilot_validation: dict[str, Any],
 ) -> dict[str, Any]:
-    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    digest = dataset_sha256(cases)
     return {
         "benchmark": BENCHMARK_NAME,
         "benchmark_version": BENCHMARK_VERSION,
@@ -294,6 +293,14 @@ def _manifest(
         "pilot_validation": pilot_validation,
         "human_review_status": "pending",
     }
+
+
+def dataset_sha256(cases: list[dict[str, Any]]) -> str:
+    canonical = "".join(
+        json.dumps(record, ensure_ascii=True, sort_keys=True, separators=(",", ":")) + "\n"
+        for record in cases
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def _write_review_artifacts(review_dir: Path, cases: list[dict[str, Any]]) -> dict[str, Any]:

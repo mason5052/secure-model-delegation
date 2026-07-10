@@ -23,9 +23,11 @@ def main() -> None:
     manifest = _read_json(ROOT / "data" / "smd_bench_1400_manifest.json")
     review = _read_json(ROOT / "data" / "review" / "smd_bench_1400_review_summary.json")
     cases = load_jsonl(ROOT / "data" / "smd_bench_1400.jsonl")
-    if OUT.exists():
-        shutil.rmtree(OUT)
     OUT.mkdir(parents=True, exist_ok=True)
+    for path in OUT.iterdir():
+        prefix = path.name.split("-", 1)[0]
+        if path.is_file() and prefix.isdigit() and int(prefix) <= 14:
+            path.unlink()
 
     _write_json("01-regression-baseline.json", _report_summary(regression))
     _write_json("02-smd-bench-manifest.json", manifest)

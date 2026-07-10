@@ -49,6 +49,13 @@ The review sample contains 210 cases: 30 per family, ten per target profile, and
 All generated review statuses remain `pending`; automated checks and AI-assisted
 pre-review are not counted as human review.
 
+## Reproducibility
+
+The generator uses a fixed seed and emits a manifest with a dataset checksum.
+The checksum is computed from canonical, key-sorted JSON records rather than
+platform-specific file bytes, so Windows and Linux line endings produce the
+same result.
+
 ## Leakage And Utility
 
 Automatic leakage evaluation separates direct leakage, canonicalized or encoded

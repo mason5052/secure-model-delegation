@@ -53,6 +53,13 @@ class SmdBenchTests(unittest.TestCase):
             generator.GENERATOR_SEED = original_seed
         self.assertNotEqual(first_prompt, second_prompt)
 
+    def test_dataset_checksum_uses_canonical_records(self) -> None:
+        records = generate_dataset(2)
+        first = generator.dataset_sha256(records)
+        round_tripped = json.loads(json.dumps(records, ensure_ascii=True))
+        second = generator.dataset_sha256(round_tripped)
+        self.assertEqual(first, second)
+
     def test_pilot_and_full_schema_validation(self) -> None:
         pilot = generate_dataset(2)
         pilot_summary = validate_dataset(pilot, expected_count=140)
