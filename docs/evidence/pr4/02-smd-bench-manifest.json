@@ -1,0 +1,82 @@
+{
+  "benchmark": "SMD-Bench-1400",
+  "benchmark_version": "1.0.0",
+  "generator_seed": 6727,
+  "generation_model": "70 semantic templates x 20 synthetic variants",
+  "coverage_note": "Balanced security coverage; not an estimate of enterprise workload frequency.",
+  "case_count": 1400,
+  "template_count": 70,
+  "development_templates_per_family": 8,
+  "template_evaluation_templates_per_family": 2,
+  "dataset_sha256": "099fb9693d46ca91497b3b5a580bd3fa5184205352ad4d315535f060ee152b6e",
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "case_count": 1400,
+    "unique_case_ids": 1400,
+    "normalized_duplicate_count": 0,
+    "family_counts": {
+      "F1": 200,
+      "F2": 200,
+      "F3": 200,
+      "F4": 200,
+      "F5": 200,
+      "F6": 200,
+      "F7": 200
+    },
+    "target_counts": {
+      "approved_external_ai": 469,
+      "high_risk_external_ai": 462,
+      "local_private": 469
+    },
+    "split_counts": {
+      "development": 1120,
+      "template_evaluation": 280
+    },
+    "case_type_counts": {
+      "adversarial_evasion": 120,
+      "benign_public": 160,
+      "benign_stress": 40,
+      "prompt_injection": 260,
+      "routine_sensitive": 820
+    },
+    "template_count": 70,
+    "template_split_isolation": true,
+    "minimum_variations_per_template": 20
+  },
+  "pilot_validation": {
+    "valid": true,
+    "errors": [],
+    "case_count": 112,
+    "unique_case_ids": 112,
+    "normalized_duplicate_count": 0,
+    "family_counts": {
+      "F1": 16,
+      "F2": 16,
+      "F3": 16,
+      "F4": 16,
+      "F5": 16,
+      "F6": 16,
+      "F7": 16
+    },
+    "target_counts": {
+      "approved_external_ai": 35,
+      "high_risk_external_ai": 35,
+      "local_private": 42
+    },
+    "split_counts": {
+      "development": 112
+    },
+    "case_type_counts": {
+      "adversarial_evasion": 10,
+      "benign_public": 16,
+      "prompt_injection": 22,
+      "routine_sensitive": 64
+    },
+    "template_count": 56,
+    "template_split_isolation": true,
+    "minimum_variations_per_template": 2
+  },
+  "pilot_scope": "development templates only",
+  "human_review_status": "pending"
+}

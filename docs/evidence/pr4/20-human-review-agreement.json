@@ -1,0 +1,10 @@
+{
+  "overlap_count": 70,
+  "completed_route_pairs": 0,
+  "route_raw_agreement": null,
+  "route_cohen_kappa": null,
+  "completed_utility_pairs": 0,
+  "utility_raw_agreement": null,
+  "utility_weighted_cohen_kappa": null,
+  "status": "pending"
+}

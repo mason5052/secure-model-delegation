@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from .main import process_request
-from .request_model import RequestBundle
+from .request_model import RequestBundle, SourceChunk
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -18,11 +18,17 @@ STATIC_DIR = ROOT / "web" / "static"
 RUN_DIR = ROOT / "runs" / "web"
 
 
+class ConversationTurn(BaseModel):
+    source: str = Field(default="user")
+    text: str
+
+
 class ProcessRequest(BaseModel):
     case_id: str = Field(default="WEB_MANUAL_001")
     user_prompt: str
     target_profile: str = Field(default="external_ai")
     transport: str = Field(default="simulated_external_endpoint")
+    conversation_turns: list[ConversationTurn] = Field(default_factory=list)
 
 
 EXAMPLES: list[dict[str, str]] = [
@@ -107,6 +113,10 @@ def process(payload: ProcessRequest) -> dict[str, Any]:
         user_prompt=prompt,
         target_profile=payload.target_profile or "external_ai",
         transport=payload.transport or "simulated_external_endpoint",
+        conversation_turns=[
+            SourceChunk(source=turn.source or "user", text=turn.text)
+            for turn in payload.conversation_turns
+        ],
     )
     result = process_request(bundle, run_dir=RUN_DIR)
     return asdict(result)

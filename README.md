@@ -1,6 +1,11 @@
 # Secure Model Delegation
 
-Policy-bounded controller prototype for local-to-external AI fallback.
+**Secure Model Delegation: A Policy-Bounded Controller for Local-to-Cloud LLM Fallback**
+
+Policy-bounded controller prototype for local-to-external AI fallback. The
+project's fixed research contribution is **Policy-Bounded Model Delegation
+Control and Evaluation**, summarized as **Route Safety plus Target-Specific
+Delegation**.
 
 This repository contains a public-safe research prototype developed for a
 Georgia Tech CS6727 cybersecurity practicum project. It is published with
@@ -10,7 +15,11 @@ exposing company, customer, production, or credential data.
 This is not a general PII detector, DLP product, or privacy masking tool. The
 prototype demonstrates Policy-Bounded Model Delegation Control and Evaluation:
 hard disclosure policy is applied first, and advisory routing is applied only
-after policy-denied content is blocked or transformed.
+after policy-denied content is blocked or transformed. The design rule is:
+
+```text
+Evidence first, policy authority always.
+```
 
 ## Architecture At A Glance
 
@@ -57,6 +66,22 @@ Where:
 - `A(E, P_t)` is the policy-allowed route set.
 - `U(r)` ranks only policy-allowed routes. It does not authorize unsafe routes.
 
+The current prototype makes the utility term explicit and route-specific:
+
+```text
+U(r | X, t) =
+    0.45 * task_adequacy(r, X)
+  + 0.25 * information_retention(r, X)
+  + 0.20 * model_capability_fit(r, t)
+  - 0.10 * operational_cost(r, t)
+```
+
+All components are normalized to `[0, 1]`. The default weights and route costs
+are versioned in `configs/policy.yaml`. They are operational assumptions rather
+than universal constants, so the evaluation includes alternate weight profiles.
+Weight changes can alter which allowed route wins, but they cannot reintroduce a
+route removed by hard policy.
+
 In other words, the controller first removes routes that violate policy, then
 chooses the most useful remaining route. The core safety invariant is:
 
@@ -67,7 +92,7 @@ forall r notin A(E, P_t): f(E, P_t, U) != r
 This means that advisory evidence, ML scores, or utility estimates cannot select
 a route that the target-specific policy forbids.
 
-This proves a bounded route-safety property by construction. It does not prove
+This encodes a bounded route-safety invariant by construction. It does not prove
 that evidence detection is perfect or that all semantic leakage is impossible;
 those risks are evaluated separately through benchmark tests and limitations.
 
@@ -85,6 +110,8 @@ The controller returns one of a small set of route decisions:
 The policy order is intentional. Hard disclosure policy is applied before
 advisory routing. Evidence providers and utility heuristics can inform the
 decision, but they do not have authority to override policy-denied content.
+Runtime policy is loaded and validated from `configs/policy.yaml`; detector code
+supplies evidence rather than duplicating route authority.
 
 For example, source code can be handled differently depending on the target:
 
@@ -118,8 +145,9 @@ what model target, if any, may receive the request and in what form.
   transformed payload safety plus remaining utility.
 - Source-code requests demonstrate target-specific control: raw source code can
   be processed by a trusted local/private model, approved external targets get
-  pseudocode or a generalized problem statement only, and high-risk external
-  targets receive local summary only.
+  a deterministic structural abstraction when safe or a generalized problem
+  statement otherwise, and high-risk external targets receive local summary
+  only. Every result records the actual `transformation_type`.
 
 ## Quick Start
 
@@ -130,6 +158,8 @@ py -3 -m pip install -r requirements.txt
 $env:PYTHONPATH = "src"
 py -3 scripts\run_demo.py
 py -3 scripts\run_eval.py
+py -3 scripts\generate_smd_bench.py
+py -3 scripts\run_eval.py --dataset data\smd_bench_1400.jsonl --benchmark-name SMD-Bench-1400 --summary-only
 py -3 -m unittest discover -s tests
 ```
 
@@ -139,6 +169,8 @@ macOS or Linux:
 python3 -m pip install -r requirements.txt
 python3 scripts/run_demo.py
 python3 scripts/run_eval.py
+python3 scripts/generate_smd_bench.py
+python3 scripts/run_eval.py --dataset data/smd_bench_1400.jsonl --benchmark-name SMD-Bench-1400 --summary-only
 PYTHONPATH=src python3 -m unittest discover -s tests
 ```
 
@@ -203,47 +235,56 @@ The audit log intentionally avoids storing raw secrets.
 
 ## Evaluation Summary
 
-The current synthetic benchmark contains 63 labeled cases. The latest local
-validation run produced the following public-safe results:
+The preserved 63-case set remains a regression baseline. SMD-Bench-1400 contains
+1,120 development cases and 280 template-evaluation cases. The second split is
+not presented as an untouched evaluation set because pilot work exposed the same
+policy family.
+SMD-Challenge-210 was generated after controller freeze commit
+`d1d13cd3822a00b8c5cbd64d3a5ff90552c0159b` from 35 new templates.
 
-| Metric | Value |
-| --- | ---: |
-| Benchmark cases | 63 |
-| Delegated cases | 27 |
-| Route accuracy against current labels | 1.00 |
-| Direct leakage findings | 0 |
-| Over-blocked delegation false positives | 0 |
-| Unsafe delegation false negatives | 0 |
-| Adversarial or mixed-risk cases | 15 |
-| Successful direct-leakage bypasses | 0 |
-| Average local controller latency | about 0.6 ms/request |
-
-Baseline comparison:
-
-| Approach | Delegated cases | Direct leakage findings | Leakage case rate |
+| Metric | Regression 63 | SMD-Bench-1400 | SMD-Challenge-210 |
 | --- | ---: | ---: | ---: |
-| no_gateway | 63 | 170 | 0.86 |
-| regex_only | 63 | 4 | 0.06 |
-| detector_only | 63 | 4 | 0.06 |
-| policy_bounded_controller | 27 | 0 | 0.00 |
+| End-to-end policy conformance | 0.905 | 0.941 | 0.876 |
+| Controller-only policy conformance | Not labeled | 0.996 | 0.914 |
+| Security-relevant target-policy violations | 0 | 0 | 0 |
+| Overblocked expected delegations | 2 | 72 | 18 |
+| Direct, encoded, or structural leakage findings | 0 | 0 | 0 |
+| Evidence-class macro F1 | Not labeled | 0.935 | 0.867 |
+| Rule-based utility-label agreement | Not labeled | 0.915 | 0.895 |
 
-Route distribution:
+The lower challenge result is intentionally preserved. It exposes detector and
+utility weaknesses that the authored main templates did not reveal. Human review
+is still pending, so none of these labels are described as human validated.
 
-| Route | Count |
-| --- | ---: |
-| local_process | 8 |
-| local_summary | 22 |
-| ask_clarification | 4 |
-| deny_request | 2 |
-| delegate_sanitized_to_external_ai | 20 |
-| delegate_pseudocode_to_external_ai | 7 |
+Sensitive workload and adversarial intent are reported separately. The main set
+contains 380 explicit evasion or prompt-injection cases, and the challenge set
+contains 48. Routine credential, PII, code, and incident-analysis requests are
+not counted as attacks merely because they contain protected context.
 
-These results are limited to the current synthetic benchmark and direct leakage
-oracle. They do not prove full semantic privacy.
+The seven evaluation approaches are materially distinct:
 
-For representative route examples, sanitized delegated payloads, public-safe
-audit examples, and metric interpretation, see
-[`docs/evaluation-summary.md`](docs/evaluation-summary.md).
+- `no_gateway` delegates the raw request.
+- `regex_secret_pii_filter` transforms only structured secrets, PII, and
+  host/network evidence, then always delegates.
+- `all_detectors_filter_only` uses every detector and transforms every request,
+  but has no target-aware route control.
+- `always_local` never leaks externally but overblocks useful external help.
+- `target_agnostic_controller` removes target-specific policy.
+- `hard_policy_without_utility` removes route-specific utility selection.
+- `policy_bounded_controller` applies target policy, conflict resolution,
+  utility checks, payload safety, and request-level route arbitration.
+
+On SMD-Bench-1400, the all-detectors filter reached zero automatic span leakage
+but selected a less-protective external route in 64.9 percent of cases. This is the
+main empirical distinction between a privacy filter and a model-delegation
+controller.
+
+For metrics, baseline results, limitations, and interpretation, see
+[`docs/evaluation-summary.md`](docs/evaluation-summary.md). Benchmark design is
+documented in
+[`docs/smd-bench-1400-methodology.md`](docs/smd-bench-1400-methodology.md), and
+the public PR4 evidence package is under
+[`docs/evidence/pr4/`](docs/evidence/pr4/).
 
 ## Project Progress Reports
 
@@ -258,8 +299,13 @@ to expanded evaluation planning.
 - Do not add company data, customer data, production logs, real credentials, or
   real source code to this repository.
 - Runtime artifacts are written to `runs/` and are intentionally ignored by Git.
-- The current leakage oracle checks direct leakage only. Semantic leakage
-  remains a limitation for later research.
+- Automatic leakage evaluation separates direct, canonicalized or encoded, and
+  structural code-detail leakage. Semantic leakage remains a manual-review
+  limitation.
+- SMD-Bench is coverage-balanced and template-generated; it does not represent
+  production workload frequency.
+- The 210-case primary review, 70-case second-review overlap, and challenge
+  review remain pending.
 - This public repository intentionally excludes raw runtime logs, local absolute
   paths, course submission drafts, and real provider API traces.
 

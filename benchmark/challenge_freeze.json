@@ -1,0 +1,4 @@
+{
+  "controller_freeze_commit": "d1d13cd3822a00b8c5cbd64d3a5ff90552c0159b",
+  "rule": "No controller or runtime-policy changes are allowed after challenge generation."
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "target_profile": "local_private",
+    "route": "local_process",
+    "transformation_type": "none",
+    "delegated": false,
+    "detected_labels": [
+      "source_code"
+    ],
+    "conflict_rule_id": "local_private_target_stays_inside_boundary"
+  },
+  {
+    "target_profile": "approved_external_ai",
+    "route": "delegate_pseudocode_to_external_ai",
+    "transformation_type": "generalized_problem_statement",
+    "delegated": true,
+    "detected_labels": [
+      "source_code"
+    ],
+    "conflict_rule_id": "source_code_target_profile_matrix"
+  },
+  {
+    "target_profile": "high_risk_external_ai",
+    "route": "local_summary",
+    "transformation_type": "local_summary",
+    "delegated": false,
+    "detected_labels": [
+      "source_code"
+    ],
+    "conflict_rule_id": "source_code_high_risk_external_local_summary_only"
+  }
+]

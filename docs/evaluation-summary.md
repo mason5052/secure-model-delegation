@@ -1,164 +1,85 @@
 # Public Evaluation Summary
 
-This document provides public-safe evaluation evidence for the Secure Model
-Delegation prototype. It summarizes the current synthetic benchmark results
-without publishing raw runtime logs, local absolute paths, real credentials, or
-company data.
+All requests, identities, credentials, code, and infrastructure markers in this
+evaluation are synthetic. External AI is represented by a simulated endpoint.
 
-## Scope
+## Evaluation Sets
 
-- All benchmark cases are synthetic.
-- The external target is a simulated endpoint.
-- No real OpenAI, Claude, customer, production, or company data is used.
-- The evaluation checks direct leakage of labeled sensitive spans. It does not
-  prove full semantic privacy.
+| Set | Cases | Purpose |
+| --- | ---: | --- |
+| Preserved regression set | 63 | Detect behavior changes from the earlier prototype. |
+| SMD-Bench development | 1,120 | Coverage-balanced implementation development. |
+| SMD-Bench template evaluation | 280 | Evaluate templates separated from implementation development; not an untouched evaluation set. |
+| SMD-Challenge-210 | 210 | Post-freeze evaluation using 35 new semantic templates. |
+| Main human-review sample | 210 | Stratified Mason review; pending. |
+| Second-review overlap | 70 | Independent agreement measurement; pending. |
 
-## Current Metrics
+SMD-Bench-1400 is coverage-balanced and does not estimate production workload
+frequency. Its 1,400 cases come from 70 semantic templates with controlled
+surface, wording, context, and value variation.
 
-| Metric | Value |
-| --- | ---: |
-| Benchmark cases | 63 |
-| Delegated cases | 27 |
-| Route accuracy against current labels | 1.00 |
-| Direct leakage findings | 0 |
-| Direct leakage case rate | 0.00 |
-| Direct leakage findings per delegated case | 0.00 |
-| Over-blocked delegation false positives | 0 |
-| Unsafe delegation false negatives | 0 |
-| Adversarial or mixed-risk cases | 15 |
-| Successful direct-leakage bypasses | 0 |
+The main set includes 380 explicit adversarial-evasion or prompt-injection cases;
+SMD-Challenge-210 includes 48. Routine sensitive requests are evaluated for
+policy and leakage behavior but are not counted as attacks.
 
-## Route Counts
+## Current Results
 
-| Route | Count |
-| --- | ---: |
-| ask_clarification | 4 |
-| delegate_pseudocode_to_external_ai | 7 |
-| delegate_sanitized_to_external_ai | 20 |
-| deny_request | 2 |
-| local_process | 8 |
-| local_summary | 22 |
+| Metric | Regression 63 | SMD-Bench-1400 | SMD-Challenge-210 |
+| --- | ---: | ---: | ---: |
+| End-to-end policy conformance | 0.905 | 0.941 | 0.876 |
+| Controller-only policy conformance | Not labeled | 0.996 | 0.914 |
+| Security-relevant target-policy violations | 0 | 0 | 0 |
+| Overblocked expected delegations | 2 | 72 | 18 |
+| Direct leakage findings | 0 | 0 | 0 |
+| Canonicalized or encoded leakage findings | 0 | 0 | 0 |
+| Structural code-detail leakage findings | 0 | 0 | 0 |
+| Evidence-class macro F1 | Not labeled | 0.935 | 0.867 |
+| Rule-based utility-label agreement | Not labeled | 0.915 | 0.895 |
 
-## Utility Preservation Summary
+Controller-only evaluation injects ground-truth evidence. End-to-end evaluation
+uses the implemented evidence providers. The difference between the two exposes
+detector effects instead of attributing every failure to the controller.
 
-| Utility bucket | Count |
-| --- | ---: |
-| delegated_partial | 2 |
-| delegated_sufficient | 25 |
-| not_delegated_insufficient | 8 |
-| not_delegated_partial | 25 |
-| not_delegated_sufficient | 3 |
+## Baseline Separation
 
-The utility labels are intentionally lightweight:
-
-- `sufficient`: the transformed payload preserves enough task value.
-- `partial`: some value remains, but the safer route reduces detail.
-- `insufficient`: the remaining request is too vague or too redacted for useful
-  delegation.
-
-## Latency Summary
-
-| Path | Average ms | Median ms |
-| --- | ---: | ---: |
-| no_gateway_minimal_baseline | 0.005 | 0.006 |
-| policy_bounded_controller | about 0.6 | about 0.5 |
-
-These measurements are local prototype timings, not production latency claims.
-
-## Baseline Comparison
-
-| Approach | Delegated cases | Direct leakage findings | Leakage case rate | Findings per case |
+| SMD-Bench approach | Route conformance | Target-policy violation rate | Overblocked rate | Direct leakage cases |
 | --- | ---: | ---: | ---: | ---: |
-| no_gateway | 63 | 170 | 0.86 | 2.70 |
-| regex_only | 63 | 4 | 0.06 | 0.06 |
-| detector_only | 63 | 4 | 0.06 | 0.06 |
-| policy_bounded_controller | 27 | 0 | 0.00 | 0.00 |
+| `no_gateway` | 0.342 | 0.649 | 0.000 | 880 |
+| `always_local` | 0.379 | 0.000 | 0.375 | 0 |
+| `regex_secret_pii_filter` | 0.342 | 0.649 | 0.000 | 240 |
+| `all_detectors_filter_only` | 0.342 | 0.649 | 0.000 | 0 |
+| `target_agnostic_controller` | 0.635 | 0.215 | 0.051 | 0 |
+| `hard_policy_without_utility` | 0.984 | 0.009 | 0.000 | 0 |
+| `policy_bounded_controller` | 0.941 | 0.000 | 0.051 | 0 |
 
-The baseline values count leakage findings, not probabilities. A single case
-can contain multiple leaked spans, so findings per case can exceed 1.0.
+The all-detectors baseline reaches zero automatic span leakage on the authored
+main set but selects a less-protective external route in 64.9 percent of cases.
+This is the central empirical distinction between filtering and model-delegation
+control. The always-local baseline is safe but overblocks expected external
+assistance.
 
-## Representative Route Examples
+A target-policy violation is counted only when a security-relevant request is
+sent through an external route with less disclosure protection than the authored
+expected route. A safer but less useful route is instead counted through route
+conformance or overblocking; it is not mislabeled as a security violation.
 
-| Case | Input pattern | Route | Result |
-| --- | --- | --- | --- |
-| B033 | Obfuscated API key debugging | delegate_sanitized_to_external_ai | Obfuscated synthetic key is replaced before delegation. |
-| B035 | Encoded policy-bypass text plus token | local_summary | Request stays local because prompt injection is combined with a token. |
-| B040 | Incident topology with internal infrastructure | local_summary | Incident and topology details stay inside the trusted boundary. |
-| B047 | Proprietary algorithm review | delegate_pseudocode_to_external_ai | Implementation detail is generalized before delegation. |
-| B055 | Support ticket with PII | delegate_sanitized_to_external_ai | PII placeholders preserve enough support-note utility. |
-| B060 | Support ticket with PII and config token | delegate_sanitized_to_external_ai | PII and config token are replaced before delegation. |
-| B061 | Source code with local/private target | local_process | Raw code remains inside the trusted boundary. |
-| B062 | Source code with approved external target | delegate_pseudocode_to_external_ai | Raw code is converted to pseudocode before delegation. |
-| B063 | Source code with high-risk external target | local_summary | No code-derived payload is sent externally. |
+## Utility Sensitivity
 
-## Sanitized Delegated Payload Examples
-
-Obfuscated API key debugging:
-
-```text
-[USER_PROMPT]
-Debug this 401 error: [API_KEY_1].
-```
-
-Support ticket with PII and config token:
-
-```text
-[USER_PROMPT]
-Draft a support note for [PERSON_1] at [EMAIL_1] after [CONFIG_SECRET_1] failed during login troubleshooting.
-```
-
-Source-code style request:
-
-```text
-[USER_PROMPT]
-Review this synthetic code for an authorization issue: [PSEUDOCODE_SUMMARY_1]
-
-[GENERALIZED_PROBLEM_STATEMENT]
-A private implementation detail was replaced with a high-level security question. Review the abstract control-flow or design issue without requiring raw source code.
-```
-
-Target-specific source-code behavior:
-
-```text
-local_private target:
-route = local_process
-external payload = none
-
-approved_external_ai target:
-route = delegate_pseudocode_to_external_ai
-external payload = pseudocode or generalized problem statement only
-
-high_risk_external_ai target:
-route = local_summary
-external payload = none
-```
-
-## Public-Safe Audit Example
-
-The real runtime audit log is intentionally ignored by Git. A representative
-public-safe audit record looks like this:
-
-```json
-{
-  "case_id": "B033",
-  "request_sha256": "synthetic-example-hash-redacted",
-  "detected_labels": ["api_key"],
-  "span_count": 1,
-  "route": "delegate_sanitized_to_external_ai",
-  "transport": "simulated_external_endpoint",
-  "hard_action": "transform",
-  "utility_label": "sufficient",
-  "target_profile": "external_ai",
-  "rule_ids": ["hard_policy_first", "transformed_payload_safety_plus_remaining_utility"],
-  "raw_input_stored": false
-}
-```
+Changing utility weights changed SMD-Bench route conformance from 0.744 to 0.991
+and challenge conformance from 0.733 to 0.933. Every compared route was already
+inside the hard-policy allowed set. The result supports the bounded safety claim
+while showing that operational route choice depends on explicit utility
+assumptions that require human validation.
 
 ## Interpretation
 
-The current evidence supports a narrow claim: in this synthetic benchmark, when
-delegation is mediated by the policy-bounded controller, policy-denied raw spans
-do not appear in delegated payloads under the direct leakage oracle.
+The current evidence supports a bounded claim: hard policy prevents utility
+scoring from selecting a forbidden route, and no automatic direct, encoded, or
+structural leakage was observed for controller-mediated delegated payloads in
+these synthetic sets.
 
-The evidence does not claim that the prototype detects every possible sensitive
-span, prevents semantic leakage, or replaces enterprise DLP systems.
+It does not establish perfect detector coverage, semantic privacy, production
+prevalence, or provider behavior. Human review, inter-rater agreement, semantic
+leakage assessment, and independent enterprise-like cases remain publication
+gates. Detailed artifacts are available under
+[`docs/evidence/pr4/`](evidence/pr4/).

@@ -88,9 +88,10 @@ class GatewayTests(unittest.TestCase):
         )
         self.assertEqual(result.route, "delegate_pseudocode_to_external_ai")
         self.assertIsNotNone(result.delegated_payload)
-        self.assertIn("[PSEUDOCODE_SUMMARY_", result.delegated_payload or "")
+        self.assertIn("[GENERALIZED_CODE_", result.delegated_payload or "")
         self.assertNotIn("function updateOrder", result.delegated_payload or "")
-        self.assertIn("source_code_requires_pseudocode", result.rule_ids)
+        self.assertIn("source_code_target_profile_matrix", result.rule_ids)
+        self.assertEqual(result.transformation_type, "generalized_problem_statement")
 
     def test_high_risk_external_target_gets_local_summary_for_source_code(self) -> None:
         result = process_request(
