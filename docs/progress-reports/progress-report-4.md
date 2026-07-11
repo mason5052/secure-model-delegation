@@ -56,6 +56,7 @@ I also hardened the implemented egress path. Repeated sensitive values now use s
 - Preserved main and challenge failures, including overblocking and weak evidence classes, instead of tuning labels to make the results appear perfect.
 - Expanded automated validation to 53 unit and integration tests, deterministic generation checks, controller-freeze verification, full benchmark evaluation, two challenge evaluations, and web smoke testing in GitHub Actions.
 - Merged the hardened benchmark and evaluation implementation into the public personal repository's `main` branch with a history-preserving merge commit.
+- Published the final egress-hardening and Osaurus-style comparison update to personal-repository `main` at commit `1aa75485cef6690de7f8f877c64ebbee73df647a`; GitHub Actions run `29138033477` passed every validation stage.
 
 ## Tasks for the Next Project Report and Final Deliverables
 
