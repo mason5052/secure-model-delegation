@@ -7,7 +7,7 @@
 **Name:** Junkuk Kim
 **Due Date:** 2026-07-12 11:59 PM ET
 
-**AI Assistance Disclosure:** I used generative AI tools as a support tool for brainstorming, language polishing, code review, and organizing project evidence. I made the final design decisions, reviewed and revised the submitted content, verified citations and results, and remain responsible for the work.
+**AI Assistant Acknowledgement:** Artificial Intelligence was only used as an aid for making corrections in the document, improving language proficiency, providing alternative ideas, code reviews, and evidence compilation. All decisions pertaining to the design and implementation were made individually, while the authorship of the work rests with the individual alone.
 
 ## Problem Statement
 
