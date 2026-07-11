@@ -43,6 +43,8 @@ jobs:
           data/smd_bench_1400_manifest.json
           data/smd_challenge_210.jsonl
           data/smd_challenge_210_manifest.json
+          data/smd_egress_challenge_36.jsonl
+          data/smd_egress_challenge_36_manifest.json
           data/review
 
       - name: Verify post-freeze controller integrity
@@ -89,6 +91,15 @@ jobs:
           python scripts/run_utility_sensitivity.py
           --report runs/ci-challenge/report.json
           --output runs/ci-challenge/utility-sensitivity.json
+
+      - name: Evaluate the egress challenge set
+        run: >-
+          python scripts/run_eval.py
+          --dataset data/smd_egress_challenge_36.jsonl
+          --run-dir runs/ci-egress-challenge
+          --output runs/ci-egress-challenge/report.json
+          --benchmark-name SMD-Egress-Challenge-36
+          --summary-only
 
       - name: Validate pending human-review agreement workflow
         run: python scripts/summarize_human_review.py --output docs/evidence/pr4/20-human-review-agreement.json

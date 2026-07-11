@@ -1,0 +1,36 @@
+{
+  "benchmark": "SMD-Egress-Challenge-36",
+  "benchmark_version": "1.0.0-egress-challenge",
+  "case_count": 36,
+  "template_count": 6,
+  "dataset_sha256": "e313bcc7dee2e0515c95257429c517ac9f30ef52cef94cb9f642323d741e72e5",
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "case_count": 36,
+    "unique_case_ids": 36,
+    "normalized_duplicate_count": 0,
+    "family_counts": {
+      "F1": 12,
+      "F2": 6,
+      "F7": 18
+    },
+    "target_counts": {
+      "approved_external_ai": 12,
+      "high_risk_external_ai": 12,
+      "local_private": 12
+    },
+    "split_counts": {
+      "challenge": 36
+    },
+    "case_type_counts": {
+      "prompt_injection": 6,
+      "routine_sensitive": 30
+    },
+    "template_count": 6,
+    "template_split_isolation": true,
+    "minimum_variations_per_template": 6
+  },
+  "purpose": "Post-freeze stress set for fenced-code secrets, stable placeholders, structured tokens, and semantic business sensitivity.",
+  "human_review_status": "pending"
+}

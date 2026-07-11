@@ -15,3 +15,9 @@ The post-freeze challenge achieved 0.876190 end-to-end policy conformance and 0.
 The challenge detector macro F1 was 0.867244. `proprietary_code` recall was zero in its unseen phrasing, and `internal_infrastructure` F1 was 0.363636. These failures were discovered after the controller freeze and have not been used to tune the controller.
 
 The challenge provides a less optimistic post-freeze stress signal than the authored main-template score because its lower performance and class-specific failures are preserved. It is not independent external validation, and its human review remains pending.
+
+## SMD-Egress-Challenge-36
+
+The targeted egress set achieved 0.666667 end-to-end policy conformance. It exposed eight security-relevant target-policy violations and eight direct findings. All eight came from approved or high-risk external cases whose authored `business_sensitive` evidence was not detected.
+
+Known-class controller-only conformance remained 1.0 on 18 evaluable cases. This does not rescue the end-to-end result. It demonstrates the boundary of the formal claim: hard-policy arbitration can constrain only the evidence supplied to it. The controller and policy remain frozen, and these failures define future semantic-evidence work.

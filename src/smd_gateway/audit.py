@@ -4,7 +4,7 @@ import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from .request_model import NormalizedRequest, PolicyDecision, SensitiveSpan
 
@@ -15,6 +15,9 @@ def write_audit_log(
     spans: list[SensitiveSpan],
     decision: PolicyDecision,
     external_ref: Optional[str],
+    egress_validation: Optional[dict[str, Any]] = None,
+    wire_metadata: Optional[dict[str, Any]] = None,
+    placeholder_count: int = 0,
 ) -> str:
     run_dir.mkdir(parents=True, exist_ok=True)
     out_path = run_dir / "audit.jsonl"
@@ -43,6 +46,9 @@ def write_audit_log(
         "decision_trace": decision.decision_trace,
         "reasons": decision.reasons,
         "external_ref": external_ref,
+        "egress_validation": egress_validation or {"status": "not_applicable"},
+        "wire_metadata": wire_metadata or {},
+        "placeholder_count": placeholder_count,
         "raw_input_stored": False,
     }
     with out_path.open("a", encoding="utf-8") as handle:

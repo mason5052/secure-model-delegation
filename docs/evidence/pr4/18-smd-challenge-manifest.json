@@ -39,6 +39,6 @@
     "template_split_isolation": true,
     "minimum_variations_per_template": 6
   },
-  "post_freeze_rule": "No controller or runtime-policy changes are allowed after challenge generation.",
+  "post_freeze_rule": "No decision-core, detector, benchmark-label, or runtime-policy changes are allowed after challenge generation.",
   "human_review_status": "pending"
 }

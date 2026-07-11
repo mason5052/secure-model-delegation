@@ -8,6 +8,9 @@
 - Route accuracy is reported as policy conformance, not independent proof of safety.
 - Utility results are described as agreement with authored rule-based labels, not independent utility ground truth.
 - Detector and controller performance are evaluated separately.
+- Benchmark leakage oracles are post-hoc evaluators and cannot influence runtime egress decisions.
+- Stable placeholders preserve repeated-value relationships while reversible mappings remain local.
+- A fail-closed post-transform guard records exact wire metadata and escalates blocked delegations to local summary.
 
 ## Added Comparative Evidence
 
@@ -15,7 +18,9 @@
 - `all_detectors_filter_only` shows that zero span leakage does not establish target-policy compliance.
 - `target_agnostic_controller` isolates the value of target-specific policy.
 - `hard_policy_without_utility` isolates the effect of route-specific utility selection.
+- `osaurus_style_filter_only` is a documented behavioral analogue of a privacy-filter pipeline, not a claim that Osaurus code was executed.
 - SMD-Challenge-210 records a post-freeze evaluation against 35 unseen semantic templates.
+- SMD-Egress-Challenge-36 preserves semantic business-sensitivity failures instead of tuning the frozen controller.
 
 ## Remaining Publication Gates
 

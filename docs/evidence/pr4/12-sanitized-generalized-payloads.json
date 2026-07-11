@@ -6,7 +6,11 @@
     "delegated_payload": "[USER_PROMPT]\nExplain why a client using the URL-encoded credential [API_KEY_1] receives an authentication error. Focus on the immediate cause.",
     "direct_leakage_found": [],
     "canonicalized_leakage_found": [],
-    "structural_code_leakage_found": []
+    "structural_code_leakage_found": [],
+    "egress_guard_status": "allowed",
+    "wire_body_sha256": "8a31eab8aca6482e65e3cc155c135554db7a77b7d2ff89fdf039ba553c877537",
+    "wire_body_bytes": 268,
+    "placeholder_count": 1
   },
   {
     "case_id": "SMD-F3-T01-V002",
@@ -15,7 +19,11 @@
     "delegated_payload": "[USER_PROMPT]\nFor a synthetic security review, Review this code for an authorization issue: [GENERALIZED_CODE_1] Keep the response concise.\n\n[GENERALIZED_PROBLEM_STATEMENT]\nA private implementation detail was replaced with a high-level security question. Review the abstract control-flow or design issue without requiring raw source code.",
     "direct_leakage_found": [],
     "canonicalized_leakage_found": [],
-    "structural_code_leakage_found": []
+    "structural_code_leakage_found": [],
+    "egress_guard_status": "allowed",
+    "wire_body_sha256": "bc8c13ad1c3ad43d66b5cd6cd654a664675b9fb339969534706a7951233d7137",
+    "wire_body_bytes": 466,
+    "placeholder_count": 0
   },
   {
     "case_id": "SMD-F6-T01-V002",
@@ -24,6 +32,10 @@
     "delegated_payload": "[USER_PROMPT]\nFor a synthetic security review, Explain the OWASP LLM Top 10 at a high level for public training. Keep the response concise.",
     "direct_leakage_found": [],
     "canonicalized_leakage_found": [],
-    "structural_code_leakage_found": []
+    "structural_code_leakage_found": [],
+    "egress_guard_status": "allowed",
+    "wire_body_sha256": "6bbdcc187ff499355b2546796a390c017035311e5146ee1dd16f2aece30026ac",
+    "wire_body_bytes": 264,
+    "placeholder_count": 0
   }
 ]

@@ -1,0 +1,453 @@
+{
+  "benchmark": "SMD-Egress-Challenge-36",
+  "case_count": 36,
+  "delegated_cases": 16,
+  "route_accuracy_or_policy_conformance": 0.666667,
+  "controller_only_policy_conformance": 1.0,
+  "end_to_end_policy_conformance": 0.666667,
+  "target_policy_violation_count": 8,
+  "target_policy_violation_rate": 0.222222,
+  "unsafe_delegation_false_negatives": {
+    "count": 8,
+    "case_ids": [
+      "SMDE-F7-T03-V002",
+      "SMDE-F7-T03-V003",
+      "SMDE-F7-T03-V005",
+      "SMDE-F7-T03-V006",
+      "SMDE-F7-T04-V002",
+      "SMDE-F7-T04-V003",
+      "SMDE-F7-T04-V005",
+      "SMDE-F7-T04-V006"
+    ]
+  },
+  "overblocked_delegation_false_positives": {
+    "count": 0,
+    "case_ids": []
+  },
+  "direct_leakage_count": 8,
+  "canonicalized_leakage_count": 8,
+  "structural_code_leakage_count": 0,
+  "adversarial_case_count": 6,
+  "adversarial_attack_success_count": 0,
+  "adversarial_attack_success_rate": 0.0,
+  "rule_based_utility_labeled_cases": 36,
+  "rule_based_utility_label_agreement": 0.888889,
+  "task_intent_preservation_rate": 1.0,
+  "utility_distribution": {
+    "partial": 4,
+    "sufficient": 32
+  },
+  "utility_distribution_by_route": {
+    "delegate_sanitized_to_external_ai": {
+      "sufficient": 16
+    },
+    "local_process": {
+      "sufficient": 16
+    },
+    "local_summary": {
+      "partial": 4
+    }
+  },
+  "clarification_rate": 0.0,
+  "route_distribution": {
+    "delegate_sanitized_to_external_ai": 16,
+    "local_process": 16,
+    "local_summary": 4
+  },
+  "latency_ms": {
+    "p50": 1.046,
+    "p95": 1.51
+  },
+  "route_metrics": {
+    "per_route": {
+      "delegate_sanitized_to_external_ai": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.666667,
+        "support": 8
+      },
+      "local_process": {
+        "precision": 0.75,
+        "recall": 1.0,
+        "f1": 0.857143,
+        "support": 12
+      },
+      "local_summary": {
+        "precision": 1.0,
+        "recall": 0.25,
+        "f1": 0.4,
+        "support": 16
+      }
+    },
+    "macro_f1": 0.64127
+  },
+  "confusion_matrix": {
+    "delegate_sanitized_to_external_ai": {
+      "delegate_sanitized_to_external_ai": 8
+    },
+    "local_process": {
+      "local_process": 12
+    },
+    "local_summary": {
+      "delegate_sanitized_to_external_ai": 8,
+      "local_process": 4,
+      "local_summary": 4
+    }
+  },
+  "baseline_comparison": {
+    "no_gateway": {
+      "delegated_cases": 36,
+      "route_conformant_cases": 8,
+      "target_policy_violation_cases": 28,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 48,
+      "direct_leakage_cases": 36,
+      "canonicalized_leakage_findings": 48,
+      "canonicalized_leakage_cases": 36,
+      "structural_code_leakage_findings": 12,
+      "structural_code_leakage_cases": 6,
+      "direct_leakage_case_rate": 1.0,
+      "canonicalized_leakage_case_rate": 1.0,
+      "structural_code_leakage_case_rate": 0.166667,
+      "route_conformant_rate": 0.222222,
+      "target_policy_violation_rate": 0.777778,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 0.023,
+      "latency_ms_p95": 0.026
+    },
+    "always_local": {
+      "delegated_cases": 0,
+      "route_conformant_cases": 12,
+      "target_policy_violation_cases": 0,
+      "overblocked_cases": 8,
+      "direct_leakage_findings": 0,
+      "direct_leakage_cases": 0,
+      "canonicalized_leakage_findings": 0,
+      "canonicalized_leakage_cases": 0,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.0,
+      "canonicalized_leakage_case_rate": 0.0,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.333333,
+      "target_policy_violation_rate": 0.0,
+      "overblocked_rate": 0.222222,
+      "latency_ms_p50": 0.004,
+      "latency_ms_p95": 0.004
+    },
+    "regex_secret_pii_filter": {
+      "delegated_cases": 36,
+      "route_conformant_cases": 8,
+      "target_policy_violation_cases": 28,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 24,
+      "direct_leakage_cases": 24,
+      "canonicalized_leakage_findings": 24,
+      "canonicalized_leakage_cases": 24,
+      "structural_code_leakage_findings": 12,
+      "structural_code_leakage_cases": 6,
+      "direct_leakage_case_rate": 0.666667,
+      "canonicalized_leakage_case_rate": 0.666667,
+      "structural_code_leakage_case_rate": 0.166667,
+      "route_conformant_rate": 0.222222,
+      "target_policy_violation_rate": 0.777778,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 0.249,
+      "latency_ms_p95": 0.316
+    },
+    "all_detectors_filter_only": {
+      "delegated_cases": 36,
+      "route_conformant_cases": 8,
+      "target_policy_violation_cases": 28,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 18,
+      "direct_leakage_cases": 18,
+      "canonicalized_leakage_findings": 18,
+      "canonicalized_leakage_cases": 18,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.5,
+      "canonicalized_leakage_case_rate": 0.5,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.222222,
+      "target_policy_violation_rate": 0.777778,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 0.275,
+      "latency_ms_p95": 0.352
+    },
+    "osaurus_style_filter_only": {
+      "delegated_cases": 36,
+      "route_conformant_cases": 8,
+      "target_policy_violation_cases": 28,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 18,
+      "direct_leakage_cases": 18,
+      "canonicalized_leakage_findings": 18,
+      "canonicalized_leakage_cases": 18,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.5,
+      "canonicalized_leakage_case_rate": 0.5,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.222222,
+      "target_policy_violation_rate": 0.777778,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 0.623,
+      "latency_ms_p95": 1.025
+    },
+    "target_agnostic_controller": {
+      "delegated_cases": 24,
+      "route_conformant_cases": 14,
+      "target_policy_violation_cases": 16,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 12,
+      "direct_leakage_cases": 12,
+      "canonicalized_leakage_findings": 12,
+      "canonicalized_leakage_cases": 12,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.333333,
+      "canonicalized_leakage_case_rate": 0.333333,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.388889,
+      "target_policy_violation_rate": 0.444444,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 1.137,
+      "latency_ms_p95": 1.514
+    },
+    "hard_policy_without_utility": {
+      "delegated_cases": 16,
+      "route_conformant_cases": 24,
+      "target_policy_violation_cases": 8,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 8,
+      "direct_leakage_cases": 8,
+      "canonicalized_leakage_findings": 8,
+      "canonicalized_leakage_cases": 8,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.222222,
+      "canonicalized_leakage_case_rate": 0.222222,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.666667,
+      "target_policy_violation_rate": 0.222222,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 1.027,
+      "latency_ms_p95": 1.521
+    },
+    "policy_bounded_controller": {
+      "delegated_cases": 16,
+      "route_conformant_cases": 24,
+      "target_policy_violation_cases": 8,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 8,
+      "direct_leakage_cases": 8,
+      "canonicalized_leakage_findings": 8,
+      "canonicalized_leakage_cases": 8,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.222222,
+      "canonicalized_leakage_case_rate": 0.222222,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.666667,
+      "target_policy_violation_rate": 0.222222,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 1.046,
+      "latency_ms_p95": 1.51
+    }
+  },
+  "baseline_definitions": {
+    "no_gateway": "Delegates the raw request without disclosure control.",
+    "always_local": "Keeps every request local regardless of expected utility.",
+    "regex_secret_pii_filter": "Transforms structured detector matches and always delegates.",
+    "all_detectors_filter_only": "Transforms every detected span and always delegates without target-aware arbitration.",
+    "osaurus_style_filter_only": "Behavioral analogue of an enabled privacy-filter pipeline: detect, apply stable placeholders, run a post-transform fail-closed invariant over detected originals, capture wire metadata, and delegate. It does not execute or reproduce Osaurus code and does not add target-aware routing.",
+    "target_agnostic_controller": "Runs the controller after replacing every target profile with the approved-external profile.",
+    "hard_policy_without_utility": "Applies hard policy without route-specific utility ranking.",
+    "policy_bounded_controller": "Applies target-specific hard policy, conflict resolution, utility ranking, and egress control."
+  },
+  "evidence_detection": {
+    "unit": "case-level evidence-class presence",
+    "per_class": {
+      "api_key": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "auth_token": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "business_sensitive": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 18,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "config_secret": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "pii_email": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "prompt_injection": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "source_code": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    },
+    "micro_precision": 1.0,
+    "micro_recall": 0.666667,
+    "micro_f1": 0.8,
+    "macro_f1": 0.857143
+  },
+  "by_split": {
+    "challenge": {
+      "case_count": 36,
+      "policy_conformance": 0.666667,
+      "controller_only_policy_conformance": 1.0,
+      "unsafe_delegation_count": 8,
+      "overblocked_count": 0,
+      "direct_leakage_count": 8,
+      "canonicalized_leakage_count": 8,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 0.888889,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 16,
+        "local_process": 16,
+        "local_summary": 4
+      }
+    }
+  },
+  "by_family": {
+    "F1": {
+      "case_count": 12,
+      "policy_conformance": 1.0,
+      "controller_only_policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 0.666667,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 4,
+        "local_process": 4,
+        "local_summary": 4
+      }
+    },
+    "F2": {
+      "case_count": 6,
+      "policy_conformance": 1.0,
+      "controller_only_policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 4,
+        "local_process": 2
+      }
+    },
+    "F7": {
+      "case_count": 18,
+      "policy_conformance": 0.333333,
+      "controller_only_policy_conformance": null,
+      "unsafe_delegation_count": 8,
+      "overblocked_count": 0,
+      "direct_leakage_count": 8,
+      "canonicalized_leakage_count": 8,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 8,
+        "local_process": 10
+      }
+    }
+  },
+  "by_target_profile": {
+    "approved_external_ai": {
+      "case_count": 12,
+      "policy_conformance": 0.5,
+      "controller_only_policy_conformance": 1.0,
+      "unsafe_delegation_count": 4,
+      "overblocked_count": 0,
+      "direct_leakage_count": 4,
+      "canonicalized_leakage_count": 4,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 0.833333,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 8,
+        "local_process": 2,
+        "local_summary": 2
+      }
+    },
+    "high_risk_external_ai": {
+      "case_count": 12,
+      "policy_conformance": 0.5,
+      "controller_only_policy_conformance": 1.0,
+      "unsafe_delegation_count": 4,
+      "overblocked_count": 0,
+      "direct_leakage_count": 4,
+      "canonicalized_leakage_count": 4,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 0.833333,
+      "route_distribution": {
+        "delegate_sanitized_to_external_ai": 8,
+        "local_process": 2,
+        "local_summary": 2
+      }
+    },
+    "local_private": {
+      "case_count": 12,
+      "policy_conformance": 1.0,
+      "controller_only_policy_conformance": 1.0,
+      "unsafe_delegation_count": 0,
+      "overblocked_count": 0,
+      "direct_leakage_count": 0,
+      "canonicalized_leakage_count": 0,
+      "structural_code_leakage_count": 0,
+      "utility_agreement": 1.0,
+      "route_distribution": {
+        "local_process": 12
+      }
+    }
+  },
+  "semantic_leakage": {
+    "automatic_evaluation": false,
+    "manual_review_required": true,
+    "note": "Automatic results cover direct, canonicalized/encoded, and structural code-detail leakage only."
+  }
+}

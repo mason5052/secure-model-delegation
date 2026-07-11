@@ -1,4 +1,6 @@
 {
   "controller_freeze_commit": "d1d13cd3822a00b8c5cbd64d3a5ff90552c0159b",
-  "rule": "No controller or runtime-policy changes are allowed after challenge generation."
+  "rule": "No decision-core, detector, benchmark-label, or runtime-policy changes are allowed after challenge generation.",
+  "freeze_scope": "Decision arbitration, utility ranking, evidence detection, normalization, sanitization used by controller scoring, leakage scoring, runtime policy, and benchmark label policy.",
+  "post_freeze_extension_rule": "Audit, simulated transport, and fail-closed egress wrappers may add evidence or escalate to a safer local route, but may not authorize a route rejected by the frozen decision core."
 }

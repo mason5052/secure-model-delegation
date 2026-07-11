@@ -148,6 +148,12 @@ what model target, if any, may receive the request and in what form.
   a deterministic structural abstraction when safe or a generalized problem
   statement otherwise, and high-risk external targets receive local summary
   only. Every result records the actual `transformation_type`.
+- Delegated payloads pass through a fail-closed egress guard based only on
+  runtime-detected evidence. Benchmark ground truth is reserved for post-hoc
+  evaluation and cannot change whether a request is sent.
+- Stable placeholders preserve repeated-value relationships within a request,
+  while the reversible mapping remains local. The simulated endpoint records
+  the exact wire-body digest and byte count for auditability.
 
 ## Quick Start
 
@@ -160,6 +166,7 @@ py -3 scripts\run_demo.py
 py -3 scripts\run_eval.py
 py -3 scripts\generate_smd_bench.py
 py -3 scripts\run_eval.py --dataset data\smd_bench_1400.jsonl --benchmark-name SMD-Bench-1400 --summary-only
+py -3 scripts\run_eval.py --dataset data\smd_egress_challenge_36.jsonl --benchmark-name SMD-Egress-Challenge-36 --summary-only
 py -3 -m unittest discover -s tests
 ```
 
@@ -171,6 +178,7 @@ python3 scripts/run_demo.py
 python3 scripts/run_eval.py
 python3 scripts/generate_smd_bench.py
 python3 scripts/run_eval.py --dataset data/smd_bench_1400.jsonl --benchmark-name SMD-Bench-1400 --summary-only
+python3 scripts/run_eval.py --dataset data/smd_egress_challenge_36.jsonl --benchmark-name SMD-Egress-Challenge-36 --summary-only
 PYTHONPATH=src python3 -m unittest discover -s tests
 ```
 
@@ -241,16 +249,19 @@ not presented as an untouched evaluation set because pilot work exposed the same
 policy family.
 SMD-Challenge-210 was generated after controller freeze commit
 `d1d13cd3822a00b8c5cbd64d3a5ff90552c0159b` from 35 new templates.
+SMD-Egress-Challenge-36 is a separate targeted stress set for fenced-code
+secrets, stable placeholders, structured tokens, and semantic business
+sensitivity. It is diagnostic rather than a production-frequency estimate.
 
-| Metric | Regression 63 | SMD-Bench-1400 | SMD-Challenge-210 |
-| --- | ---: | ---: | ---: |
-| End-to-end policy conformance | 0.905 | 0.941 | 0.876 |
-| Controller-only policy conformance | Not labeled | 0.996 | 0.914 |
-| Security-relevant target-policy violations | 0 | 0 | 0 |
-| Overblocked expected delegations | 2 | 72 | 18 |
-| Direct, encoded, or structural leakage findings | 0 | 0 | 0 |
-| Evidence-class macro F1 | Not labeled | 0.935 | 0.867 |
-| Rule-based utility-label agreement | Not labeled | 0.915 | 0.895 |
+| Metric | Regression 63 | SMD-Bench-1400 | SMD-Challenge-210 | Egress Challenge 36 |
+| --- | ---: | ---: | ---: | ---: |
+| End-to-end policy conformance | 0.889 | 0.941 | 0.876 | 0.667 |
+| Controller-only policy conformance | Not labeled | 0.996 | 0.914 | 1.000 on 18 evaluable cases |
+| Security-relevant target-policy violations | 0 | 0 | 0 | 8 |
+| Overblocked expected delegations | 3 | 72 | 18 | 0 |
+| Direct leakage findings | 0 | 0 | 0 | 8 |
+| Evidence-class macro F1 | Not labeled | 0.935 | 0.867 | 0.857 |
+| Rule-based utility-label agreement | Not labeled | 0.915 | 0.895 | 0.889 |
 
 The lower challenge result is intentionally preserved. It exposes detector and
 utility weaknesses that the authored main templates did not reveal. Human review
@@ -261,13 +272,16 @@ contains 380 explicit evasion or prompt-injection cases, and the challenge set
 contains 48. Routine credential, PII, code, and incident-analysis requests are
 not counted as attacks merely because they contain protected context.
 
-The seven evaluation approaches are materially distinct:
+The eight evaluation approaches are materially distinct:
 
 - `no_gateway` delegates the raw request.
 - `regex_secret_pii_filter` transforms only structured secrets, PII, and
   host/network evidence, then always delegates.
 - `all_detectors_filter_only` uses every detector and transforms every request,
   but has no target-aware route control.
+- `osaurus_style_filter_only` is a behavioral analogue of an enabled privacy
+  filter: detect, apply stable placeholders, verify the transformed payload,
+  and then delegate. It does not execute or reproduce Osaurus code.
 - `always_local` never leaks externally but overblocks useful external help.
 - `target_agnostic_controller` removes target-specific policy.
 - `hard_policy_without_utility` removes route-specific utility selection.
@@ -278,6 +292,35 @@ On SMD-Bench-1400, the all-detectors filter reached zero automatic span leakage
 but selected a less-protective external route in 64.9 percent of cases. This is the
 main empirical distinction between a privacy filter and a model-delegation
 controller.
+
+The egress challenge intentionally exposes a harder limitation. The current
+detector has zero recall for its authored `business_sensitive` class, causing
+eight target-policy violations and eight direct findings. The frozen controller
+is not tuned on these failures; they define the next research task: improve
+semantic evidence without giving an advisory model authority to override hard
+policy.
+
+## Osaurus As A Related System
+
+[Osaurus](https://github.com/osaurus-ai/osaurus) is a useful real-world adjacent
+system because its privacy-filter pipeline can detect, review, scrub, verify,
+and locally restore protected values before or after a remote-provider call.
+Secure Model Delegation adopts the engineering ideas of post-scrub fail-closed
+verification, stable placeholders, and wire-level audit metadata.
+
+The projects answer different questions. Osaurus filtering controls the content
+of a provider request after a user or application selects a model. This project
+studies the preceding target-aware decision: whether a request should remain
+local, be denied, require clarification, become a local summary, or cross the
+boundary in a sanitized or pseudocode form. The current comparison is therefore
+an explicitly labeled behavioral baseline. Direct execution of Osaurus through
+its local OpenAI-compatible API remains optional future integration work.
+
+Official related-system documentation:
+
+- [Osaurus repository](https://github.com/osaurus-ai/osaurus)
+- [Privacy Filter](https://github.com/osaurus-ai/osaurus/blob/main/docs/PRIVACY_FILTER.md)
+- [Remote Providers](https://github.com/osaurus-ai/osaurus/blob/main/docs/REMOTE_PROVIDERS.md)
 
 For metrics, baseline results, limitations, and interpretation, see
 [`docs/evaluation-summary.md`](docs/evaluation-summary.md). Benchmark design is
@@ -300,8 +343,10 @@ to expanded evaluation planning.
   real source code to this repository.
 - Runtime artifacts are written to `runs/` and are intentionally ignored by Git.
 - Automatic leakage evaluation separates direct, canonicalized or encoded, and
-  structural code-detail leakage. Semantic leakage remains a manual-review
-  limitation.
+  structural code-detail leakage. General semantic leakage remains a
+  limitation. SMD-Egress-Challenge-36 adds exact authored business-sensitive
+  phrases to make one bounded semantic gap measurable, but it is not a general
+  semantic-privacy evaluator.
 - SMD-Bench is coverage-balanced and template-generated; it does not represent
   production workload frequency.
 - The 210-case primary review, 70-case second-review overlap, and challenge

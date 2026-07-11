@@ -54,6 +54,11 @@ import the benchmark oracle. Both policies derive from the same documented
 formal model, so route accuracy is described as policy conformance rather than
 independent prediction accuracy.
 
+The fail-closed egress guard also uses only runtime-detected evidence. Authored
+leakage oracles are applied after processing to score the captured payload; they
+cannot determine whether the endpoint is called. This prevents benchmark ground
+truth from leaking into the execution path.
+
 ## Pilot Gate
 
 Before generating all cases, a 112-case pilot uses two variants from each of the
@@ -78,8 +83,26 @@ SMD-Challenge-210 contains 35 new semantic templates and six variants per
 template. It is balanced at 30 cases per family and 70 cases per target profile.
 The controller was frozen at commit
 `d1d13cd3822a00b8c5cbd64d3a5ff90552c0159b` before the challenge was generated.
-Controller and runtime-policy changes are prohibited after challenge generation;
-failures are preserved for analysis. Challenge human review is pending.
+The protected scope includes decision arbitration, utility ranking, evidence
+detection, normalization, controller-time sanitization, leakage scoring,
+runtime policy, and benchmark label policy. Later audit, simulated transport,
+and fail-closed egress wrappers may only add evidence or escalate to a safer
+local route; they cannot authorize a route rejected by the frozen core.
+Challenge failures are preserved for analysis, and human review is pending.
+
+## Egress Challenge
+
+SMD-Egress-Challenge-36 is a separate deterministic diagnostic set with six
+templates, six variants per template, and 12 cases per target profile. It
+stresses fenced-code secrets, repeated PII placeholders, structured tokens, and
+semantic business-sensitive requests. It does not change SMD-Bench-1400 or
+SMD-Challenge-210, and it is not used to tune the frozen controller.
+
+The set deliberately includes an authored `business_sensitive` class that the
+current detector does not support. These cases measure the assumption boundary
+of `A(E, P_t)`: safe route arbitration depends on evidence `E` being available.
+The resulting failures are preserved as a detector limitation and a target for
+future advisory semantic evidence research.
 
 ## Reproducibility
 
@@ -104,3 +127,12 @@ rule-based rather than human validated, and disagreements are preserved.
   includes detector false positives and false negatives.
 - Utility-weight sensitivity re-scores only routes already admitted by hard
   policy, so weight changes cannot authorize a forbidden route.
+
+## Related Filter Baseline
+
+`osaurus_style_filter_only` is a behavioral analogue of an enabled privacy
+filter: detect sensitive spans, replace them with stable placeholders, run a
+post-transform fail-closed check over detected originals, record wire metadata,
+and delegate. It does not execute or reproduce Osaurus code. The baseline is
+included to compare content filtering with target-aware route arbitration; a
+direct Osaurus local-API experiment remains future work.

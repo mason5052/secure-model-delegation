@@ -7,6 +7,9 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any, Iterable, Optional
 
+from .delegation import send_to_simulated_endpoint
+from .egress import validate_egress_payload
+from .egress_sanitizer import sanitize_egress_with_map
 from .evidence import detect_sensitive_spans
 from .leakage import evaluate_leakage
 from .main import process_request
@@ -22,6 +25,7 @@ BASELINES = (
     "always_local",
     "regex_secret_pii_filter",
     "all_detectors_filter_only",
+    "osaurus_style_filter_only",
     "target_agnostic_controller",
     "hard_policy_without_utility",
     "policy_bounded_controller",
@@ -191,6 +195,7 @@ def evaluate_cases(
             name: _finish_baseline(value, len(records))
             for name, value in baseline_accumulators.items()
         },
+        "baseline_definitions": _baseline_definitions(),
         "evidence_detection": _finish_evidence_metrics(evidence_counts),
         "by_split": group_tables["split"],
         "by_family": group_tables["family"],
@@ -262,6 +267,8 @@ def _baseline_outcome(
         return "local_process", None
     if name in {"no_gateway", "regex_secret_pii_filter", "all_detectors_filter_only"}:
         return "delegate_sanitized_to_external_ai", _baseline_payload(name, bundle)
+    if name == "osaurus_style_filter_only":
+        return _osaurus_style_filter_outcome(bundle, run_dir)
     if name == "target_agnostic_controller":
         agnostic = RequestBundle(
             case_id=bundle.case_id,
@@ -279,6 +286,57 @@ def _baseline_outcome(
         result = process_request(bundle, run_dir=run_dir, use_utility=False)
         return result.route, result.delegated_payload
     raise ValueError(f"Unknown baseline: {name}")
+
+
+def _osaurus_style_filter_outcome(
+    bundle: RequestBundle,
+    run_dir: Path,
+) -> tuple[str, Optional[str]]:
+    request = assemble_request(bundle)
+    policy = load_policy_config()
+    spans = detect_sensitive_spans(request, policy=policy, provider_mode="all")
+    sanitization = sanitize_egress_with_map(
+        request.text,
+        spans,
+        route="delegate_sanitized_to_external_ai",
+        policy=policy,
+    )
+    detected_oracle = {
+        "must_not_contain": [
+            span.text
+            for span in spans
+            if span.text and span.policy_action != "allow"
+        ]
+    }
+    validation = validate_egress_payload(sanitization.text, detected_oracle)
+    if not validation.allowed:
+        return "deny_request", None
+    send_to_simulated_endpoint(
+        run_dir,
+        case_id=bundle.case_id,
+        target_profile=bundle.target_profile,
+        transport=bundle.transport,
+        payload=sanitization.text,
+        egress_validation=validation.audit_metadata(),
+    )
+    return "delegate_sanitized_to_external_ai", sanitization.text
+
+
+def _baseline_definitions() -> dict[str, str]:
+    return {
+        "no_gateway": "Delegates the raw request without disclosure control.",
+        "always_local": "Keeps every request local regardless of expected utility.",
+        "regex_secret_pii_filter": "Transforms structured detector matches and always delegates.",
+        "all_detectors_filter_only": "Transforms every detected span and always delegates without target-aware arbitration.",
+        "osaurus_style_filter_only": (
+            "Behavioral analogue of an enabled privacy-filter pipeline: detect, apply stable placeholders, "
+            "run a post-transform fail-closed invariant over detected originals, capture wire metadata, "
+            "and delegate. It does not execute or reproduce Osaurus code and does not add target-aware routing."
+        ),
+        "target_agnostic_controller": "Runs the controller after replacing every target profile with the approved-external profile.",
+        "hard_policy_without_utility": "Applies hard policy without route-specific utility ranking.",
+        "policy_bounded_controller": "Applies target-specific hard policy, conflict resolution, utility ranking, and egress control.",
+    }
 
 
 def _utility_result(

@@ -50,7 +50,10 @@
       "transformed_payload_checked",
       "all_allowed_routes_scored",
       "final_route_selected"
-    ]
+    ],
+    "egress_guard_status": "allowed",
+    "wire_body_sha256": "8a31eab8aca6482e65e3cc155c135554db7a77b7d2ff89fdf039ba553c877537",
+    "wire_body_bytes": 268
   },
   {
     "case_id": "SMD-F3-T01-V002",
@@ -105,7 +108,10 @@
       "target_resolved:approved_external_ai",
       "allowed_routes_calculated",
       "conflict_resolved:source_code_target_profile_matrix:75"
-    ]
+    ],
+    "egress_guard_status": "allowed",
+    "wire_body_sha256": "bc8c13ad1c3ad43d66b5cd6cd654a664675b9fb339969534706a7951233d7137",
+    "wire_body_bytes": 466
   },
   {
     "case_id": "SMD-F5-T06-V001",
@@ -182,7 +188,10 @@
       "target_resolved:approved_external_ai",
       "allowed_routes_calculated",
       "conflict_resolved:system_prompt_never_crosses_boundary:120"
-    ]
+    ],
+    "egress_guard_status": "not_applicable",
+    "wire_body_sha256": null,
+    "wire_body_bytes": 0
   },
   {
     "case_id": "SMD-F1-T08-V003",
@@ -252,7 +261,10 @@
       "target_resolved:approved_external_ai",
       "allowed_routes_calculated",
       "conflict_resolved:cross_turn_sensitive_history_stays_local:105"
-    ]
+    ],
+    "egress_guard_status": "not_applicable",
+    "wire_body_sha256": null,
+    "wire_body_bytes": 0
   },
   {
     "case_id": "SMD-F6-T01-V002",
@@ -287,7 +299,10 @@
       "transformed_payload_checked",
       "all_allowed_routes_scored",
       "final_route_selected"
-    ]
+    ],
+    "egress_guard_status": "allowed",
+    "wire_body_sha256": "6bbdcc187ff499355b2546796a390c017035311e5146ee1dd16f2aece30026ac",
+    "wire_body_bytes": 264
   },
   {
     "case_id": "SMD-F4-T06-V001",
@@ -365,6 +380,9 @@
       "target_resolved:approved_external_ai",
       "allowed_routes_calculated",
       "conflict_resolved:incident_detail_stays_local:85"
-    ]
+    ],
+    "egress_guard_status": "not_applicable",
+    "wire_body_sha256": null,
+    "wire_body_bytes": 0
   }
 ]

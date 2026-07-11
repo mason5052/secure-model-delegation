@@ -10,6 +10,7 @@ from typing import Any
 from urllib.parse import quote
 
 from .challenge_templates import CHALLENGE_TEMPLATES
+from .egress_challenge import generate_egress_challenge_dataset
 from .oracle import expected_fields, load_benchmark_oracle
 from .schema import validate_dataset
 from .templates import FAMILY_NAMES, TEMPLATES, template_count
@@ -271,6 +272,29 @@ def generate_all_artifacts(root: Path) -> dict[str, Any]:
     )
     challenge_review = _write_challenge_review_artifacts(review_dir, challenge)
 
+    egress_challenge = generate_egress_challenge_dataset()
+    egress_validation = validate_dataset(egress_challenge, expected_count=36)
+    egress_path = data_dir / "smd_egress_challenge_36.jsonl"
+    _write_jsonl(egress_path, egress_challenge)
+    egress_manifest = {
+        "benchmark": "SMD-Egress-Challenge-36",
+        "benchmark_version": "1.0.0-egress-challenge",
+        "case_count": len(egress_challenge),
+        "template_count": len({case["template_id"] for case in egress_challenge}),
+        "dataset_sha256": dataset_sha256(egress_challenge),
+        "validation": egress_validation,
+        "purpose": (
+            "Post-freeze stress set for fenced-code secrets, stable placeholders, "
+            "structured tokens, and semantic business sensitivity."
+        ),
+        "human_review_status": "pending",
+    }
+    egress_manifest_path = data_dir / "smd_egress_challenge_36_manifest.json"
+    egress_manifest_path.write_text(
+        json.dumps(egress_manifest, indent=2, ensure_ascii=True) + "\n",
+        encoding="utf-8",
+    )
+
     return {
         "pilot_path": str(pilot_path),
         "pilot_validation": pilot_validation,
@@ -282,6 +306,9 @@ def generate_all_artifacts(root: Path) -> dict[str, Any]:
         "challenge_manifest_path": str(challenge_manifest_path),
         "challenge_validation": challenge_validation,
         "challenge_review": challenge_review,
+        "egress_challenge_path": str(egress_path),
+        "egress_challenge_manifest_path": str(egress_manifest_path),
+        "egress_challenge_validation": egress_validation,
     }
 
 

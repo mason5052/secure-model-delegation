@@ -5,7 +5,8 @@
       "local_summary": 3
     },
     "delegate_pseudocode_to_external_ai": {
-      "delegate_pseudocode_to_external_ai": 7
+      "delegate_pseudocode_to_external_ai": 6,
+      "local_summary": 1
     },
     "delegate_sanitized_to_external_ai": {
       "delegate_sanitized_to_external_ai": 18,

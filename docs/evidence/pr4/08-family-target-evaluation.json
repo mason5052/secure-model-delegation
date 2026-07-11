@@ -875,5 +875,187 @@
         }
       }
     }
+  },
+  "smd_egress_challenge_36": {
+    "by_family": {
+      "F1": {
+        "case_count": 12,
+        "policy_conformance": 1.0,
+        "controller_only_policy_conformance": 1.0,
+        "unsafe_delegation_count": 0,
+        "overblocked_count": 0,
+        "direct_leakage_count": 0,
+        "canonicalized_leakage_count": 0,
+        "structural_code_leakage_count": 0,
+        "utility_agreement": 0.666667,
+        "route_distribution": {
+          "delegate_sanitized_to_external_ai": 4,
+          "local_process": 4,
+          "local_summary": 4
+        }
+      },
+      "F2": {
+        "case_count": 6,
+        "policy_conformance": 1.0,
+        "controller_only_policy_conformance": 1.0,
+        "unsafe_delegation_count": 0,
+        "overblocked_count": 0,
+        "direct_leakage_count": 0,
+        "canonicalized_leakage_count": 0,
+        "structural_code_leakage_count": 0,
+        "utility_agreement": 1.0,
+        "route_distribution": {
+          "delegate_sanitized_to_external_ai": 4,
+          "local_process": 2
+        }
+      },
+      "F7": {
+        "case_count": 18,
+        "policy_conformance": 0.333333,
+        "controller_only_policy_conformance": null,
+        "unsafe_delegation_count": 8,
+        "overblocked_count": 0,
+        "direct_leakage_count": 8,
+        "canonicalized_leakage_count": 8,
+        "structural_code_leakage_count": 0,
+        "utility_agreement": 1.0,
+        "route_distribution": {
+          "delegate_sanitized_to_external_ai": 8,
+          "local_process": 10
+        }
+      }
+    },
+    "by_family_target": {
+      "F1:approved_external_ai": {
+        "case_count": 4,
+        "policy_conformance": 1.0,
+        "controller_only_policy_conformance": 1.0,
+        "unsafe_delegation_count": 0,
+        "overblocked_count": 0,
+        "direct_leakage_count": 0,
+        "canonicalized_leakage_count": 0,
+        "structural_code_leakage_count": 0,
+        "utility_agreement": 0.5,
+        "route_distribution": {
+          "delegate_sanitized_to_external_ai": 2,
+          "local_summary": 2
+        }
+      },
+      "F1:high_risk_external_ai": {
+        "case_count": 4,
+        "policy_conformance": 1.0,
+        "controller_only_policy_conformance": 1.0,
+        "unsafe_delegation_count": 0,
+        "overblocked_count": 0,
+        "direct_leakage_count": 0,
+        "canonicalized_leakage_count": 0,
+        "structural_code_leakage_count": 0,
+        "utility_agreement": 0.5,
+        "route_distribution": {
+          "delegate_sanitized_to_external_ai": 2,
+          "local_summary": 2
+        }
+      },
+      "F1:local_private": {
+        "case_count": 4,
+        "policy_conformance": 1.0,
+        "controller_only_policy_conformance": 1.0,
+        "unsafe_delegation_count": 0,
+        "overblocked_count": 0,
+        "direct_leakage_count": 0,
+        "canonicalized_leakage_count": 0,
+        "structural_code_leakage_count": 0,
+        "utility_agreement": 1.0,
+        "route_distribution": {
+          "local_process": 4
+        }
+      },
+      "F2:approved_external_ai": {
+        "case_count": 2,
+        "policy_conformance": 1.0,
+        "controller_only_policy_conformance": 1.0,
+        "unsafe_delegation_count": 0,
+        "overblocked_count": 0,
+        "direct_leakage_count": 0,
+        "canonicalized_leakage_count": 0,
+        "structural_code_leakage_count": 0,
+        "utility_agreement": 1.0,
+        "route_distribution": {
+          "delegate_sanitized_to_external_ai": 2
+        }
+      },
+      "F2:high_risk_external_ai": {
+        "case_count": 2,
+        "policy_conformance": 1.0,
+        "controller_only_policy_conformance": 1.0,
+        "unsafe_delegation_count": 0,
+        "overblocked_count": 0,
+        "direct_leakage_count": 0,
+        "canonicalized_leakage_count": 0,
+        "structural_code_leakage_count": 0,
+        "utility_agreement": 1.0,
+        "route_distribution": {
+          "delegate_sanitized_to_external_ai": 2
+        }
+      },
+      "F2:local_private": {
+        "case_count": 2,
+        "policy_conformance": 1.0,
+        "controller_only_policy_conformance": 1.0,
+        "unsafe_delegation_count": 0,
+        "overblocked_count": 0,
+        "direct_leakage_count": 0,
+        "canonicalized_leakage_count": 0,
+        "structural_code_leakage_count": 0,
+        "utility_agreement": 1.0,
+        "route_distribution": {
+          "local_process": 2
+        }
+      },
+      "F7:approved_external_ai": {
+        "case_count": 6,
+        "policy_conformance": 0.0,
+        "controller_only_policy_conformance": null,
+        "unsafe_delegation_count": 4,
+        "overblocked_count": 0,
+        "direct_leakage_count": 4,
+        "canonicalized_leakage_count": 4,
+        "structural_code_leakage_count": 0,
+        "utility_agreement": 1.0,
+        "route_distribution": {
+          "delegate_sanitized_to_external_ai": 4,
+          "local_process": 2
+        }
+      },
+      "F7:high_risk_external_ai": {
+        "case_count": 6,
+        "policy_conformance": 0.0,
+        "controller_only_policy_conformance": null,
+        "unsafe_delegation_count": 4,
+        "overblocked_count": 0,
+        "direct_leakage_count": 4,
+        "canonicalized_leakage_count": 4,
+        "structural_code_leakage_count": 0,
+        "utility_agreement": 1.0,
+        "route_distribution": {
+          "delegate_sanitized_to_external_ai": 4,
+          "local_process": 2
+        }
+      },
+      "F7:local_private": {
+        "case_count": 6,
+        "policy_conformance": 1.0,
+        "controller_only_policy_conformance": null,
+        "unsafe_delegation_count": 0,
+        "overblocked_count": 0,
+        "direct_leakage_count": 0,
+        "canonicalized_leakage_count": 0,
+        "structural_code_leakage_count": 0,
+        "utility_agreement": 1.0,
+        "route_distribution": {
+          "local_process": 6
+        }
+      }
+    }
   }
 }

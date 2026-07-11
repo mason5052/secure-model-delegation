@@ -1,10 +1,10 @@
 {
   "benchmark": "63-case regression set",
   "case_count": 63,
-  "delegated_cases": 25,
-  "route_accuracy_or_policy_conformance": 0.904762,
+  "delegated_cases": 24,
+  "route_accuracy_or_policy_conformance": 0.888889,
   "controller_only_policy_conformance": null,
-  "end_to_end_policy_conformance": 0.904762,
+  "end_to_end_policy_conformance": 0.888889,
   "target_policy_violation_count": 0,
   "target_policy_violation_rate": 0.0,
   "unsafe_delegation_false_negatives": {
@@ -12,8 +12,9 @@
     "case_ids": []
   },
   "overblocked_delegation_false_positives": {
-    "count": 2,
+    "count": 3,
     "case_ids": [
+      "B011",
       "B042",
       "B048"
     ]
@@ -29,15 +30,15 @@
   "task_intent_preservation_rate": null,
   "utility_distribution": {
     "insufficient": 11,
-    "partial": 20,
-    "sufficient": 32
+    "partial": 21,
+    "sufficient": 31
   },
   "utility_distribution_by_route": {
     "ask_clarification": {
       "insufficient": 1
     },
     "delegate_pseudocode_to_external_ai": {
-      "sufficient": 7
+      "sufficient": 6
     },
     "delegate_sanitized_to_external_ai": {
       "partial": 1,
@@ -53,21 +54,21 @@
     },
     "local_summary": {
       "insufficient": 7,
-      "partial": 17
+      "partial": 18
     }
   },
   "clarification_rate": 0.015873,
   "route_distribution": {
     "ask_clarification": 1,
-    "delegate_pseudocode_to_external_ai": 7,
+    "delegate_pseudocode_to_external_ai": 6,
     "delegate_sanitized_to_external_ai": 18,
     "deny_request": 2,
     "local_process": 11,
-    "local_summary": 24
+    "local_summary": 25
   },
   "latency_ms": {
-    "p50": 0.791,
-    "p95": 1.201
+    "p50": 0.769,
+    "p95": 1.442
   },
   "route_metrics": {
     "per_route": {
@@ -79,8 +80,8 @@
       },
       "delegate_pseudocode_to_external_ai": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
+        "recall": 0.857143,
+        "f1": 0.923077,
         "support": 7
       },
       "delegate_sanitized_to_external_ai": {
@@ -102,13 +103,13 @@
         "support": 8
       },
       "local_summary": {
-        "precision": 0.875,
+        "precision": 0.84,
         "recall": 0.954545,
-        "f1": 0.913043,
+        "f1": 0.893617,
         "support": 22
       }
     },
-    "macro_f1": 0.85042
+    "macro_f1": 0.834361
   },
   "confusion_matrix": {
     "ask_clarification": {
@@ -116,7 +117,8 @@
       "local_summary": 3
     },
     "delegate_pseudocode_to_external_ai": {
-      "delegate_pseudocode_to_external_ai": 7
+      "delegate_pseudocode_to_external_ai": 6,
+      "local_summary": 1
     },
     "delegate_sanitized_to_external_ai": {
       "delegate_sanitized_to_external_ai": 18,
@@ -151,8 +153,8 @@
       "route_conformant_rate": 0.31746,
       "target_policy_violation_rate": 0.238095,
       "overblocked_rate": 0.0,
-      "latency_ms_p50": 0.022,
-      "latency_ms_p95": 0.026
+      "latency_ms_p50": 0.021,
+      "latency_ms_p95": 0.028
     },
     "always_local": {
       "delegated_cases": 0,
@@ -191,8 +193,8 @@
       "route_conformant_rate": 0.31746,
       "target_policy_violation_rate": 0.238095,
       "overblocked_rate": 0.0,
-      "latency_ms_p50": 0.242,
-      "latency_ms_p95": 0.293
+      "latency_ms_p50": 0.238,
+      "latency_ms_p95": 0.298
     },
     "all_detectors_filter_only": {
       "delegated_cases": 63,
@@ -211,14 +213,34 @@
       "route_conformant_rate": 0.31746,
       "target_policy_violation_rate": 0.238095,
       "overblocked_rate": 0.0,
-      "latency_ms_p50": 0.252,
-      "latency_ms_p95": 0.297
+      "latency_ms_p50": 0.247,
+      "latency_ms_p95": 0.325
+    },
+    "osaurus_style_filter_only": {
+      "delegated_cases": 62,
+      "route_conformant_cases": 20,
+      "target_policy_violation_cases": 15,
+      "overblocked_cases": 1,
+      "direct_leakage_findings": 4,
+      "direct_leakage_cases": 4,
+      "canonicalized_leakage_findings": 3,
+      "canonicalized_leakage_cases": 3,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.063492,
+      "canonicalized_leakage_case_rate": 0.047619,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.31746,
+      "target_policy_violation_rate": 0.238095,
+      "overblocked_rate": 0.015873,
+      "latency_ms_p50": 0.555,
+      "latency_ms_p95": 0.786
     },
     "target_agnostic_controller": {
-      "delegated_cases": 27,
-      "route_conformant_cases": 55,
+      "delegated_cases": 26,
+      "route_conformant_cases": 54,
       "target_policy_violation_cases": 1,
-      "overblocked_cases": 2,
+      "overblocked_cases": 3,
       "direct_leakage_findings": 0,
       "direct_leakage_cases": 0,
       "canonicalized_leakage_findings": 0,
@@ -228,17 +250,17 @@
       "direct_leakage_case_rate": 0.0,
       "canonicalized_leakage_case_rate": 0.0,
       "structural_code_leakage_case_rate": 0.0,
-      "route_conformant_rate": 0.873016,
+      "route_conformant_rate": 0.857143,
       "target_policy_violation_rate": 0.015873,
-      "overblocked_rate": 0.031746,
-      "latency_ms_p50": 0.735,
-      "latency_ms_p95": 1.183
+      "overblocked_rate": 0.047619,
+      "latency_ms_p50": 0.727,
+      "latency_ms_p95": 1.312
     },
     "hard_policy_without_utility": {
-      "delegated_cases": 33,
-      "route_conformant_cases": 57,
+      "delegated_cases": 32,
+      "route_conformant_cases": 56,
       "target_policy_violation_cases": 0,
-      "overblocked_cases": 0,
+      "overblocked_cases": 1,
       "direct_leakage_findings": 2,
       "direct_leakage_cases": 2,
       "canonicalized_leakage_findings": 2,
@@ -248,17 +270,17 @@
       "direct_leakage_case_rate": 0.031746,
       "canonicalized_leakage_case_rate": 0.031746,
       "structural_code_leakage_case_rate": 0.0,
-      "route_conformant_rate": 0.904762,
+      "route_conformant_rate": 0.888889,
       "target_policy_violation_rate": 0.0,
-      "overblocked_rate": 0.0,
-      "latency_ms_p50": 0.913,
-      "latency_ms_p95": 1.329
+      "overblocked_rate": 0.015873,
+      "latency_ms_p50": 0.861,
+      "latency_ms_p95": 1.493
     },
     "policy_bounded_controller": {
-      "delegated_cases": 25,
-      "route_conformant_cases": 57,
+      "delegated_cases": 24,
+      "route_conformant_cases": 56,
       "target_policy_violation_cases": 0,
-      "overblocked_cases": 2,
+      "overblocked_cases": 3,
       "direct_leakage_findings": 0,
       "direct_leakage_cases": 0,
       "canonicalized_leakage_findings": 0,
@@ -268,12 +290,22 @@
       "direct_leakage_case_rate": 0.0,
       "canonicalized_leakage_case_rate": 0.0,
       "structural_code_leakage_case_rate": 0.0,
-      "route_conformant_rate": 0.904762,
+      "route_conformant_rate": 0.888889,
       "target_policy_violation_rate": 0.0,
-      "overblocked_rate": 0.031746,
-      "latency_ms_p50": 0.791,
-      "latency_ms_p95": 1.201
+      "overblocked_rate": 0.047619,
+      "latency_ms_p50": 0.769,
+      "latency_ms_p95": 1.442
     }
+  },
+  "baseline_definitions": {
+    "no_gateway": "Delegates the raw request without disclosure control.",
+    "always_local": "Keeps every request local regardless of expected utility.",
+    "regex_secret_pii_filter": "Transforms structured detector matches and always delegates.",
+    "all_detectors_filter_only": "Transforms every detected span and always delegates without target-aware arbitration.",
+    "osaurus_style_filter_only": "Behavioral analogue of an enabled privacy-filter pipeline: detect, apply stable placeholders, run a post-transform fail-closed invariant over detected originals, capture wire metadata, and delegate. It does not execute or reproduce Osaurus code and does not add target-aware routing.",
+    "target_agnostic_controller": "Runs the controller after replacing every target profile with the approved-external profile.",
+    "hard_policy_without_utility": "Applies hard policy without route-specific utility ranking.",
+    "policy_bounded_controller": "Applies target-specific hard policy, conflict resolution, utility ranking, and egress control."
   },
   "evidence_detection": {
     "unit": "case-level evidence-class presence",
@@ -399,42 +431,42 @@
   "by_split": {
     "regression": {
       "case_count": 63,
-      "policy_conformance": 0.904762,
+      "policy_conformance": 0.888889,
       "controller_only_policy_conformance": null,
       "unsafe_delegation_count": 0,
-      "overblocked_count": 2,
+      "overblocked_count": 3,
       "direct_leakage_count": 0,
       "canonicalized_leakage_count": 0,
       "structural_code_leakage_count": 0,
       "utility_agreement": null,
       "route_distribution": {
         "ask_clarification": 1,
-        "delegate_pseudocode_to_external_ai": 7,
+        "delegate_pseudocode_to_external_ai": 6,
         "delegate_sanitized_to_external_ai": 18,
         "deny_request": 2,
         "local_process": 11,
-        "local_summary": 24
+        "local_summary": 25
       }
     }
   },
   "by_family": {
     "legacy_regression": {
       "case_count": 63,
-      "policy_conformance": 0.904762,
+      "policy_conformance": 0.888889,
       "controller_only_policy_conformance": null,
       "unsafe_delegation_count": 0,
-      "overblocked_count": 2,
+      "overblocked_count": 3,
       "direct_leakage_count": 0,
       "canonicalized_leakage_count": 0,
       "structural_code_leakage_count": 0,
       "utility_agreement": null,
       "route_distribution": {
         "ask_clarification": 1,
-        "delegate_pseudocode_to_external_ai": 7,
+        "delegate_pseudocode_to_external_ai": 6,
         "delegate_sanitized_to_external_ai": 18,
         "deny_request": 2,
         "local_process": 11,
-        "local_summary": 24
+        "local_summary": 25
       }
     }
   },
@@ -455,21 +487,21 @@
     },
     "external_ai": {
       "case_count": 60,
-      "policy_conformance": 0.9,
+      "policy_conformance": 0.883333,
       "controller_only_policy_conformance": null,
       "unsafe_delegation_count": 0,
-      "overblocked_count": 2,
+      "overblocked_count": 3,
       "direct_leakage_count": 0,
       "canonicalized_leakage_count": 0,
       "structural_code_leakage_count": 0,
       "utility_agreement": null,
       "route_distribution": {
         "ask_clarification": 1,
-        "delegate_pseudocode_to_external_ai": 6,
+        "delegate_pseudocode_to_external_ai": 5,
         "delegate_sanitized_to_external_ai": 18,
         "deny_request": 2,
         "local_process": 10,
-        "local_summary": 23
+        "local_summary": 24
       }
     },
     "high_risk_external_ai": {

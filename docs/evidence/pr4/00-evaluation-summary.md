@@ -4,7 +4,7 @@ Evidence first, policy authority always.
 
 ## Regression
 
-The preserved 63-case regression set achieved policy conformance 0.905 with 0 direct leakage findings. Independent utility labels do not exist for this legacy set, so utility agreement is reported as not applicable.
+The preserved 63-case regression set achieved policy conformance 0.889 with 0 direct leakage findings. Independent utility labels do not exist for this legacy set, so utility agreement is reported as not applicable.
 
 ## SMD-Bench-1400
 
@@ -15,6 +15,10 @@ The route labels and templates were authored from the same documented formal pol
 ## SMD-Challenge-210
 
 The post-freeze challenge set achieved end-to-end policy conformance 0.876 and controller-only conformance 0.914. It produced 0 security-relevant target-policy violations and 18 overblocked cases. These failures are preserved.
+
+## SMD-Egress-Challenge-36
+
+The separate egress stress set achieved end-to-end policy conformance 0.667. It exposed 8 target-policy violations and 8 direct leakage findings, all tied to undetected semantic business-sensitive evidence. The result is preserved as a publication-relevant limitation rather than used to tune the frozen controller.
 
 ## Human Review
 

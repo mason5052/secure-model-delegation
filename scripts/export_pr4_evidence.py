@@ -21,11 +21,15 @@ def main() -> None:
     regression = _read_json(ROOT / "runs" / "eval" / "regression_report.json")
     benchmark = _read_json(ROOT / "runs" / "eval-smd-bench-1400-paper" / "report.json")
     challenge = _read_json(ROOT / "runs" / "eval-smd-challenge-210" / "report.json")
+    egress_challenge = _read_json(
+        ROOT / "runs" / "eval-smd-egress-challenge-36" / "report.json"
+    )
     main_sensitivity = _read_json(ROOT / "runs" / "eval-smd-bench-1400-paper" / "utility-sensitivity.json")
     challenge_sensitivity = _read_json(ROOT / "runs" / "eval-smd-challenge-210" / "utility-sensitivity.json")
     manifest = _read_json(ROOT / "data" / "smd_bench_1400_manifest.json")
     review = _read_json(ROOT / "data" / "review" / "smd_bench_1400_review_summary.json")
     challenge_manifest = _read_json(ROOT / "data" / "smd_challenge_210_manifest.json")
+    egress_manifest = _read_json(ROOT / "data" / "smd_egress_challenge_36_manifest.json")
     challenge_review = _read_json(ROOT / "data" / "review" / "smd_challenge_210_review_summary.json")
     cases = load_jsonl(ROOT / "data" / "smd_bench_1400.jsonl")
     OUT.mkdir(parents=True, exist_ok=True)
@@ -73,6 +77,7 @@ def main() -> None:
             "regression": regression["baseline_comparison"],
             "smd_bench_1400": benchmark["baseline_comparison"],
             "smd_challenge_210": challenge["baseline_comparison"],
+            "smd_egress_challenge_36": egress_challenge["baseline_comparison"],
             "interpretation": (
                 "Filter-only baselines always delegate. The controller is evaluated on target-aware route safety, "
                 "not only whether a detector can replace spans. A violation means an external route provides less "
@@ -85,6 +90,10 @@ def main() -> None:
         {
             "smd_bench_1400": {"by_family": benchmark["by_family"], "by_family_target": benchmark["by_family_target"]},
             "smd_challenge_210": {"by_family": challenge["by_family"], "by_family_target": challenge["by_family_target"]},
+            "smd_egress_challenge_36": {
+                "by_family": egress_challenge["by_family"],
+                "by_family_target": egress_challenge["by_family_target"],
+            },
         },
     )
     _write_json(
@@ -137,14 +146,34 @@ def main() -> None:
     _write_json("15-evidence-detection.json", {
         "smd_bench_1400": benchmark["evidence_detection"],
         "smd_challenge_210": challenge["evidence_detection"],
+        "smd_egress_challenge_36": egress_challenge["evidence_detection"],
     })
     _write_json("18-smd-challenge-manifest.json", challenge_manifest)
     _write_json("19-utility-weight-sensitivity.json", {
         "smd_bench_1400": main_sensitivity,
         "smd_challenge_210": challenge_sensitivity,
     })
+    _write_json(
+        "21-osaurus-style-baseline.json",
+        {
+            "classification": "behavioral analogue; Osaurus code was not executed or reproduced",
+            "source_system": "https://github.com/osaurus-ai/osaurus",
+            "smd_bench_1400": benchmark["baseline_comparison"]["osaurus_style_filter_only"],
+            "smd_egress_challenge_36": egress_challenge["baseline_comparison"]["osaurus_style_filter_only"],
+        },
+    )
+    _write_json("22-smd-egress-challenge-manifest.json", egress_manifest)
+    _write_json("23-smd-egress-challenge-results.json", _report_summary(egress_challenge))
     _write_limitations()
-    _write_evaluation_summary(regression, benchmark, challenge, manifest, review, utility_mismatches)
+    _write_evaluation_summary(
+        regression,
+        benchmark,
+        challenge,
+        egress_challenge,
+        manifest,
+        review,
+        utility_mismatches,
+    )
     print(json.dumps({"output_directory": "docs/evidence/pr4", "file_count": len(list(OUT.iterdir()))}, indent=2))
 
 
@@ -180,6 +209,9 @@ def _representative_evidence(
             leakage_oracle=case["leakage_oracle"],
             run_dir=run_dir,
         )
+        audit_record = _last_case_record(Path(result.audit_ref), case["case_id"])
+        wire = audit_record.get("wire_metadata", {})
+        egress = audit_record.get("egress_validation", {})
         traces.append(
             {
                 "case_id": case["case_id"],
@@ -196,6 +228,9 @@ def _representative_evidence(
                 "transformation_type": result.transformation_type,
                 "policy_version": result.policy_version,
                 "decision_trace": result.decision_trace,
+                "egress_guard_status": egress.get("status", "not_applicable"),
+                "wire_body_sha256": wire.get("wire_body_sha256"),
+                "wire_body_bytes": wire.get("wire_body_bytes", 0),
             }
         )
         if result.delegated_payload is not None:
@@ -208,6 +243,10 @@ def _representative_evidence(
                     "direct_leakage_found": result.direct_leakage_found,
                     "canonicalized_leakage_found": result.canonicalized_leakage_found,
                     "structural_code_leakage_found": result.structural_code_leakage_found,
+                    "egress_guard_status": egress.get("status", "not_applicable"),
+                    "wire_body_sha256": wire.get("wire_body_sha256"),
+                    "wire_body_bytes": wire.get("wire_body_bytes", 0),
+                    "placeholder_count": audit_record.get("placeholder_count", 0),
                 }
             )
 
@@ -233,6 +272,15 @@ def _representative_evidence(
     return traces, payloads, comparison
 
 
+def _last_case_record(path: Path, case_id: str) -> dict[str, Any]:
+    records = [
+        json.loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    return next(record for record in reversed(records) if record["case_id"] == case_id)
+
+
 def _report_summary(report: dict[str, Any]) -> dict[str, Any]:
     excluded = {"results", "by_family_target"}
     return {key: value for key, value in report.items() if key not in excluded}
@@ -247,7 +295,8 @@ def _write_limitations() -> None:
         "- SMD-Challenge-210 is post-freeze, but its human review is still pending.\n"
         "- The 210-case main review and 70-case second-review samples are pending.\n"
         "- Evidence detectors have finite coverage and can miss novel encodings or semantic disclosures.\n"
-        "- Semantic leakage is not automatically evaluated.\n"
+        "- SMD-Egress-Challenge-36 exposed eight unsafe delegations and eight direct findings when semantic business-sensitive evidence was not detected.\n"
+        "- Semantic leakage is only measured when an authored exact phrase is available; general semantic privacy is not automatically evaluated.\n"
         "- Utility labels remain rule-based and weight sensitivity materially changes route conformance.\n"
         "- Multi-turn support is limited to adjacent-turn synthetic secret reconstruction.\n"
         "- No real provider, enterprise production, or customer-data validation has been performed.\n\n"
@@ -256,6 +305,8 @@ def _write_limitations() -> None:
         "- Complete human annotation and measure inter-rater agreement.\n"
         "- Evaluate an optional ML advisory router that cannot override policy.\n"
         "- Add a semantic leakage evaluator with independently validated criteria.\n"
+        "- Add an advisory semantic business-sensitivity detector and evaluate it without changing hard-policy authority.\n"
+        "- Evaluate Osaurus through its local OpenAI-compatible API as optional future work; the current comparison is behavioral only.\n"
         "- Run optional sanitized-only provider smoke tests.\n"
         "- Expand language-aware code abstraction beyond deterministic generalization.\n"
         "- Study policy lifecycle, versioning, and stakeholder validation.\n",
@@ -267,6 +318,7 @@ def _write_evaluation_summary(
     regression: dict[str, Any],
     benchmark: dict[str, Any],
     challenge: dict[str, Any],
+    egress_challenge: dict[str, Any],
     manifest: dict[str, Any],
     review: dict[str, Any],
     utility_mismatches: list[dict[str, Any]],
@@ -295,6 +347,11 @@ def _write_evaluation_summary(
         f"and controller-only conformance {challenge['controller_only_policy_conformance']:.3f}. It produced "
         f"{challenge['target_policy_violation_count']} security-relevant target-policy violations and "
         f"{challenge['overblocked_delegation_false_positives']['count']} overblocked cases. These failures are preserved.\n\n"
+        "## SMD-Egress-Challenge-36\n\n"
+        f"The separate egress stress set achieved end-to-end policy conformance {egress_challenge['end_to_end_policy_conformance']:.3f}. "
+        f"It exposed {egress_challenge['target_policy_violation_count']} target-policy violations and "
+        f"{egress_challenge['direct_leakage_count']} direct leakage findings, all tied to undetected semantic business-sensitive evidence. "
+        "The result is preserved as a publication-relevant limitation rather than used to tune the frozen controller.\n\n"
         "## Human Review\n\n"
         f"The stratified review sample contains {review['sample_count']} cases. All remain pending; no case is claimed as "
         "human approved.\n",

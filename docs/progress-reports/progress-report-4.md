@@ -15,7 +15,7 @@ Not all of the enterprise AI assistants function as a single model in one place.
 
 Starting from PR1, my aim was to back up my problem statement with more evidence than just observation. There is plenty of prior work, tools, and demonstrations showing the reality of sensitive span filtering, prompt privacy, routing privacy, and agent leakage. This project does not make any claim about these research topics being unresolved by now. On the contrary, it focuses on a more narrow boundary: before the text leaves a trusted local/private environment, a controller needs to determine whether the request should be localized, blocked, clarified, localized and summarized, or sanitized and delegated.
 
-Since PR3, I have moved from a 32-case prototype demonstration to a reproducible system-and-evaluation study. I implemented SMD-Bench-1400, added a 210-case post-freeze challenge set, separated end-to-end detector effects from controller-only behavior, and preserved failures rather than relabeling them to match the implementation. All evaluation data remain synthetic. I do not use real company data, customer data, production logs, credentials, API keys, or proprietary source code.
+Since PR3, I have moved from a 32-case prototype demonstration to a reproducible system-and-evaluation study. I implemented SMD-Bench-1400, added a 210-case post-freeze challenge set, separated end-to-end detector effects from controller-only behavior, and preserved failures rather than relabeling them to match the implementation. I also added a separate 36-case egress stress set after reviewing Osaurus as a real-world adjacent privacy-filter system. The stress set exposed eight unsafe delegations caused by missing semantic business-sensitive evidence. All evaluation data remain synthetic. I do not use real company data, customer data, production logs, credentials, API keys, or proprietary source code.
 
 ## Solution Statement
 
@@ -36,20 +36,25 @@ R* = arg max over r in A(E, P_t) of U(r | x, t, E, P_t)
 
 OpenAI and Claude remain future provider mappings rather than live dependencies in the current experiment. The implemented profiles are `local_private`, `approved_external_ai`, and `high_risk_external_ai`, and the simulated endpoint remains the primary reproducible egress target.
 
+I also hardened the implemented egress path. Repeated sensitive values now use stable request-local placeholders, the reversible mapping remains local, and every candidate external payload passes a post-transform fail-closed check based only on runtime-detected evidence. If protected evidence remains, the gateway sends nothing and escalates the request to `local_summary`. For allowed sends, the simulated endpoint records the exact wire-body digest and byte count. Benchmark ground truth is used only after processing for evaluation and cannot decide whether a request is transmitted.
+
 ## Completed Tasks (Last 2 Weeks)
 
 - Replaced the small hand-maintained benchmark with SMD-Bench-1400, a deterministic generator containing 1,400 unique synthetic cases from 70 semantic templates and 20 controlled variants per template.
 - Balanced the benchmark across seven policy families and three target profiles so the evaluation measures coverage rather than pretending to estimate production workload frequency.
 - Added 380 explicit adversarial-evasion or prompt-injection cases to the main benchmark while keeping routine sensitive requests separate from attack cases.
-- Froze the controller and runtime-policy implementation at commit `d1d13cd3822a00b8c5cbd64d3a5ff90552c0159b`, then generated SMD-Challenge-210 from 35 new semantic templates without changing the frozen controller.
+- Froze the decision core, detector, runtime policy, and benchmark-label policy at commit `d1d13cd3822a00b8c5cbd64d3a5ff90552c0159b`, then generated SMD-Challenge-210 from 35 new semantic templates. Later egress and audit extensions are fail-closed and cannot authorize a route rejected by the frozen core.
 - Separated end-to-end evaluation from controller-only evaluation. The first uses implemented detectors; the second injects ground-truth evidence so detector failures are not incorrectly attributed to the controller.
 - Added baselines for no gateway, always local, regex secret/PII filtering, all-detectors filtering, target-agnostic control, hard policy without utility, and the full policy-bounded controller.
+- Reviewed the current Osaurus privacy-filter and remote-provider design, then added `osaurus_style_filter_only` as an explicitly labeled behavioral analogue. The baseline does not execute or reproduce Osaurus code.
+- Implemented stable placeholders, local-only placeholder restoration, exact wire-body metadata, and a post-transform egress guard that fails closed to `local_summary` instead of sending an unsafe candidate payload.
+- Added SMD-Egress-Challenge-36 with six targeted templates and equal target-profile coverage. It preserved eight target-policy violations and eight direct findings caused by unsupported semantic business-sensitive evidence.
 - Implemented target-specific source-code behavior: raw code can remain local, approved external targets receive generalized pseudocode, and high-risk external targets receive no raw egress.
 - Added canonicalized, encoded, and structural code-detail leakage checks in addition to direct string leakage checks.
 - Added utility-weight sensitivity analysis that compares route preferences only after hard policy has admitted the candidate routes.
 - Created stratified human-review artifacts for 210 main cases, a 70-case second-review overlap, and the 210 challenge cases. These reviews are explicitly marked pending rather than claimed as completed validation.
 - Preserved main and challenge failures, including overblocking and weak evidence classes, instead of tuning labels to make the results appear perfect.
-- Expanded automated validation to 47 unit and integration tests, deterministic generation checks, controller-freeze verification, full benchmark evaluation, challenge evaluation, and web smoke testing in GitHub Actions.
+- Expanded automated validation to 53 unit and integration tests, deterministic generation checks, controller-freeze verification, full benchmark evaluation, two challenge evaluations, and web smoke testing in GitHub Actions.
 - Merged the hardened benchmark and evaluation implementation into the public personal repository's `main` branch with a history-preserving merge commit.
 
 ## Tasks for the Next Project Report and Final Deliverables
@@ -58,10 +63,12 @@ OpenAI and Claude remain future provider mappings rather than live dependencies 
 - Obtain an independent second review for the 70-case overlap and calculate raw agreement and Cohen's kappa for route and utility judgments.
 - Review all 210 challenge cases while keeping the frozen result as the primary post-freeze evidence.
 - Define and apply a limited semantic-leakage rubric because zero direct, encoded, or structural leakage does not prove full semantic privacy.
+- Design an advisory semantic business-sensitivity evidence provider and test it without allowing it to override hard policy or using the 36-case egress set as a new untouched evaluation set.
 - Analyze the preserved challenge failures, especially unseen proprietary-code phrasing and internal-infrastructure evidence, without presenting the same challenge set as a new untouched test after tuning.
 - Convert the related-work notes into a concise synthesis that explains why filter-only and target-agnostic approaches do not answer the same delegation question.
 - Prepare the final presentation around the decision model, comparative evaluation, challenge failures, bounded security claim, and limitations.
 - Complete the final report and keep optional sanitized-only OpenAI/Claude smoke tests separate from the primary reproducible experiment.
+- If time permits, test Osaurus through its local OpenAI-compatible API as a separately labeled related-system experiment; do not substitute that integration for the current reproducible behavioral baseline.
 
 ## Questions I Have or Issues I Am Running Into
 
@@ -71,16 +78,18 @@ OpenAI and Claude remain future provider mappings rather than live dependencies 
 | Can zero automatic leakage be described as proof of privacy? | No. I will limit the claim to direct, encoded, and structural leakage under the implemented synthetic oracles and state that semantic privacy remains unproven. |
 | How should I use the human-review results if they are incomplete by the final presentation? | I will report the exact completed count and agreement status, and I will not describe pending cases as human validated. |
 | Should OpenAI and Claude be called evaluated providers? | No. They are intended provider mappings. The current experiment evaluates target-policy profiles and a simulated endpoint, not provider-side behavior. |
+| Does the Osaurus-style baseline mean that I evaluated Osaurus directly? | No. It is a documented behavioral analogue of detect, scrub, verify, and delegate. Direct Osaurus local-API execution remains future work. |
+| What do the eight egress-challenge violations mean? | They show the limit of the bounded claim: the controller cannot enforce a class that the evidence layer fails to identify. I will preserve this result and evaluate semantic evidence separately. |
 
 ## Methodology Paragraph Summary
 
-My methodology now follows a system-and-evaluation sequence. I first define the local-to-cloud trust boundary, route set, evidence classes, target-specific policy, and bounded non-disclosure claim. I then encode the policy independently from the benchmark oracle, generate coverage-balanced synthetic cases, and evaluate both the full pipeline and the controller with ground-truth evidence. The controller first constructs the hard-policy allowed set and only then applies route-specific utility scoring. External routes pass through sanitization or code generalization before the simulated endpoint records the delegated payload.
+My methodology now follows a system-and-evaluation sequence. I first define the local-to-cloud trust boundary, route set, evidence classes, target-specific policy, and bounded non-disclosure claim. I then encode the policy independently from the benchmark oracle, generate coverage-balanced synthetic cases, and evaluate both the full pipeline and the controller with ground-truth evidence. The controller first constructs the hard-policy allowed set and only then applies route-specific utility scoring. External routes pass through sanitization or code generalization and a runtime-evidence egress check before the simulated endpoint records the delegated payload. Benchmark leakage oracles are applied only afterward, so evaluation labels cannot influence the send decision.
 
-The primary comparative question is not whether a detector can mask a span. It is whether the system chooses an appropriate route and disclosure form for the target. I therefore compare route conformance, security-relevant target-policy violations, overblocking, evidence-class performance, utility-label agreement, and multiple leakage oracles. I also freeze the controller before a separate challenge set so that lower post-freeze results remain visible. The study supports a bounded claim inside the authored synthetic policy scope; it is not independent proof of production safety.
+The primary comparative question is not whether a detector can mask a span. It is whether the system chooses an appropriate route and disclosure form for the target. I therefore compare route conformance, security-relevant target-policy violations, overblocking, evidence-class performance, utility-label agreement, and multiple leakage oracles. The Osaurus-style behavioral baseline tests whether a strong filter that always delegates answers the same security question. I also freeze the controller before separate challenge sets so that lower post-freeze results remain visible. The study supports a bounded claim inside the authored synthetic policy scope; it is not independent proof of production safety.
 
 ## Deployment and Cost-Benefit Tradeoff
 
-The simulated endpoint remains the primary evaluation environment because it is reproducible, inexpensive, and lets me inspect the exact egress payload. Local processing provides the strongest confidentiality boundary but can limit capability, while external assistance can improve utility at the cost of disclosure risk and provider expense. The controller makes this tradeoff auditable by recording the evidence, allowed route set, selected route, transformation, and egress result without storing raw sensitive input in the audit log.
+The simulated endpoint remains the primary evaluation environment because it is reproducible, inexpensive, and lets me inspect the exact egress payload. Local processing provides the strongest confidentiality boundary but can limit capability, while external assistance can improve utility at the cost of disclosure risk and provider expense. The controller makes this tradeoff auditable by recording the evidence, allowed route set, selected route, transformation, egress-guard status, and exact wire digest without storing raw sensitive input in the audit log.
 
 ## Timeline
 
@@ -93,8 +102,8 @@ The simulated endpoint remains the primary evaluation environment because it is 
 | W5 | Jun 15-21 | Prototype skeleton, web UI, policy YAML, and simulated endpoint | Completed |
 | W6 | Jun 22-28 | PR3 implementation evidence and initial 32-case evaluation | Completed |
 | W7 | Jun 29-Jul 5 | Formal decision model, benchmark generator design, and evaluation hardening | Completed |
-| W8 | Jul 6-12 | SMD-Bench-1400, frozen challenge evaluation, baselines, sensitivity analysis, and PR4 | Completed / PR4 ready |
-| W9 | Jul 13-19 | Human review, failure analysis, semantic-leakage rubric, and final presentation preparation | Planned |
+| W8 | Jul 6-12 | SMD-Bench-1400, frozen challenges, Osaurus analysis, egress hardening, baselines, sensitivity analysis, and PR4 | Completed / PR4 ready |
+| W9 | Jul 13-19 | Human review, semantic business-evidence experiment, failure analysis, semantic-leakage rubric, and final presentation preparation | Planned |
 | W10 | Jul 20-26 | Final presentation, peer review, and final report draft | Planned |
 | W11 | Jul 27-Aug 2 | Final analysis, report polish, and submission | Planned |
 
@@ -108,6 +117,7 @@ The simulated endpoint remains the primary evaluation environment because it is 
 | SMD-Bench development | 1,120 | Coverage-balanced implementation development. |
 | SMD-Bench template evaluation | 280 | Evaluate separated templates; not claimed as untouched. |
 | SMD-Challenge-210 | 210 | Post-freeze evaluation using 35 new semantic templates. |
+| SMD-Egress-Challenge-36 | 36 | Targeted post-freeze stress set for fenced-code secrets, stable placeholders, structured tokens, and semantic business sensitivity. |
 | Main human-review sample | 210 | Stratified review; pending. |
 | Second-review overlap | 70 | Independent agreement measurement; pending. |
 
@@ -115,19 +125,19 @@ SMD-Bench-1400 contains 70 semantic templates with 20 synthetic variants each. I
 
 ### Current Results
 
-| Metric | Regression 63 | SMD-Bench-1400 | SMD-Challenge-210 |
-| --- | ---: | ---: | ---: |
-| End-to-end policy conformance | 0.905 | 0.941 | 0.876 |
-| Controller-only policy conformance | Not labeled | 0.996 | 0.914 |
-| Security-relevant target-policy violations | 0 | 0 | 0 |
-| Overblocked expected delegations | 2 | 72 | 18 |
-| Direct leakage findings | 0 | 0 | 0 |
-| Canonicalized or encoded leakage findings | 0 | 0 | 0 |
-| Structural code-detail leakage findings | 0 | 0 | 0 |
-| Evidence-class macro F1 | Not labeled | 0.935 | 0.867 |
-| Rule-based utility-label agreement | Not labeled | 0.915 | 0.895 |
+| Metric | Regression 63 | SMD-Bench-1400 | SMD-Challenge-210 | Egress Challenge 36 |
+| --- | ---: | ---: | ---: | ---: |
+| End-to-end policy conformance | 0.889 | 0.941 | 0.876 | 0.667 |
+| Controller-only policy conformance | Not labeled | 0.996 | 0.914 | 1.000 on 18 evaluable cases |
+| Security-relevant target-policy violations | 0 | 0 | 0 | 8 |
+| Overblocked expected delegations | 3 | 72 | 18 | 0 |
+| Direct leakage findings | 0 | 0 | 0 | 8 |
+| Canonicalized or encoded leakage findings | 0 | 0 | 0 | 8 |
+| Structural code-detail leakage findings | 0 | 0 | 0 | 0 |
+| Evidence-class macro F1 | Not labeled | 0.935 | 0.867 | 0.857 |
+| Rule-based utility-label agreement | Not labeled | 0.915 | 0.895 | 0.889 |
 
-The difference between 0.941 end-to-end conformance and 0.996 controller-only conformance on the main set shows that detector behavior contributes more error than policy arbitration when the controller receives correct evidence. The challenge set provides a less optimistic post-freeze signal: end-to-end conformance fell to 0.876, proprietary-code recall was zero for unseen phrasing, and internal-infrastructure F1 was 0.364. I preserved these failures for the final analysis.
+The difference between 0.941 end-to-end conformance and 0.996 controller-only conformance on the main set shows that detector behavior contributes more error than policy arbitration when the controller receives correct evidence. SMD-Challenge-210 provides a less optimistic post-freeze signal: end-to-end conformance fell to 0.876, proprietary-code recall was zero for unseen phrasing, and internal-infrastructure F1 was 0.364. The targeted egress challenge is still more direct about the assumption boundary. Its detector recall for the authored `business_sensitive` class was zero, which produced eight unsafe external routes and eight direct findings. I preserved all of these failures for the final analysis.
 
 ### Baseline Comparison on SMD-Bench-1400
 
@@ -137,11 +147,12 @@ The difference between 0.941 end-to-end conformance and 0.996 controller-only co
 | always_local | 0.379 | 0.000 | 0.375 | 0 |
 | regex_secret_pii_filter | 0.342 | 0.649 | 0.000 | 240 |
 | all_detectors_filter_only | 0.342 | 0.649 | 0.000 | 0 |
+| osaurus_style_filter_only | 0.342 | 0.649 | 0.000 | 0 |
 | target_agnostic_controller | 0.635 | 0.215 | 0.051 | 0 |
-| hard_policy_without_utility | 0.984 | 0.009 | 0.000 | 0 |
+| hard_policy_without_utility | 0.984 | 0.000 | 0.000 | 0 |
 | policy_bounded_controller | 0.941 | 0.000 | 0.051 | 0 |
 
-The all-detectors filter baseline is particularly important. It produced zero automatic span-leakage cases on the authored main set, but it still used a less-protective external route in 64.9 percent of cases. This shows why zero detected span leakage is not equivalent to a correct model-delegation decision. The always-local baseline avoided external violations but overblocked 37.5 percent of expected delegations. The target-agnostic controller also underperformed, which supports the need for target-specific policy.
+The all-detectors and Osaurus-style filter baselines are particularly important. Both produced zero automatic span-leakage cases on the authored main set, but both still used a less-protective external route in 64.9 percent of cases. The Osaurus-style row is a behavioral analogue of an enabled detect, scrub, verify, and delegate pipeline; I did not execute or reproduce Osaurus code. These results show why zero detected span leakage is not equivalent to a correct model-delegation decision. The always-local baseline avoided external violations but overblocked 37.5 percent of expected delegations. The target-agnostic controller also underperformed, which supports the need for target-specific policy.
 
 A target-policy violation is counted only when a security-relevant request is sent through an external route with less disclosure protection than the authored expected route. A safer but less useful route is recorded as a route mismatch or overblocking, not as a security violation.
 
@@ -151,7 +162,7 @@ Changing the utility weights changed main-set route conformance from 0.744 to 0.
 
 ### Bounded Interpretation
 
-The current evidence supports a bounded result: in these synthetic evaluations, utility scoring did not select a route outside the hard-policy allowed set, and the controller-mediated delegated payloads produced no automatic direct, encoded, or structural leakage findings. This does not establish perfect detector coverage, semantic privacy, production prevalence, provider behavior, or general robustness. Human review, inter-rater agreement, semantic-leakage assessment, and independently collected enterprise-like cases remain publication gates.
+The main and 210-case challenge results support a bounded result: when the required evidence is available, utility scoring does not select a route outside the hard-policy allowed set. The 36-case egress stress result shows the other side of that claim: hard-policy arbitration cannot protect a class that the evidence layer fails to identify. Therefore, I cannot claim zero leakage across all current synthetic evaluations. I can claim zero direct, encoded, and structural leakage on SMD-Bench-1400 and SMD-Challenge-210, while reporting eight exact-phrase disclosures on the targeted semantic stress set. This does not establish perfect detector coverage, semantic privacy, production prevalence, provider behavior, or general robustness. Human review, inter-rater agreement, semantic-leakage assessment, and independently collected enterprise-like cases remain publication gates.
 
 ## Report Outline
 
@@ -180,6 +191,7 @@ The current evidence supports a bounded result: in these synthetic evaluations, 
 - Wu et al. Privacy-Preserving LLMs Routing (PPRoute). https://arxiv.org/abs/2604.15728
 - Lan et al. Silent Egress: When Implicit Prompt Injection Makes LLM Agents Leak Without a Trace. https://arxiv.org/abs/2602.22450
 - Alizadeh et al. Simple Prompt Injection Attacks Can Leak Personal Data Observed by LLM Agents During Task Execution. https://arxiv.org/abs/2506.01055
+- Osaurus AI. Osaurus repository, Privacy Filter, and Remote Providers documentation. https://github.com/osaurus-ai/osaurus ; https://github.com/osaurus-ai/osaurus/blob/main/docs/PRIVACY_FILTER.md ; https://github.com/osaurus-ai/osaurus/blob/main/docs/REMOTE_PROVIDERS.md
 
 ## Public Evidence
 

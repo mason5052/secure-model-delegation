@@ -17,8 +17,8 @@
       "route_conformant_rate": 0.31746,
       "target_policy_violation_rate": 0.238095,
       "overblocked_rate": 0.0,
-      "latency_ms_p50": 0.022,
-      "latency_ms_p95": 0.026
+      "latency_ms_p50": 0.021,
+      "latency_ms_p95": 0.028
     },
     "always_local": {
       "delegated_cases": 0,
@@ -57,8 +57,8 @@
       "route_conformant_rate": 0.31746,
       "target_policy_violation_rate": 0.238095,
       "overblocked_rate": 0.0,
-      "latency_ms_p50": 0.242,
-      "latency_ms_p95": 0.293
+      "latency_ms_p50": 0.238,
+      "latency_ms_p95": 0.298
     },
     "all_detectors_filter_only": {
       "delegated_cases": 63,
@@ -77,14 +77,34 @@
       "route_conformant_rate": 0.31746,
       "target_policy_violation_rate": 0.238095,
       "overblocked_rate": 0.0,
-      "latency_ms_p50": 0.252,
-      "latency_ms_p95": 0.297
+      "latency_ms_p50": 0.247,
+      "latency_ms_p95": 0.325
+    },
+    "osaurus_style_filter_only": {
+      "delegated_cases": 62,
+      "route_conformant_cases": 20,
+      "target_policy_violation_cases": 15,
+      "overblocked_cases": 1,
+      "direct_leakage_findings": 4,
+      "direct_leakage_cases": 4,
+      "canonicalized_leakage_findings": 3,
+      "canonicalized_leakage_cases": 3,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.063492,
+      "canonicalized_leakage_case_rate": 0.047619,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.31746,
+      "target_policy_violation_rate": 0.238095,
+      "overblocked_rate": 0.015873,
+      "latency_ms_p50": 0.555,
+      "latency_ms_p95": 0.786
     },
     "target_agnostic_controller": {
-      "delegated_cases": 27,
-      "route_conformant_cases": 55,
+      "delegated_cases": 26,
+      "route_conformant_cases": 54,
       "target_policy_violation_cases": 1,
-      "overblocked_cases": 2,
+      "overblocked_cases": 3,
       "direct_leakage_findings": 0,
       "direct_leakage_cases": 0,
       "canonicalized_leakage_findings": 0,
@@ -94,17 +114,17 @@
       "direct_leakage_case_rate": 0.0,
       "canonicalized_leakage_case_rate": 0.0,
       "structural_code_leakage_case_rate": 0.0,
-      "route_conformant_rate": 0.873016,
+      "route_conformant_rate": 0.857143,
       "target_policy_violation_rate": 0.015873,
-      "overblocked_rate": 0.031746,
-      "latency_ms_p50": 0.735,
-      "latency_ms_p95": 1.183
+      "overblocked_rate": 0.047619,
+      "latency_ms_p50": 0.727,
+      "latency_ms_p95": 1.312
     },
     "hard_policy_without_utility": {
-      "delegated_cases": 33,
-      "route_conformant_cases": 57,
+      "delegated_cases": 32,
+      "route_conformant_cases": 56,
       "target_policy_violation_cases": 0,
-      "overblocked_cases": 0,
+      "overblocked_cases": 1,
       "direct_leakage_findings": 2,
       "direct_leakage_cases": 2,
       "canonicalized_leakage_findings": 2,
@@ -114,17 +134,17 @@
       "direct_leakage_case_rate": 0.031746,
       "canonicalized_leakage_case_rate": 0.031746,
       "structural_code_leakage_case_rate": 0.0,
-      "route_conformant_rate": 0.904762,
+      "route_conformant_rate": 0.888889,
       "target_policy_violation_rate": 0.0,
-      "overblocked_rate": 0.0,
-      "latency_ms_p50": 0.913,
-      "latency_ms_p95": 1.329
+      "overblocked_rate": 0.015873,
+      "latency_ms_p50": 0.861,
+      "latency_ms_p95": 1.493
     },
     "policy_bounded_controller": {
-      "delegated_cases": 25,
-      "route_conformant_cases": 57,
+      "delegated_cases": 24,
+      "route_conformant_cases": 56,
       "target_policy_violation_cases": 0,
-      "overblocked_cases": 2,
+      "overblocked_cases": 3,
       "direct_leakage_findings": 0,
       "direct_leakage_cases": 0,
       "canonicalized_leakage_findings": 0,
@@ -134,11 +154,11 @@
       "direct_leakage_case_rate": 0.0,
       "canonicalized_leakage_case_rate": 0.0,
       "structural_code_leakage_case_rate": 0.0,
-      "route_conformant_rate": 0.904762,
+      "route_conformant_rate": 0.888889,
       "target_policy_violation_rate": 0.0,
-      "overblocked_rate": 0.031746,
-      "latency_ms_p50": 0.791,
-      "latency_ms_p95": 1.201
+      "overblocked_rate": 0.047619,
+      "latency_ms_p50": 0.769,
+      "latency_ms_p95": 1.442
     }
   },
   "smd_bench_1400": {
@@ -159,8 +179,8 @@
       "route_conformant_rate": 0.342143,
       "target_policy_violation_rate": 0.648571,
       "overblocked_rate": 0.0,
-      "latency_ms_p50": 0.023,
-      "latency_ms_p95": 0.028
+      "latency_ms_p50": 0.025,
+      "latency_ms_p95": 0.03
     },
     "always_local": {
       "delegated_cases": 0,
@@ -179,7 +199,7 @@
       "route_conformant_rate": 0.378571,
       "target_policy_violation_rate": 0.0,
       "overblocked_rate": 0.375,
-      "latency_ms_p50": 0.003,
+      "latency_ms_p50": 0.004,
       "latency_ms_p95": 0.004
     },
     "regex_secret_pii_filter": {
@@ -199,8 +219,8 @@
       "route_conformant_rate": 0.342143,
       "target_policy_violation_rate": 0.648571,
       "overblocked_rate": 0.0,
-      "latency_ms_p50": 0.24,
-      "latency_ms_p95": 0.31
+      "latency_ms_p50": 0.249,
+      "latency_ms_p95": 0.334
     },
     "all_detectors_filter_only": {
       "delegated_cases": 1400,
@@ -219,8 +239,28 @@
       "route_conformant_rate": 0.342143,
       "target_policy_violation_rate": 0.648571,
       "overblocked_rate": 0.0,
-      "latency_ms_p50": 0.285,
-      "latency_ms_p95": 0.383
+      "latency_ms_p50": 0.301,
+      "latency_ms_p95": 0.412
+    },
+    "osaurus_style_filter_only": {
+      "delegated_cases": 1400,
+      "route_conformant_cases": 479,
+      "target_policy_violation_cases": 908,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 0,
+      "direct_leakage_cases": 0,
+      "canonicalized_leakage_findings": 0,
+      "canonicalized_leakage_cases": 0,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.0,
+      "canonicalized_leakage_case_rate": 0.0,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.342143,
+      "target_policy_violation_rate": 0.648571,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 0.641,
+      "latency_ms_p95": 0.85
     },
     "target_agnostic_controller": {
       "delegated_cases": 754,
@@ -239,8 +279,8 @@
       "route_conformant_rate": 0.635,
       "target_policy_violation_rate": 0.215,
       "overblocked_rate": 0.051429,
-      "latency_ms_p50": 0.977,
-      "latency_ms_p95": 1.334
+      "latency_ms_p50": 1.122,
+      "latency_ms_p95": 1.484
     },
     "hard_policy_without_utility": {
       "delegated_cases": 538,
@@ -259,8 +299,8 @@
       "route_conformant_rate": 0.983571,
       "target_policy_violation_rate": 0.0,
       "overblocked_rate": 0.0,
-      "latency_ms_p50": 0.758,
-      "latency_ms_p95": 1.359
+      "latency_ms_p50": 0.8,
+      "latency_ms_p95": 1.492
     },
     "policy_bounded_controller": {
       "delegated_cases": 453,
@@ -279,8 +319,8 @@
       "route_conformant_rate": 0.941429,
       "target_policy_violation_rate": 0.0,
       "overblocked_rate": 0.051429,
-      "latency_ms_p50": 0.738,
-      "latency_ms_p95": 1.314
+      "latency_ms_p50": 0.779,
+      "latency_ms_p95": 1.451
     }
   },
   "smd_challenge_210": {
@@ -301,8 +341,8 @@
       "route_conformant_rate": 0.304762,
       "target_policy_violation_rate": 0.67619,
       "overblocked_rate": 0.0,
-      "latency_ms_p50": 0.024,
-      "latency_ms_p95": 0.03
+      "latency_ms_p50": 0.023,
+      "latency_ms_p95": 0.028
     },
     "always_local": {
       "delegated_cases": 0,
@@ -341,8 +381,8 @@
       "route_conformant_rate": 0.304762,
       "target_policy_violation_rate": 0.67619,
       "overblocked_rate": 0.0,
-      "latency_ms_p50": 0.25,
-      "latency_ms_p95": 0.341
+      "latency_ms_p50": 0.237,
+      "latency_ms_p95": 0.311
     },
     "all_detectors_filter_only": {
       "delegated_cases": 210,
@@ -361,8 +401,28 @@
       "route_conformant_rate": 0.304762,
       "target_policy_violation_rate": 0.67619,
       "overblocked_rate": 0.0,
-      "latency_ms_p50": 0.293,
-      "latency_ms_p95": 0.376
+      "latency_ms_p50": 0.281,
+      "latency_ms_p95": 0.375
+    },
+    "osaurus_style_filter_only": {
+      "delegated_cases": 210,
+      "route_conformant_cases": 64,
+      "target_policy_violation_cases": 142,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 6,
+      "direct_leakage_cases": 6,
+      "canonicalized_leakage_findings": 6,
+      "canonicalized_leakage_cases": 6,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.028571,
+      "canonicalized_leakage_case_rate": 0.028571,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.304762,
+      "target_policy_violation_rate": 0.67619,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 0.588,
+      "latency_ms_p95": 0.747
     },
     "target_agnostic_controller": {
       "delegated_cases": 90,
@@ -381,8 +441,8 @@
       "route_conformant_rate": 0.590476,
       "target_policy_violation_rate": 0.17619,
       "overblocked_rate": 0.085714,
-      "latency_ms_p50": 0.882,
-      "latency_ms_p95": 1.356
+      "latency_ms_p50": 0.789,
+      "latency_ms_p95": 1.339
     },
     "hard_policy_without_utility": {
       "delegated_cases": 74,
@@ -401,8 +461,8 @@
       "route_conformant_rate": 0.961905,
       "target_policy_violation_rate": 0.0,
       "overblocked_rate": 0.0,
-      "latency_ms_p50": 0.784,
-      "latency_ms_p95": 1.374
+      "latency_ms_p50": 0.706,
+      "latency_ms_p95": 1.381
     },
     "policy_bounded_controller": {
       "delegated_cases": 53,
@@ -421,8 +481,170 @@
       "route_conformant_rate": 0.87619,
       "target_policy_violation_rate": 0.0,
       "overblocked_rate": 0.085714,
-      "latency_ms_p50": 0.754,
-      "latency_ms_p95": 1.347
+      "latency_ms_p50": 0.701,
+      "latency_ms_p95": 1.349
+    }
+  },
+  "smd_egress_challenge_36": {
+    "no_gateway": {
+      "delegated_cases": 36,
+      "route_conformant_cases": 8,
+      "target_policy_violation_cases": 28,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 48,
+      "direct_leakage_cases": 36,
+      "canonicalized_leakage_findings": 48,
+      "canonicalized_leakage_cases": 36,
+      "structural_code_leakage_findings": 12,
+      "structural_code_leakage_cases": 6,
+      "direct_leakage_case_rate": 1.0,
+      "canonicalized_leakage_case_rate": 1.0,
+      "structural_code_leakage_case_rate": 0.166667,
+      "route_conformant_rate": 0.222222,
+      "target_policy_violation_rate": 0.777778,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 0.023,
+      "latency_ms_p95": 0.026
+    },
+    "always_local": {
+      "delegated_cases": 0,
+      "route_conformant_cases": 12,
+      "target_policy_violation_cases": 0,
+      "overblocked_cases": 8,
+      "direct_leakage_findings": 0,
+      "direct_leakage_cases": 0,
+      "canonicalized_leakage_findings": 0,
+      "canonicalized_leakage_cases": 0,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.0,
+      "canonicalized_leakage_case_rate": 0.0,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.333333,
+      "target_policy_violation_rate": 0.0,
+      "overblocked_rate": 0.222222,
+      "latency_ms_p50": 0.004,
+      "latency_ms_p95": 0.004
+    },
+    "regex_secret_pii_filter": {
+      "delegated_cases": 36,
+      "route_conformant_cases": 8,
+      "target_policy_violation_cases": 28,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 24,
+      "direct_leakage_cases": 24,
+      "canonicalized_leakage_findings": 24,
+      "canonicalized_leakage_cases": 24,
+      "structural_code_leakage_findings": 12,
+      "structural_code_leakage_cases": 6,
+      "direct_leakage_case_rate": 0.666667,
+      "canonicalized_leakage_case_rate": 0.666667,
+      "structural_code_leakage_case_rate": 0.166667,
+      "route_conformant_rate": 0.222222,
+      "target_policy_violation_rate": 0.777778,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 0.249,
+      "latency_ms_p95": 0.316
+    },
+    "all_detectors_filter_only": {
+      "delegated_cases": 36,
+      "route_conformant_cases": 8,
+      "target_policy_violation_cases": 28,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 18,
+      "direct_leakage_cases": 18,
+      "canonicalized_leakage_findings": 18,
+      "canonicalized_leakage_cases": 18,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.5,
+      "canonicalized_leakage_case_rate": 0.5,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.222222,
+      "target_policy_violation_rate": 0.777778,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 0.275,
+      "latency_ms_p95": 0.352
+    },
+    "osaurus_style_filter_only": {
+      "delegated_cases": 36,
+      "route_conformant_cases": 8,
+      "target_policy_violation_cases": 28,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 18,
+      "direct_leakage_cases": 18,
+      "canonicalized_leakage_findings": 18,
+      "canonicalized_leakage_cases": 18,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.5,
+      "canonicalized_leakage_case_rate": 0.5,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.222222,
+      "target_policy_violation_rate": 0.777778,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 0.623,
+      "latency_ms_p95": 1.025
+    },
+    "target_agnostic_controller": {
+      "delegated_cases": 24,
+      "route_conformant_cases": 14,
+      "target_policy_violation_cases": 16,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 12,
+      "direct_leakage_cases": 12,
+      "canonicalized_leakage_findings": 12,
+      "canonicalized_leakage_cases": 12,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.333333,
+      "canonicalized_leakage_case_rate": 0.333333,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.388889,
+      "target_policy_violation_rate": 0.444444,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 1.137,
+      "latency_ms_p95": 1.514
+    },
+    "hard_policy_without_utility": {
+      "delegated_cases": 16,
+      "route_conformant_cases": 24,
+      "target_policy_violation_cases": 8,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 8,
+      "direct_leakage_cases": 8,
+      "canonicalized_leakage_findings": 8,
+      "canonicalized_leakage_cases": 8,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.222222,
+      "canonicalized_leakage_case_rate": 0.222222,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.666667,
+      "target_policy_violation_rate": 0.222222,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 1.027,
+      "latency_ms_p95": 1.521
+    },
+    "policy_bounded_controller": {
+      "delegated_cases": 16,
+      "route_conformant_cases": 24,
+      "target_policy_violation_cases": 8,
+      "overblocked_cases": 0,
+      "direct_leakage_findings": 8,
+      "direct_leakage_cases": 8,
+      "canonicalized_leakage_findings": 8,
+      "canonicalized_leakage_cases": 8,
+      "structural_code_leakage_findings": 0,
+      "structural_code_leakage_cases": 0,
+      "direct_leakage_case_rate": 0.222222,
+      "canonicalized_leakage_case_rate": 0.222222,
+      "structural_code_leakage_case_rate": 0.0,
+      "route_conformant_rate": 0.666667,
+      "target_policy_violation_rate": 0.222222,
+      "overblocked_rate": 0.0,
+      "latency_ms_p50": 1.046,
+      "latency_ms_p95": 1.51
     }
   },
   "interpretation": "Filter-only baselines always delegate. The controller is evaluated on target-aware route safety, not only whether a detector can replace spans. A violation means an external route provides less disclosure protection than the authored expected route; safer deviations are not violations."

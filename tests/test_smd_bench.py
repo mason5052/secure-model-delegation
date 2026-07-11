@@ -16,6 +16,7 @@ from smd_bench.generator import (
     select_human_review_sample,
     select_second_reviewer_sample,
 )
+from smd_bench.egress_challenge import generate_egress_challenge_dataset
 from smd_bench.schema import validate_dataset
 from smd_gateway.evaluation import _is_target_policy_violation, evaluate_cases
 
@@ -124,6 +125,24 @@ class SmdBenchTests(unittest.TestCase):
         main_template_ids = {case["template_id"] for case in generate_dataset(1)}
         self.assertTrue(main_template_ids.isdisjoint({case["template_id"] for case in challenge}))
 
+    def test_egress_challenge_is_balanced_and_targets_filter_only_gaps(self) -> None:
+        first = generate_egress_challenge_dataset()
+        second = generate_egress_challenge_dataset()
+        summary = validate_dataset(first, expected_count=36)
+        self.assertEqual(_digest(first), _digest(second))
+        self.assertTrue(summary["valid"])
+        self.assertEqual(summary["template_count"], 6)
+        self.assertEqual(
+            summary["target_counts"],
+            {
+                "approved_external_ai": 12,
+                "high_risk_external_ai": 12,
+                "local_private": 12,
+            },
+        )
+        self.assertTrue(any("```" in case["input_request"] for case in first))
+        self.assertTrue(any("business_sensitive" in case["risk_classes"] for case in first))
+
     def test_adversarial_taxonomy_does_not_treat_every_sensitive_case_as_attack(self) -> None:
         cases = generate_dataset(1)
         by_attack = {case["attack_family"]: case for case in cases}
@@ -170,6 +189,8 @@ class SmdBenchTests(unittest.TestCase):
         self.assertIn("controller_only_policy_conformance", report)
         self.assertIn("end_to_end_policy_conformance", report)
         self.assertIn("evidence_detection", report)
+        self.assertIn("osaurus_style_filter_only", report["baseline_comparison"])
+        self.assertIn("osaurus_style_filter_only", report["baseline_definitions"])
         self.assertEqual(
             report["baseline_comparison"]["always_local"]["target_policy_violation_rate"],
             0.0,
