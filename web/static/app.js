@@ -3,6 +3,10 @@ const exampleSelect = document.getElementById("exampleSelect");
 const processButton = document.getElementById("processButton");
 const clearButton = document.getElementById("clearButton");
 const healthStatus = document.getElementById("healthStatus");
+const healthText = document.getElementById("healthText");
+const selectedTargetBadge = document.getElementById("selectedTargetBadge");
+const gatewayState = document.getElementById("gatewayState");
+const evidenceCount = document.getElementById("evidenceCount");
 
 const routeBadge = document.getElementById("routeBadge");
 const utilityValue = document.getElementById("utilityValue");
@@ -26,9 +30,12 @@ async function loadHealth() {
   try {
     const response = await fetch("/api/health");
     const data = await response.json();
-    healthStatus.textContent = data.status === "ok" ? "API online" : "API unknown";
+    const online = data.status === "ok";
+    healthText.textContent = online ? "API ONLINE" : "API UNKNOWN";
+    healthStatus.className = online ? "status online" : "status";
   } catch (error) {
-    healthStatus.textContent = "API offline";
+    healthText.textContent = "API OFFLINE";
+    healthStatus.className = "status offline";
   }
 }
 
@@ -48,13 +55,23 @@ exampleSelect.addEventListener("change", () => {
   if (selected) {
     promptInput.value = selected.prompt;
     selectedTargetProfile = selected.target_profile || "external_ai";
+    gatewayState.textContent = "READY";
+  } else {
+    selectedTargetProfile = "external_ai";
+    gatewayState.textContent = promptInput.value.trim() ? "READY" : "AWAITING INPUT";
   }
+  updateTargetDisplay();
+});
+
+promptInput.addEventListener("input", () => {
+  gatewayState.textContent = promptInput.value.trim() ? "READY" : "AWAITING INPUT";
 });
 
 clearButton.addEventListener("click", () => {
   promptInput.value = "";
   exampleSelect.value = "";
   selectedTargetProfile = "external_ai";
+  updateTargetDisplay();
   resetResults();
 });
 
@@ -66,7 +83,8 @@ processButton.addEventListener("click", async () => {
   }
 
   processButton.disabled = true;
-  processButton.textContent = "Processing...";
+  processButton.textContent = "Evaluating...";
+  gatewayState.textContent = "EVALUATING";
 
   try {
     const response = await fetch("/api/process", {
@@ -87,15 +105,16 @@ processButton.addEventListener("click", async () => {
 
     renderResult(await response.json());
   } catch (error) {
+    gatewayState.textContent = "ERROR";
     alert(error.message);
   } finally {
     processButton.disabled = false;
-    processButton.textContent = "Process";
+    processButton.textContent = "Run Decision";
   }
 });
 
 function resetResults() {
-  routeBadge.textContent = "No run yet";
+  routeBadge.textContent = "NO RUN";
   routeBadge.className = "route-badge";
   utilityValue.textContent = "-";
   hardActionValue.textContent = "-";
@@ -103,14 +122,17 @@ function resetResults() {
   targetProfileValue.textContent = "-";
   advisoryRouteValue.textContent = "-";
   labelChips.innerHTML = "";
+  evidenceCount.textContent = "0 SIGNALS";
   reasonsList.innerHTML = "";
   ruleIdsList.innerHTML = "";
   spanTableBody.innerHTML = "";
   payloadPanel.textContent = "No external delegation";
-  leakagePanel.textContent = "No direct leakage detected";
+  leakagePanel.textContent = "NO DIRECT LEAKAGE DETECTED";
   leakagePanel.className = "leakage-ok";
   auditRef.textContent = "-";
   externalRef.textContent = "-";
+  gatewayState.textContent = promptInput.value.trim() ? "READY" : "AWAITING INPUT";
+  document.body.removeAttribute("data-route");
 }
 
 function renderResult(result) {
@@ -123,8 +145,12 @@ function renderResult(result) {
   advisoryRouteValue.textContent = result.advisory_route || "-";
   auditRef.textContent = result.audit_ref || "-";
   externalRef.textContent = result.external_ref || "-";
+  gatewayState.textContent = "DECISION COMPLETE";
+  document.body.dataset.route = routeClass(result.route) || "unknown";
 
-  renderChips(result.detected_labels || []);
+  const detectedLabels = result.detected_labels || [];
+  renderChips(detectedLabels);
+  evidenceCount.textContent = `${detectedLabels.length} ${detectedLabels.length === 1 ? "SIGNAL" : "SIGNALS"}`;
   renderList(reasonsList, result.decision_reasons || []);
   renderList(ruleIdsList, result.rule_ids || []);
   renderSpanTable(result.detected_spans || []);
@@ -136,8 +162,12 @@ function renderResult(result) {
     leakagePanel.textContent = result.leakage_found.join("\n");
   } else {
     leakagePanel.className = "leakage-ok";
-    leakagePanel.textContent = "No direct leakage detected";
+    leakagePanel.textContent = "NO DIRECT LEAKAGE DETECTED";
   }
+}
+
+function updateTargetDisplay() {
+  selectedTargetBadge.textContent = selectedTargetProfile;
 }
 
 function routeClass(route) {
@@ -201,5 +231,6 @@ function renderSpanTable(spans) {
 }
 
 resetResults();
+updateTargetDisplay();
 loadHealth();
 loadExamples();

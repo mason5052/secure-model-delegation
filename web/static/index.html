@@ -3,41 +3,68 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Secure Model Delegation Control Panel</title>
-    <link rel="stylesheet" href="/static/styles.css" />
+    <title>SMD</title>
+    <link rel="stylesheet" href="/static/styles.css?v=5" />
   </head>
   <body>
     <main class="shell">
-      <header class="topbar">
-        <div>
-          <p class="kicker">CS6727 prototype</p>
-          <h1>Secure Model Delegation Control Panel</h1>
-          <p class="subtitle">
-            Policy-bounded local-to-external AI fallback using a simulated external endpoint.
-          </p>
+      <header class="runtime-bar" aria-label="Prototype runtime status">
+        <span class="environment-badge">SIMULATED EGRESS</span>
+        <div class="status" id="healthStatus" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="healthText">CHECKING API</span>
         </div>
-        <div class="status" id="healthStatus">Checking...</div>
       </header>
+
+      <ol class="stage-strip" aria-label="Gateway processing stages">
+        <li><span>01</span> INGEST</li>
+        <li><span>02</span> EVIDENCE</li>
+        <li><span>03</span> HARD POLICY</li>
+        <li><span>04</span> ROUTE</li>
+        <li><span>05</span> EGRESS</li>
+      </ol>
 
       <section class="panel input-panel">
         <div class="panel-head">
-          <h2>Request Input</h2>
+          <div class="panel-title">
+            <span class="panel-index">01</span>
+            <div>
+              <p class="eyebrow">REQUEST CHANNEL</p>
+              <h2>Gateway Input</h2>
+            </div>
+          </div>
           <div class="controls">
             <select id="exampleSelect" aria-label="Example prompt">
-              <option value="">Select an example</option>
+              <option value="">Select synthetic scenario</option>
             </select>
-            <button id="processButton" type="button">Process</button>
-            <button id="clearButton" type="button" class="secondary">Clear</button>
+            <button id="processButton" type="button">Run Decision</button>
+            <button id="clearButton" type="button" class="secondary">Reset</button>
           </div>
         </div>
-        <textarea id="promptInput" spellcheck="false" placeholder="Enter a synthetic prompt to inspect the gateway decision..."></textarea>
+        <div class="terminal-input">
+          <div class="terminal-bar">
+            <span>REQUEST://SYNTHETIC</span>
+            <span class="target-readout">TARGET <strong id="selectedTargetBadge">external_ai</strong></span>
+          </div>
+          <textarea id="promptInput" spellcheck="false" placeholder="Enter a synthetic prompt for policy inspection..."></textarea>
+        </div>
+        <div class="input-footer">
+          <span>STATE <strong id="gatewayState" aria-live="polite">AWAITING INPUT</strong></span>
+          <span>SYNTHETIC DATA ONLY</span>
+        </div>
       </section>
 
-      <section class="result-grid">
+      <section class="result-grid primary-results">
         <article class="panel decision-panel">
           <div class="panel-head">
-            <h2>Policy Decision</h2>
-            <span class="route-badge" id="routeBadge">No run yet</span>
+            <div class="panel-title">
+              <span class="panel-index">02</span>
+              <div>
+                <p class="eyebrow">CONTROL PLANE</p>
+                <h2>Policy Decision</h2>
+              </div>
+            </div>
+            <span class="route-badge" id="routeBadge" aria-live="polite">NO RUN</span>
           </div>
           <dl class="kv-grid">
             <div><dt>Utility</dt><dd id="utilityValue">-</dd></div>
@@ -47,22 +74,43 @@
             <div><dt>Advisory route</dt><dd id="advisoryRouteValue">-</dd></div>
           </dl>
           <div class="subsection">
-            <h3>Detected sensitive labels</h3>
+            <div class="subsection-head">
+              <h3>Detected sensitive labels</h3>
+              <span class="count-badge" id="evidenceCount">0 SIGNALS</span>
+            </div>
             <div class="chip-row" id="labelChips"></div>
           </div>
         </article>
 
-        <article class="panel">
-          <h2>Policy Explanation</h2>
-          <h3>Reasons</h3>
-          <ul id="reasonsList" class="compact-list"></ul>
-          <h3>Rule IDs</h3>
-          <ul id="ruleIdsList" class="compact-list"></ul>
+        <article class="panel explanation-panel">
+          <div class="panel-title">
+            <span class="panel-index">03</span>
+            <div>
+              <p class="eyebrow">DECISION TRACE</p>
+              <h2>Policy Explanation</h2>
+            </div>
+          </div>
+          <div class="trace-columns">
+            <section>
+              <h3>Reasons</h3>
+              <ul id="reasonsList" class="compact-list"></ul>
+            </section>
+            <section>
+              <h3>Rule IDs</h3>
+              <ul id="ruleIdsList" class="compact-list rule-list"></ul>
+            </section>
+          </div>
         </article>
       </section>
 
-      <section class="panel">
-        <h2>Detected Span Evidence</h2>
+      <section class="panel evidence-panel">
+        <div class="panel-title">
+          <span class="panel-index">04</span>
+          <div>
+            <p class="eyebrow">EVIDENCE PLANE</p>
+            <h2>Detected Span Evidence</h2>
+          </div>
+        </div>
         <div class="table-wrap">
           <table>
             <thead>
@@ -81,22 +129,39 @@
         </div>
       </section>
 
-      <section class="result-grid">
-        <article class="panel">
-          <h2>Delegated Payload</h2>
+      <section class="result-grid egress-results">
+        <article class="panel payload-panel">
+          <div class="panel-title">
+            <span class="panel-index">05</span>
+            <div>
+              <p class="eyebrow">EGRESS PLANE</p>
+              <h2>Delegated Payload</h2>
+            </div>
+          </div>
           <pre id="payloadPanel" class="payload">No external delegation</pre>
         </article>
-        <article class="panel">
-          <h2>Leakage Check</h2>
-          <div id="leakagePanel" class="leakage-ok">No direct leakage detected</div>
-          <h3>Artifact References</h3>
+        <article class="panel verdict-panel">
+          <div class="panel-title">
+            <span class="panel-index">06</span>
+            <div>
+              <p class="eyebrow">POST-TRANSFORM GUARD</p>
+              <h2>Security Verdict</h2>
+            </div>
+          </div>
+          <div id="leakagePanel" class="leakage-ok">NO DIRECT LEAKAGE DETECTED</div>
+          <h3>Artifact references</h3>
           <dl class="artifact-list">
             <div><dt>audit_ref</dt><dd id="auditRef">-</dd></div>
             <div><dt>external_ref</dt><dd id="externalRef">-</dd></div>
           </dl>
         </article>
       </section>
+
+      <footer class="console-footer">
+        <span>POLICY FIRST / UTILITY SECOND</span>
+        <span>NO LIVE PROVIDER CALLS</span>
+      </footer>
     </main>
-    <script src="/static/app.js"></script>
+    <script src="/static/app.js?v=5"></script>
   </body>
 </html>
