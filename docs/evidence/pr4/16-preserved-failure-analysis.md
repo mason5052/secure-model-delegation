@@ -21,3 +21,22 @@ The challenge provides a less optimistic post-freeze stress signal than the auth
 The targeted egress set achieved 0.666667 end-to-end policy conformance. It exposed eight security-relevant target-policy violations and eight direct findings. All eight came from approved or high-risk external cases whose authored `business_sensitive` evidence was not detected.
 
 Known-class controller-only conformance remained 1.0 on 18 evaluable cases. This does not rescue the end-to-end result. It demonstrates the boundary of the formal claim: hard-policy arbitration can constrain only the evidence supplied to it. The controller and policy remain frozen, and these failures define future semantic-evidence work.
+
+### Exact Failure Groups
+
+| Template | Case IDs | Missed meaning | Observed result |
+| --- | --- | --- | --- |
+| SMDE-F7-T03 | V002, V003, V005, V006 | Confidential acquisition negotiation ceiling | No evidence detected; external sanitized route; exact fact disclosed |
+| SMDE-F7-T04 | V002, V003, V005, V006 | Confidential future pricing forecast | No evidence detected; external sanitized route; exact fact disclosed |
+
+Each template failed twice for approved external targets and twice for high-risk
+external targets. The surface wording changed, but the causal error did not:
+business-sensitive meaning was absent from runtime evidence. These cases should
+not be described as successful sanitization or as harmless route mismatch.
+
+### Utility Interpretation
+
+The 0.915 main-set value is agreement with authored rule-based utility labels,
+not measured response-quality preservation from a live external model. A future
+study should compare task success or blinded answer quality for raw local,
+sanitized external, pseudocode external, and local-summary outputs.

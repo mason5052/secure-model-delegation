@@ -41,6 +41,11 @@ Controller-only evaluation injects ground-truth evidence. End-to-end evaluation
 uses the implemented evidence providers. The difference between the two exposes
 detector effects instead of attributing every failure to the controller.
 
+Rule-based utility-label agreement is not downstream model answer quality. No
+live-provider task-quality experiment was run, so the current evaluation does
+not claim that sanitization preserves a measured percentage of OpenAI, Claude,
+or other provider usefulness.
+
 ## Baseline Separation
 
 | SMD-Bench approach | Route conformance | Target-policy violation rate | Overblocked rate | Direct leakage cases |
@@ -97,3 +102,8 @@ prevalence, or provider behavior. Human review, inter-rater agreement, semantic
 leakage assessment, and independent enterprise-like cases remain publication
 gates. Detailed artifacts are available under
 [`docs/evidence/pr4/`](evidence/pr4/).
+
+The final frozen metrics and claim boundaries are recorded in the
+[final evidence freeze](final-evidence-freeze.md). Provider contract,
+retention, and data-control attributes are modeled in the
+[target-profile assurance model](target-profile-assurance.md).

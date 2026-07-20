@@ -31,6 +31,13 @@ class WebAppTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertGreaterEqual(len(response.json()), 5)
 
+    def test_control_panel_includes_plain_english_route_help(self) -> None:
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('id="routeHelpButton"', response.text)
+        self.assertIn('id="routeHelpPanel"', response.text)
+        self.assertIn("Explain this route in plain English", response.text)
+
     def test_api_key_process_has_no_raw_key_in_delegated_payload(self) -> None:
         raw_key = "synthetic-service-key-123456"
         response = self.client.post(

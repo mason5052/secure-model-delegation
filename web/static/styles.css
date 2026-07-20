@@ -391,6 +391,49 @@ textarea::placeholder {
   font-weight: 700;
   overflow-wrap: anywhere;
 }
+.decision-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+button.icon-button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-color: var(--line-strong);
+  background: var(--surface-terminal);
+  color: var(--cyan);
+  font-size: 14px;
+}
+
+button.icon-button:hover:not(:disabled),
+button.icon-button[aria-expanded="true"] {
+  border-color: var(--cyan);
+  background: #0b2c34;
+}
+.route-help {
+  margin: 0 0 12px;
+  border: 1px solid #235361;
+  border-left: 3px solid var(--cyan);
+  padding: 9px 10px;
+  background: #07151c;
+}
+
+.route-help-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--cyan);
+  font-family: Consolas, "Cascadia Mono", monospace;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.route-help p {
+  margin: 0;
+  color: #c7dadd;
+  font-size: 12px;
+}
 
 .route-badge.delegate {
   border-color: #1d7051;

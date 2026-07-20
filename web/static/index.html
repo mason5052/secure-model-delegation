@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>SMD</title>
-    <link rel="stylesheet" href="/static/styles.css?v=5" />
+    <link rel="stylesheet" href="/static/styles.css?v=6" />
   </head>
   <body>
     <main class="shell">
@@ -64,7 +64,23 @@
                 <h2>Policy Decision</h2>
               </div>
             </div>
-            <span class="route-badge" id="routeBadge" aria-live="polite">NO RUN</span>
+            <div class="decision-actions">
+              <button
+                id="routeHelpButton"
+                type="button"
+                class="icon-button"
+                title="Explain this route"
+                aria-label="Explain this route in plain English"
+                aria-expanded="false"
+                aria-controls="routeHelpPanel"
+                disabled
+              >?</button>
+              <span class="route-badge" id="routeBadge" aria-live="polite">NO RUN</span>
+            </div>
+          </div>
+          <div id="routeHelpPanel" class="route-help" hidden>
+            <span class="route-help-label">WHY THIS ROUTE</span>
+            <p id="routeHelpText">Run a decision to see a plain-English explanation.</p>
           </div>
           <dl class="kv-grid">
             <div><dt>Utility</dt><dd id="utilityValue">-</dd></div>
@@ -162,6 +178,6 @@
         <span>NO LIVE PROVIDER CALLS</span>
       </footer>
     </main>
-    <script src="/static/app.js?v=5"></script>
+    <script src="/static/app.js?v=6"></script>
   </body>
 </html>

@@ -7,6 +7,9 @@ const healthText = document.getElementById("healthText");
 const selectedTargetBadge = document.getElementById("selectedTargetBadge");
 const gatewayState = document.getElementById("gatewayState");
 const evidenceCount = document.getElementById("evidenceCount");
+const routeHelpButton = document.getElementById("routeHelpButton");
+const routeHelpPanel = document.getElementById("routeHelpPanel");
+const routeHelpText = document.getElementById("routeHelpText");
 
 const routeBadge = document.getElementById("routeBadge");
 const utilityValue = document.getElementById("utilityValue");
@@ -74,6 +77,12 @@ clearButton.addEventListener("click", () => {
   updateTargetDisplay();
   resetResults();
 });
+routeHelpButton.addEventListener("click", () => {
+  const expanded = routeHelpButton.getAttribute("aria-expanded") === "true";
+  routeHelpButton.setAttribute("aria-expanded", String(!expanded));
+  routeHelpPanel.hidden = expanded;
+});
+
 
 processButton.addEventListener("click", async () => {
   const prompt = promptInput.value.trim();
@@ -116,6 +125,10 @@ processButton.addEventListener("click", async () => {
 function resetResults() {
   routeBadge.textContent = "NO RUN";
   routeBadge.className = "route-badge";
+  routeHelpButton.disabled = true;
+  routeHelpButton.setAttribute("aria-expanded", "false");
+  routeHelpPanel.hidden = true;
+  routeHelpText.textContent = "Run a decision to see a plain-English explanation.";
   utilityValue.textContent = "-";
   hardActionValue.textContent = "-";
   transportValue.textContent = "-";
@@ -138,6 +151,10 @@ function resetResults() {
 function renderResult(result) {
   routeBadge.textContent = result.route;
   routeBadge.className = `route-badge ${routeClass(result.route)}`;
+  routeHelpButton.disabled = false;
+  routeHelpButton.setAttribute("aria-expanded", "false");
+  routeHelpPanel.hidden = true;
+  routeHelpText.textContent = explainRoute(result);
   utilityValue.textContent = result.utility_label || "-";
   hardActionValue.textContent = result.hard_action || "-";
   transportValue.textContent = result.transport || "-";
@@ -164,6 +181,51 @@ function renderResult(result) {
     leakagePanel.className = "leakage-ok";
     leakagePanel.textContent = "NO DIRECT LEAKAGE DETECTED";
   }
+}
+function explainRoute(result) {
+  const target = humanizeTarget(result.target_profile);
+  const targetAtSentenceStart = target.charAt(0).toUpperCase() + target.slice(1);
+  const labels = result.detected_labels || [];
+  const evidence = labels.length
+    ? `The gateway detected ${humanizeList(labels)}. `
+    : "The gateway did not detect a protected evidence class. ";
+
+  const explanations = {
+    local_process:
+      `The request stays inside the trusted local boundary, so ${target} receives no payload.`,
+    deny_request:
+      `Hard policy blocks this request, so ${target} receives no payload.`,
+    ask_clarification:
+      "The gateway needs a narrower or clearer request before it can choose a safe route.",
+    local_summary:
+      `Raw context stays local and ${target} receives no payload. A local summary is the safest useful result.`,
+    delegate_sanitized_to_external_ai:
+      `Hard policy permits external help only after protected spans are transformed. ${targetAtSentenceStart} receives the sanitized payload shown below.`,
+    delegate_pseudocode_to_external_ai:
+      `Raw source code stays local. ${targetAtSentenceStart} receives only pseudocode or a generalized problem statement.`,
+  };
+
+  return evidence + (explanations[result.route] || "The selected route satisfies the current hard policy.");
+}
+
+function humanize(value) {
+  return String(value).replaceAll("_", " ");
+}
+
+function humanizeTarget(value) {
+  const names = {
+    approved_external_ai: "the approved external AI profile",
+    high_risk_external_ai: "the high-risk external AI profile",
+    local_private: "the trusted local profile",
+  };
+  return names[value] || "the selected target";
+}
+
+function humanizeList(values) {
+  const readable = values.map(humanize);
+  if (readable.length === 1) return readable[0];
+  if (readable.length === 2) return `${readable[0]} and ${readable[1]}`;
+  return `${readable.slice(0, -1).join(", ")}, and ${readable.at(-1)}`;
 }
 
 function updateTargetDisplay() {

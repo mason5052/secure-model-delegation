@@ -138,6 +138,11 @@ what model target, if any, may receive the request and in what form.
   pseudocode-based delegated payloads for leakage evaluation.
 - Real provider API calls are out of scope for the current prototype and remain
   optional sanitized-only future smoke tests.
+- Provider no-training, retention, residency, and contractual controls are
+  modeled as target assurances that may narrow external eligibility. They do not
+  override hard content policy or make prohibited raw disclosure acceptable.
+  The proposed attributes are documented in
+  [Target-Profile Assurance Model](docs/target-profile-assurance.md).
 - Route and transport are separated. For example, a request can use route
   `delegate_sanitized_to_external_ai` through transport
   `simulated_external_endpoint`.
@@ -208,6 +213,7 @@ The web UI is a local research control panel, not a marketing page. It shows:
 - Final route, utility label, hard action, transport, and target profile.
 - Detected sensitive labels and safe span previews.
 - Policy reasons, rule IDs, and advisory route.
+- An optional plain-English explanation of why the selected route was chosen.
 - Delegated payload captured by the simulated external endpoint.
 - Direct leakage check results.
 - Audit and simulated endpoint artifact references.
@@ -262,6 +268,11 @@ sensitivity. It is diagnostic rather than a production-frequency estimate.
 | Direct leakage findings | 0 | 0 | 0 | 8 |
 | Evidence-class macro F1 | Not labeled | 0.935 | 0.867 | 0.857 |
 | Rule-based utility-label agreement | Not labeled | 0.915 | 0.895 | 0.889 |
+
+Rule-based utility-label agreement is not a live-model response-quality score.
+The prototype has not measured how much OpenAI, Claude, or another external
+model's answer quality changes after sanitization, pseudocode conversion, or
+local summarization.
 
 The lower challenge result is intentionally preserved. It exposes detector and
 utility weaknesses that the authored main templates did not reveal. Human review
@@ -328,6 +339,10 @@ documented in
 [`docs/smd-bench-1400-methodology.md`](docs/smd-bench-1400-methodology.md), and
 the public PR4 evidence package is under
 [`docs/evidence/pr4/`](docs/evidence/pr4/).
+Final presentation metrics and claim boundaries are fixed in the
+[Final Evidence Freeze](docs/final-evidence-freeze.md). The proposed treatment
+of provider contracts and retention controls is documented in the
+[Target-Profile Assurance Model](docs/target-profile-assurance.md).
 
 ## Project Progress Reports
 
