@@ -22,6 +22,53 @@ utility_labels:
   - partial
   - insufficient
 
+ml_evidence:
+  design_rule: "evidence_first_policy_authority_always"
+  authority: "advisory_only"
+  notes: "ML-assisted evidence may score context, intent, feasibility, risk, and utility, but final route arbitration remains policy-bounded."
+  fields:
+    task_intent:
+      labels:
+        - debugging
+        - summarization
+        - code_review
+        - policy_bypass
+        - secret_extraction
+        - unknown
+    prompt_injection_intent:
+      labels:
+        - none
+        - possible
+        - likely
+    obfuscation_signal:
+      labels:
+        - none
+        - unicode
+        - base64_like
+        - hex_like
+        - split_secret
+        - mixed
+    local_feasibility:
+      labels:
+        - sufficient
+        - partial
+        - insufficient
+    external_utility_gain:
+      labels:
+        - low
+        - medium
+        - high
+    residual_leakage_risk:
+      labels:
+        - low
+        - medium
+        - high
+    utility_preservation:
+      labels:
+        - sufficient
+        - partial
+        - insufficient
+
 target_profiles:
   local_private:
     trust_level: trusted

@@ -14,8 +14,8 @@ exposing company, customer, production, or credential data.
 
 This is not a general PII detector, DLP product, or privacy masking tool. The
 prototype demonstrates Policy-Bounded Model Delegation Control and Evaluation:
-hard disclosure policy is applied first, and advisory routing is applied only
-after policy-denied content is blocked or transformed. The design rule is:
+deterministic detectors and ML-assisted classifiers produce evidence first, and
+the policy-bounded controller remains the final route authority. The design rule is:
 
 ```text
 Evidence first, policy authority always.
@@ -108,10 +108,11 @@ The controller returns one of a small set of route decisions:
 | `delegate_pseudocode_to_external_ai` | Send only pseudocode or a generalized problem statement to the simulated external target. |
 
 The policy order is intentional. Hard disclosure policy is applied before
-advisory routing. Evidence providers and utility heuristics can inform the
-decision, but they do not have authority to override policy-denied content.
-Runtime policy is loaded and validated from `configs/policy.yaml`; detector code
-supplies evidence rather than duplicating route authority.
+advisory routing. Evidence providers, ML-assisted scores, and utility heuristics
+can inform the decision, but they do not have authority to override
+policy-denied content. Runtime policy is loaded and validated from
+`configs/policy.yaml`; detector code supplies evidence rather than duplicating
+route authority.
 
 For example, source code can be handled differently depending on the target:
 
@@ -159,6 +160,10 @@ what model target, if any, may receive the request and in what form.
 - Stable placeholders preserve repeated-value relationships within a request,
   while the reversible mapping remains local. The simulated endpoint records
   the exact wire-body digest and byte count for auditability.
+- Stage 2 is an ML-assisted evidence layer, not an ML security authority. It
+  can score intent, obfuscation, local feasibility, residual leakage risk, and
+  expected utility, but the controller still performs policy-bounded route
+  arbitration.
 
 ## Quick Start
 

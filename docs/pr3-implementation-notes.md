@@ -40,17 +40,41 @@ credentials, real company data, and course submission drafts.
 
 ## Conflict Resolution Logic
 
-The controller does not choose the final route only from the single riskiest class. It applies the following v1 sequence:
+The controller does not choose the final route only from the single riskiest
+class, and it does not let ML make the final security decision. It applies the
+following v1 sequence:
 
 1. Detect sensitive spans and risk signals.
-2. Apply hard policy first.
-3. Treat prompt injection as untrusted data and a risk amplifier, not as policy authority.
-4. Keep system prompt extraction attempts inside the trusted boundary or deny them.
-5. Keep incident detail plus topology local.
-6. Convert source code to pseudocode or generalized problem statements when external help is safe enough.
-7. Build a transformed payload.
-8. Estimate whether enough utility remains.
-9. Delegate only if the transformed payload is safe and useful enough.
+2. Normalize Unicode and common encoded forms so obfuscated evidence can be detected.
+3. Generate ML-assisted evidence for task intent, prompt-injection or exfiltration intent, local feasibility, residual risk, and utility preservation.
+4. Apply target-specific hard disclosure policy as the final authority.
+5. Treat prompt injection as untrusted data and a risk amplifier, not as policy authority.
+6. Keep system prompt extraction attempts inside the trusted boundary or deny them.
+7. Keep incident detail plus topology local.
+8. Convert source code to pseudocode or generalized problem statements when external help is safe enough.
+9. Build a transformed payload.
+10. Estimate whether enough utility remains.
+11. Delegate only if the transformed payload is safe and useful enough.
+
+## Stage 2 ML-Assisted Evidence Direction
+
+The next implementation refinement should turn the current rule-based advisory
+functions into an explicit evidence layer. The first implementation can remain
+lightweight and feature-based, but the output should be structured so it can be
+replaced by a trained classifier later.
+
+Recommended evidence fields:
+
+- `task_intent`: debugging, summarization, code review, policy bypass, secret extraction, unknown.
+- `prompt_injection_intent`: none, possible, likely.
+- `obfuscation_signal`: none, unicode, base64_like, hex_like, split_secret, mixed.
+- `local_feasibility`: sufficient, partial, insufficient.
+- `external_utility_gain`: low, medium, high.
+- `residual_leakage_risk`: low, medium, high.
+- `utility_preservation`: sufficient, partial, insufficient.
+
+These fields should be logged as evidence. The final `route` must still come
+from the policy-bounded controller.
 
 ## How To Run
 
