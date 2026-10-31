@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#d6d6cf">
+  <title>Secure Model Delegation</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='3' width='26' height='26' rx='4' fill='%23eeeae1' stroke='%23202020' stroke-width='2'/%3E%3Cpath d='M10 10h12v5H10v7h12' fill='none' stroke='%23202020' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 4h16v12H9l-5 4V4Z"/><path d="M8 8h8M8 12h5"/></symbol>
+    <symbol id="i-policy" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 4-4 7-8 9-4-2-8-5-8-9V6l8-3Z"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="i-model" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/><path d="M9 2v4m6-4v4M9 18v4m6-4v4M2 9h4m-4 6h4m12-6h4m-4 6h4M10 10h4v4h-4z"/></symbol>
+    <symbol id="i-connect" viewBox="0 0 24 24"><path d="M8 3v5m8-5v5M5 8h14v3a7 7 0 0 1-14 0V8Zm7 10v4"/></symbol>
+    <symbol id="i-activity" viewBox="0 0 24 24"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+    <symbol id="i-local" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="13" rx="1"/><path d="M8 21h8m-4-5v5M7 7h10M7 11h5"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></symbol>
+  </svg>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="system-menu">
+    <a class="desk-brand" href="/" aria-label="Secure Model Delegation home"><span class="brand-mark" aria-hidden="true">S</span><strong>Secure Model Delegation</strong></a>
+    <span class="menu-word">Local desk</span>
+    <span class="menu-spacer"></span>
+    <span class="connection-light" id="server-state"><span class="status-dot"></span><span id="server-state-text">Connecting</span></span>
+    <time id="desk-clock" class="desk-clock"></time>
+  </header>
+  <div class="desktop">
+    <div class="desktop-caption" aria-hidden="true">A little more control. A little less cloud.</div>
+    <div class="app-window">
+      <div class="window-titlebar"><span class="window-square" aria-hidden="true"></span><span class="titlebar-lines"></span><span class="window-title">Secure Model Delegation</span><span class="titlebar-lines"></span><span class="window-zoom" aria-hidden="true"></span></div>
+      <div class="workspace">
+        <aside class="sidebar">
+          <div class="sidebar-label">YOUR WORKSPACE</div>
+          <nav aria-label="Workspace">
+            <button class="nav-item active" data-view="chat" aria-current="page"><svg class="icon"><use href="#i-chat"/></svg><span>Chat</span><span class="nav-shortcut">01</span></button>
+            <button class="nav-item" data-view="policy"><svg class="icon"><use href="#i-policy"/></svg><span>Policy</span><span class="nav-shortcut">02</span></button>
+            <button class="nav-item" data-view="models"><svg class="icon"><use href="#i-model"/></svg><span>Models</span><span class="nav-shortcut">03</span></button>
+            <button class="nav-item" data-view="connections"><svg class="icon"><use href="#i-connect"/></svg><span>Connections</span><span class="nav-shortcut">04</span></button>
+            <button class="nav-item" data-view="activity"><svg class="icon"><use href="#i-activity"/></svg><span>Activity</span><span class="nav-shortcut">05</span></button>
+          </nav>
+          <div class="sidebar-note"><svg class="icon"><use href="#i-local"/></svg><strong>Starts on your computer.</strong><p>You choose the policy and where each request goes.</p></div>
+          <button class="model-status" id="sidebar-model-button" data-open-view="models"><span class="status-dot" id="model-dot"></span><span><strong id="sidebar-model-name">Local model</strong><small id="sidebar-model-state">Setup required</small></span><span aria-hidden="true">&gt;</span></button>
+        </aside>
+        <main id="main-content" tabindex="-1">
+          <div id="global-message" class="notice global-notice" role="status" hidden></div>
+
+          <section id="view-chat" class="view active" aria-labelledby="chat-title">
+            <div class="page-header"><div><div class="eyebrow">THE WORK DESK</div><h1 id="chat-title">Good work starts here.</h1><p>Your request, your rules, a visible path.</p></div><button id="new-chat" class="button secondary"><svg class="icon"><use href="#i-plus"/></svg>New chat</button></div>
+            <div class="chat-layout">
+              <div class="chat-main">
+                <div class="chat-toolbar"><span class="small-label">CONVERSATION</span><span id="conversation-label" class="mono muted">New conversation</span></div>
+                <div id="chat-transcript" class="transcript" aria-label="Conversation" aria-live="polite">
+                  <div id="chat-empty" class="empty-chat">
+                    <div class="pixel-computer" aria-hidden="true"><div class="computer-screen"><span>:</span><span>)</span></div><div class="computer-line"></div><div class="computer-foot"></div></div>
+                    <h2>A thoughtful handoff.</h2><p>Ask a question. Follow how your policy shapes the request before an answer comes back.</p>
+                    <div id="chat-setup" class="setup-invitation"><div><strong>First, give your desk a local model.</strong><p>The local model helps interpret your policy and work with your requests.</p></div><button class="button primary" data-open-view="models">Choose a model<svg class="icon"><use href="#i-arrow"/></svg></button></div>
+                    <div id="chat-ready-hint" class="ready-hint" hidden><span class="status-dot ready"></span>Ready when you are. Start with a non-sensitive request.</div>
+                  </div>
+                </div>
+                <div id="run-progress" class="run-progress" role="status" hidden><span class="working-indicator" aria-hidden="true"></span><div><strong id="run-stage">Starting</strong><span id="run-message">Preparing your request.</span></div><span class="mono" id="run-elapsed">00:00</span></div>
+                <form id="chat-form" class="composer">
+                  <label class="sr-only" for="prompt-input">Your message</label><textarea id="prompt-input" rows="3" placeholder="What would you like to work on?" maxlength="40000"></textarea>
+                  <div class="composer-bottom"><div class="destination-control"><svg class="icon"><use href="#i-local"/></svg><label for="destination">Send to</label><select id="destination"><option value="local">Local model</option></select></div><button id="stop-run" class="button stop" type="button" hidden>Stop</button><button id="submit-prompt" class="button primary" type="submit" disabled>Submit<svg class="icon"><use href="#i-arrow"/></svg></button></div>
+                  <p id="composer-help" class="composer-help">Choose a local model to begin. External connections are optional.</p>
+                </form>
+              </div>
+              <aside class="chat-inspector" aria-label="Policy and request details">
+                <div class="inspector-card"><div class="card-heading"><svg class="icon"><use href="#i-policy"/></svg><h2>Policy at work</h2><span class="tiny-tag">ACTIVE</span></div><p id="active-policy-preview" class="policy-preview">Loading your active policy.</p><button class="text-button" data-open-view="policy">Read and edit policy <span aria-hidden="true">&gt;</span></button></div>
+                <div class="inspector-card path-card"><div class="small-label">HOW A REQUEST MOVES</div><ol class="path-list"><li><span>1</span><div><strong>Understand</strong><small>Read the request and policy.</small></div></li><li><span>2</span><div><strong>Choose a path</strong><small>Keep local, transform, or decline.</small></div></li><li><span>3</span><div><strong>Respond</strong><small>Use the selected destination.</small></div></li></ol><p class="fine-print">Checks cover recognized information. They do not prove that a message is free of sensitive meaning.</p></div>
+                <details id="run-details" class="inspector-card result-details"><summary>Last request details<span aria-hidden="true">+</span></summary><div id="run-details-content"><p class="muted">Details appear after your first request.</p></div></details>
+              </aside>
+            </div>
+          </section>
+
+          <section id="view-policy" class="view" aria-labelledby="policy-title" hidden>
+            <div class="page-header"><div><div class="eyebrow">THE RULE BOOK</div><h1 id="policy-title">Tell your AI the boundaries.</h1><p>Write in plain language. Review the interpretation before making it active.</p></div><span class="stamp">LOCAL FIRST</span></div>
+            <div class="policy-layout"><form id="policy-form" class="paper-panel"><div class="panel-heading"><h2>Your policy</h2><span id="policy-state" class="tiny-tag">ACTIVE POLICY</span></div><label for="policy-text" class="field-label">Information and delegation rules</label><textarea id="policy-text" class="policy-editor" rows="14" placeholder="Describe what should stay local, what may be transformed, and which destinations may receive it." maxlength="24000"></textarea><p class="field-help">Be specific about information types, allowed transformations, and destinations. The sample policy is a starting point.</p><button id="compile-policy" class="button primary" type="submit">Review interpretation<svg class="icon"><use href="#i-arrow"/></svg></button></form><div class="paper-panel interpretation-panel"><div class="panel-heading"><h2>Policy interpretation</h2><span id="interpretation-state" class="tiny-tag">REVIEW REQUIRED</span></div><div id="policy-interpretation"><div class="quiet-empty"><svg class="icon large-icon"><use href="#i-policy"/></svg><h3>Clear rules, before action.</h3><p>Your local model will turn your words into clauses you can inspect here. Your current policy stays active until you activate the new one.</p></div></div><button id="activate-policy" class="button primary" type="button" hidden>Activate this policy<svg class="icon"><use href="#i-check"/></svg></button></div></div>
+          </section>
+
+          <section id="view-models" class="view" aria-labelledby="models-title" hidden>
+            <div class="page-header"><div><div class="eyebrow">THE LOCAL ENGINE</div><h1 id="models-title">Find the model for your work.</h1><p>Browse Hugging Face, choose a file, then download it to your computer. No model is included or selected for you.</p></div><svg class="icon page-icon"><use href="#i-model"/></svg></div>
+            <div class="model-runtime-bar"><span class="status-dot" id="runtime-dot"></span><div><strong id="runtime-title">Checking the local runtime</strong><p id="runtime-description">Your model runs on this computer.</p></div><button id="refresh-models" class="button secondary small-button">Refresh</button></div>
+            <div id="model-install-progress" class="download-panel" role="status" hidden><div class="download-heading"><div><span class="small-label">MODEL SETUP</span><h2 id="install-title">Getting your model ready</h2></div><button id="cancel-install" class="button secondary small-button">Cancel</button></div><div class="progress-track"><div id="install-progress-bar" class="progress-fill indeterminate"></div></div><div class="download-meta"><span id="install-message">Preparing the local runtime.</span><span id="install-percent" class="mono"></span></div><button id="retry-install" class="button secondary small-button" hidden>Try again</button></div>
+            <div class="model-browser">
+              <div class="browser-heading"><div><span class="small-label">MODEL LIBRARY</span><h2>Hugging Face</h2></div><span class="tiny-tag">LIVE CATALOG / GGUF</span></div>
+              <form id="model-search-form" class="model-search-form"><div class="search-input-wrap"><svg class="icon"><use href="#i-model"/></svg><label class="sr-only" for="model-search">Search Hugging Face model repositories</label><input id="model-search" type="search" placeholder="Search by model, author, or repository" autocomplete="off" maxlength="150"></div><label class="sr-only" for="model-sort">Sort model results</label><select id="model-sort"><option value="lastModified">Recently updated</option><option value="downloads">Most downloaded</option></select><button id="search-models" class="button primary" type="submit">Search</button></form>
+              <div class="browser-caption"><span id="catalog-summary">Browse GGUF candidates for local text generation.</span><span id="catalog-source" class="mono">SOURCE: HUGGING FACE</span></div>
+              <div class="model-browser-columns"><div id="model-catalog" class="hub-results" aria-label="Hugging Face model repositories" aria-live="polite"><div class="catalog-empty"><h3>A library, not a preset.</h3><p>Search for a model or browse recently updated repositories.</p></div></div><div id="model-detail" class="model-detail" aria-live="polite"><div class="model-detail-empty"><svg class="icon large-icon"><use href="#i-model"/></svg><h3>Choose a repository.</h3><p>Inspect its license and available files here before downloading a variant.</p><div class="detail-empty-steps"><span>1. Choose model</span><span>2. Pick file</span><span>3. Download</span></div></div></div></div>
+              <div class="catalog-footnote"><svg class="icon"><use href="#i-info"/></svg><p>GGUF is a model file format, not a compatibility guarantee. Repository listings have not been tested by this app. A model must pass a local runtime check when you choose Use. Downloads and licenses vary.</p></div>
+            </div>
+            <section class="installed-panel paper-panel" aria-labelledby="installed-title"><div class="panel-heading"><div><h2 id="installed-title">On this computer</h2><p>Downloaded models stay here, independently of the online catalog.</p></div><span id="installed-count" class="mono muted">0 models</span></div><div id="installed-models" class="installed-models"><div class="installed-empty"><svg class="icon"><use href="#i-local"/></svg><div><strong>No downloaded models yet.</strong><p>Download a file above, then choose Use to activate it.</p></div></div></div></section>
+            <details class="advanced-model paper-panel"><summary>Download by Ollama tag<span class="mono">ADVANCED</span></summary><form id="advanced-model-form"><label class="field-label" for="advanced-model-tag">Ollama model tag</label><div class="inline-form"><input id="advanced-model-tag" placeholder="Enter an Ollama model tag" autocomplete="off" maxlength="150"><button id="advanced-model-download" class="button secondary" type="submit">Download model</button></div><p class="field-help">Use a text model supported by your local runtime. Downloading does not activate it; choose Use from the installed list. Model capabilities, licensing, and memory needs vary.</p></form></details>
+            <div class="notice neutral"><svg class="icon"><use href="#i-info"/></svg><p>Downloads can take several minutes and use several gigabytes of disk space. The app prepares the runtime when you download your first model. Catalog searches contact Hugging Face; your prompts are not sent to the catalog or download service.</p></div>
+          </section>
+
+          <section id="view-connections" class="view" aria-labelledby="connections-title" hidden>
+            <div class="page-header"><div><div class="eyebrow">OPTIONAL CONNECTIONS</div><h1 id="connections-title">An outside expert, on your terms.</h1><p>Connect a provider to try real delegation under your active policy.</p></div><svg class="icon page-icon"><use href="#i-connect"/></svg></div>
+            <div class="notice neutral"><svg class="icon"><use href="#i-info"/></svg><p>These connections use the provider's API and may incur charges. ChatGPT or Claude subscriptions do not automatically include API usage. Keys remain in this app's memory and must be re-entered after a restart.</p></div>
+            <div class="provider-grid">
+              <form class="paper-panel provider-form" data-provider="openai"><div class="panel-heading"><h2>OpenAI</h2><span id="openai-status" class="tiny-tag">NOT CONNECTED</span></div><p>Use an OpenAI API model as an external destination.</p><label class="field-label" for="openai-model">API model ID</label><input id="openai-model" name="model" placeholder="Enter a model ID available to your account" autocomplete="off" required maxlength="150"><label class="field-label" for="openai-key">API key</label><input id="openai-key" name="api_key" type="password" placeholder="Your OpenAI API key" autocomplete="off" spellcheck="false" required><p id="openai-key-state" class="field-help">No key configured.</p><div class="button-row"><button class="button primary" type="submit">Connect</button><button class="button secondary provider-disconnect" type="button" data-provider="openai" disabled>Disconnect</button></div></form>
+              <form class="paper-panel provider-form" data-provider="anthropic"><div class="panel-heading"><h2>Anthropic</h2><span id="anthropic-status" class="tiny-tag">NOT CONNECTED</span></div><p>Use a Claude API model as an external destination.</p><label class="field-label" for="anthropic-model">API model ID</label><input id="anthropic-model" name="model" placeholder="Enter a model ID available to your account" autocomplete="off" required maxlength="150"><label class="field-label" for="anthropic-key">API key</label><input id="anthropic-key" name="api_key" type="password" placeholder="Your Anthropic API key" autocomplete="off" spellcheck="false" required><p id="anthropic-key-state" class="field-help">No key configured.</p><div class="button-row"><button class="button primary" type="submit">Connect</button><button class="button secondary provider-disconnect" type="button" data-provider="anthropic" disabled>Disconnect</button></div></form>
+            </div>
+            <div class="connection-note"><svg class="icon"><use href="#i-local"/></svg><p>External delegation happens only when you choose that destination and the policy permits a path. A local route does not call the external provider.</p></div>
+          </section>
+
+          <section id="view-activity" class="view" aria-labelledby="activity-title" hidden>
+            <div class="page-header"><div><div class="eyebrow">THE LOCAL RECORD</div><h1 id="activity-title">See the path, keep the choice.</h1><p>Request metadata is saved locally. Conversation content is optional.</p></div><button id="refresh-activity" class="button secondary">Refresh</button></div>
+            <div class="paper-panel storage-preferences"><div><h2>Save future conversation content</h2><p>When enabled, new request and answer bodies are stored on this computer. Existing metadata-only records stay that way.</p></div><label class="switch-label"><input id="save-content" type="checkbox"><span class="switch" aria-hidden="true"></span><span id="save-content-label">Off</span></label></div>
+            <div class="paper-panel activity-panel"><div class="panel-heading"><h2>Recent requests</h2><span id="activity-count" class="mono muted">0 records</span></div><div id="activity-list" class="activity-list"><p class="muted">Loading local records.</p></div></div>
+            <div id="activity-detail" class="paper-panel" hidden></div>
+            <div class="history-footer"><p class="fine-print">Deleting history removes this app's local request records. It does not delete records held by an external provider.</p><button id="delete-history" class="button secondary destructive">Delete local history</button></div>
+          </section>
+        </main>
+      </div>
+      <footer class="window-statusbar"><span id="footer-status">YOUR POLICY. YOUR DESTINATION.</span><span>LOCAL DESK <span class="footer-version">/ 01</span></span><span class="resize-grip" aria-hidden="true"></span></footer>
+    </div>
+    <div class="desktop-bottom"><span>A research prototype for visible, policy-guided AI delegation.</span><span>BUILT TO BE INSPECTED.</span></div>
+  </div>
+</body>
+</html>

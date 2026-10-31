@@ -34,3 +34,10 @@ cs6727-secure-model-delegation/
 *.key
 *.p12
 *.pfx
+
+# Installed package and private interactive application data
+build/
+dist/
+.smd/
+application.sqlite3*
+runtime-state.json
