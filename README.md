@@ -21,6 +21,22 @@ the policy-bounded controller remains the final route authority. The design rule
 Evidence first, policy authority always.
 ```
 
+## Korean Manuscript Collaboration
+
+The public [Korean manuscript workspace](paper/korean/README.md) contains the
+editable [LaTeX draft](paper/korean/secure-model-delegation-ko.tex), vector
+figures, figure generator, and a downloadable
+[source bundle](paper/korean/secure-model-delegation-ko-source.zip).
+Junkuk Kim and Jinyoung Choi can use this publication draft for collaborative
+editing through branches and pull requests.
+
+The manuscript distinguishes authored evaluation metrics, generated candidate
+text, and locally recorded mock bodies. It does not claim actual network
+receipt or independently validated semantic confidentiality. The public package
+contains no original practitioner prompts, private source mappings, reviewer
+response files, or private analysis reports. The existing executable evaluation
+data in this repository remains synthetic.
+
 ## Architecture At A Glance
 
 ![Secure Model Delegation architecture](docs/assets/secure-model-delegation-architecture.png)

@@ -1,0 +1,14 @@
+# Local manuscript build output. Figure PDFs and the source ZIP stay tracked.
+/secure-model-delegation-ko.pdf
+*.aux
+*.log
+*.out
+*.toc
+*.xdv
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.bbl
+*.blg
+/build/
+__pycache__/
