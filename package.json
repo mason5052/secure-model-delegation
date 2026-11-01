@@ -11,6 +11,6 @@
     "package:desktop": "python3 scripts/package_desktop.py"
   },
   "devDependencies": {
-    "electron": "42.3.3"
+    "electron": "42.11.16"
   }
 }
