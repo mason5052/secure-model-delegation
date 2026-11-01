@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -48,7 +49,8 @@ class DesktopLifecycleTests(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, 'Another desktop'):
                     acquire_data_lock(directory)
             with acquire_data_lock(directory):
-                self.assertEqual((directory / 'desktop.lock').stat().st_mode & 0o777, 0o600)
+                if os.name == 'posix':
+                    self.assertEqual((directory / 'desktop.lock').stat().st_mode & 0o777, 0o600)
 
 
 if __name__ == '__main__':
