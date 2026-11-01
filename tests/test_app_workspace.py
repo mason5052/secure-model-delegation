@@ -138,6 +138,7 @@ class WorkspaceTests(unittest.TestCase):
             self.assertIn("changed after review", result["events"][-1]["error"])
             self.assertEqual(source.read_text(), "Changed by another editor")
 
+    @unittest.skipUnless(os.name == "posix", "Executable permission bits require POSIX.")
     def test_approved_edit_preserves_executable_permission(self):
         source = self.folder / "synthetic.sh"
         source.write_text("printf before")
@@ -170,15 +171,18 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual((self.folder / "keep.txt").read_text(), "Preserve")
 
     def test_shell_runs_only_after_approval_and_returns_exit_code(self):
+        command = ("echo Synthetic output && echo Synthetic marker>approved.txt" if os.name == "nt"
+                   else "printf 'Synthetic output'; printf 'Synthetic marker' > approved.txt")
         with self.client() as client:
             project = self.project(client)
             response = self.post(client, f"projects/{project['id']}/commands", {
-                "command": "printf 'Synthetic output'; printf 'Synthetic marker' > approved.txt"})
+                "command": command})
             self.assertFalse((self.folder / "approved.txt").exists())
             result = self.approve(client, response)
             self.assertEqual(result["result"]["exit_code"], 0)
             self.assertIn("Synthetic output", json.dumps(result["events"]))
-            self.assertEqual((self.folder / "approved.txt").read_text(), "Synthetic marker")
+            expected = "Synthetic marker\n" if os.name == "nt" else "Synthetic marker"
+            self.assertEqual((self.folder / "approved.txt").read_text(), expected)
 
     def test_running_command_can_be_cancelled(self):
         with self.client() as client:

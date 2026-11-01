@@ -67,6 +67,11 @@ The browser opens at `http://127.0.0.1:6728`. Use `smd serve --port 6730`
 for another port or `--no-browser` to open the address yourself. Keep the terminal
 running; Ctrl+C stops the service and its managed model process.
 
+For Canvas and PDF previews in a fresh source checkout, also run
+`npm --prefix frontend ci` and `npm --prefix frontend run build`.
+The workspace agent, MLX and Office rendering use the prepared runtimes described
+in the desktop build guide. The complete Mac installer already includes them.
+
 1. Open Models to browse the live Hugging Face catalog. Search by model or
    publisher and sort by latest updates or download count. No model is bundled,
    selected, or downloaded on first launch.
