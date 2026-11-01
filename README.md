@@ -1,11 +1,11 @@
-# Secure Model Delegation
+# aethon
 
-**Secure Model Delegation: A Policy-Bounded Controller for Local-to-Cloud LLM Fallback**
+**A local-first desktop workspace powered by Secure Model Delegation**
 
-This repository contains a local-first application, an editable research paper,
+This repository contains the aethon local-first desktop application, an editable research paper,
 and the preserved synthetic evaluator from a Georgia Tech CS6727 project.
 The application generates actual local AI answers and optionally calls OpenAI
-or Anthropic. The historical evaluator records simulated payloads; its reported
+or Anthropic, or a user-owned OpenAI-compatible endpoint. The historical evaluator records simulated payloads; its reported
 research results do not evaluate the new application.
 
 The application uses local-model evidence and deterministic checks, with
@@ -15,11 +15,37 @@ human-reviewed policy rules controlling permitted paths. Its design rule is:
 Evidence first, policy authority always.
 ```
 
-![Local application with a synthetic two-turn conversation](docs/assets/local-first-app.jpg)
+![aethon desktop with the original sun-horse identity](docs/assets/aethon-desktop.png)
 
-## Run The Local-First Application
+## Install aethon on Mac
 
-Requires Python 3.11 or newer. Clone this repository, open its folder, and run
+The desktop deliverable is `aethon.app` inside `aethon-arm64.dmg`, for Apple
+Silicon and macOS 15 or later. Drag the app to Applications and open it from
+Finder or the Dock. Python, Node, Bun, Ollama, Microsoft Office, and a separate
+browser are not end-user requirements.
+
+The first release is an ad-hoc-signed development test build, not a Developer
+ID-signed or notarized public release. See the
+[desktop installation and rebuild guide](docs/desktop-installation.md) for the
+exact setup, storage behavior, supported tools, and distribution limitations.
+
+- Choose and download a compatible GGUF or MLX model inside the app. No model
+  chat or speech model weights are included or selected automatically. Small
+  auxiliary classifier resources are identified in the package manifest.
+- Review and activate a natural-language information policy, then work in
+  projects and sessions. Project file changes and commands require approval.
+- Use the file editor, supervised terminal, structured document tools, local
+  Office-to-PDF renderer, Canvas, Skills/MCP manager, and optional local dictation.
+- Connect an external API only when needed. SMD checks the supported model
+  request envelope, including earlier turns and tool results, and exposes its
+  routing and provider-adapter record.
+
+The original sun-horse identity and Platinum interface belong to aethon.
+Secure Model Delegation remains the research and routing component's name.
+
+## Run From Source
+
+For development or the cross-platform browser interface, use Python 3.11 or newer. Clone this repository, open its folder, and run
 with that Python version (`python3.12` can replace `python3` if the system
 `python3` is older):
 
@@ -45,12 +71,13 @@ running; Ctrl+C stops the service and its managed model process.
    publisher and sort by latest updates or download count. No model is bundled,
    selected, or downloaded on first launch.
 2. Open a repository, inspect its license, file size and available GGUF
-   variants, and click Download for the file you want. The application prepares
+   variants or MLX repositories, and click Download for the selection you want. The application prepares
    its own verified runtime and downloads the model. In Installed models, click
-   Use to activate it after text/structured-output compatibility checks. A
+   Use to activate it after a local execution check. Structured-output and tool
+   support vary and are validated per operation. A
    separate Ollama installation is not required. Changing model families does
    not require changing the application or policy code. Advanced selection also
-   accepts official Ollama registry tags.
+   accepts official Ollama registry tags. MLX support in the complete Mac desktop distribution uses its bundled oMLX helper.
 3. A conservative example policy is active initially. In Policy, write short
    natural-language clauses, save and interpret the draft locally, review the
    source clauses and interpreted rules, then activate the revision. Unsupported
@@ -59,7 +86,7 @@ running; Ctrl+C stops the service and its managed model process.
    conversation, selects a permitted path, generates an answer, and shows actual
    progress. Details show applied rules, transformations, and any outgoing
    message bundle. New Chat resets the conversation.
-5. Optionally add an OpenAI API or Anthropic API key and a model ID in
+5. Optionally add an OpenAI API key, Anthropic API key, or your own compatible remote endpoint and a model ID in
    Connections, then select that external destination in Chat. No separate
    per-request send confirmation is required: Submit executes the active policy.
    A configured API enables delegation; it does not force it. The default is
@@ -79,8 +106,7 @@ not a fixed list of three model families. Model search terms and metadata
 requests go to the Hub; policy and conversation text do not. Catalog errors do
 not prevent use of models already installed on the computer.
 
-This runtime supports compatible local text models, with GGUF variants shown
-in the browser. Not every public model has a compatible architecture, file
+The application exposes compatible GGUF and MLX candidates, with runtime-specific capability checks. The complete Mac desktop bundle includes both model engines; source-only environments need the corresponding prepared runtime. Not every public model has a compatible architecture, file
 layout, license, hardware requirement, or structured-output behavior. The app
 reports unavailable or unsupported variants and checks selected models rather
 than claiming that every open model can run. Downloading and activating are
@@ -91,7 +117,7 @@ arbitrary download hosts are rejected.
 ### Policy And Observation Limits
 
 The first policy schema supports named recipients (`local`, `openai`,
-`anthropic`), a fixed set of information categories, and allow, redact,
+`anthropic`, `remote`), a fixed set of information categories, and allow, redact,
 local-only, deny, or clarification actions. It does not enforce provider
 contracts, geographic processing, retention periods, arbitrary programs, or
 unlimited exceptions. Human review of compiled rules is required. Credential
@@ -110,8 +136,7 @@ It does not prove semantic confidentiality. Code removal uses placeholders,
 not verified meaning-preserving pseudocode generation. Oversized conversations
 are refused rather than silently dropping earlier turns.
 
-OpenAI uses the Responses API with `store=false`; this is not a guarantee about
-all provider retention. Anthropic uses the Messages API. A timeout after
+Quick Chat uses the OpenAI Responses API with `store=false`; the agent adapter uses the Chat Completions interface and also sets `store=false`. These options are not guarantees about all provider retention. Anthropic uses the Messages API. A timeout after
 dispatch is recorded as delivery-unknown; cancellation cannot recall an
 already dispatched request. Provider model availability and billing depend on
 the user's API account. ChatGPT or Claude Code sign-in is not imported.
@@ -140,7 +165,7 @@ PATH, or modify another Ollama installation. Ollama itself may create
 overwrite those shared files. Remove models through Models. To remove all
 application data, stop the app and delete only its application data directory.
 
-macOS 14+ is required by the pinned runtime; Apple Silicon supports CPU/GPU and
+The complete aethon desktop bundle requires Apple Silicon and macOS 15+. The legacy GGUF source interface requires macOS 14+; Apple Silicon supports CPU/GPU and
 Intel Mac uses CPU. Windows 10 22H2+ and compatible Linux amd64/arm64 use the
 same managed installation approach. Existing compatible GPU drivers may be
 used; installing system GPU drivers is outside the app. Unsupported platforms,
@@ -168,7 +193,7 @@ checks must be reported separately from those tests. The CI matrix covers
 Python 3.11/3.12 on macOS, Windows, and Linux; a workflow definition is not
 evidence that every device or architecture has been exercised.
 
-Local implementation checks on October 31, 2026: 132 unit/integration tests
+Earlier browser-application implementation checks on October 31, 2026: 132 unit/integration tests
 passed on macOS arm64; the wheel was built and opened outside the source tree
 with its packaged browser assets. The managed runtime and an explicitly chosen
 Qwen3 4B were downloaded, then a different family (SmolLM2 360M, Q4_K_M) was

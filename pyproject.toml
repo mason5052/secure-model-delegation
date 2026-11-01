@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cs6727-secure-model-delegation"
-version = "0.2.0"
+version = "0.3.0"
 description = "Local-first AI application and preserved model-delegation research evaluator"
 requires-python = ">=3.11"
 dependencies = [
@@ -14,17 +14,25 @@ dependencies = [
     "PyYAML>=6,<7",
     "platformdirs>=4,<5",
     "zstandard>=0.23,<1",
+    "python-docx>=1.1,<2",
+    "openpyxl>=3.1,<4",
+    "python-pptx>=1.0,<2",
+    "pypdf>=5,<7",
+    "reportlab>=4,<5",
+    "huggingface-hub>=1,<2",
+    "python-multipart>=0.0.20,<1",
 ]
 
 [project.scripts]
 smd = "smd_app.cli:main"
+aethon = "smd_app.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["smd_app*"]
 
 [tool.setuptools.package-data]
-smd_app = ["static/*.html", "static/*.css", "static/*.js"]
+smd_app = ["static/**/*", "static/*.html", "static/*.css", "static/*.js"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

@@ -5,6 +5,7 @@ import contextlib
 import copy
 import hmac
 import json
+import os
 import secrets
 from collections import deque
 from contextlib import asynccontextmanager
@@ -23,6 +24,10 @@ from .hub import HubCatalog
 from .providers import ProviderRegistry
 from .runtime import ManagedRuntime
 from .store import Store, identifier
+from .agent_gateway import AgentGateway, create_gateway_router
+from .desktop_services import DesktopServices, create_desktop_services_router
+from .mlx_runtime import LocalRuntimes
+from .workspace import create_workspace_router
 
 
 class Input(BaseModel):
@@ -40,6 +45,7 @@ class PolicyInput(Input):
 class ProviderInput(Input):
     api_key: str = Field(min_length=1, max_length=1024)
     model: str = Field(min_length=1, max_length=100)
+    base_url: str | None = Field(default=None, max_length=1000)
 
 
 class SettingsInput(Input):
@@ -49,7 +55,7 @@ class SettingsInput(Input):
 class RunInput(Input):
     conversation_id: str = Field(min_length=1, max_length=64)
     prompt: str = Field(min_length=1, max_length=24000)
-    destination: str = Field(default="local", pattern="^(local|openai|anthropic)$")
+    destination: str = Field(default="local", pattern="^(local|openai|anthropic|remote)$")
 
 
 class Job:
@@ -96,7 +102,7 @@ class Job:
 def create_app(data_dir: Path, *, runtime=None, providers=None, engine=execute,
                compiler=compile_policy, hub=None) -> FastAPI:
     store = Store(data_dir)
-    local = runtime if runtime is not None else ManagedRuntime(data_dir)
+    local = runtime if runtime is not None else LocalRuntimes(data_dir)
     registry = providers if providers is not None else ProviderRegistry()
     model_hub = hub if hub is not None else HubCatalog()
     if store.policy() is None:
@@ -105,6 +111,13 @@ def create_app(data_dir: Path, *, runtime=None, providers=None, engine=execute,
     lock = asyncio.Lock()
     jobs: dict[str, Job] = {}
     conversations: dict[str, list[dict]] = {}
+    agent_token = secrets.token_urlsafe(32)
+    agent_gateway = AgentGateway(local, registry, store, agent_token, lock)
+    desktop_services = DesktopServices(local, store, lock)
+    desktop_port = os.environ.get("SMD_DESKTOP_PORT")
+    gateway_config = {"base_url": f"http://127.0.0.1:{desktop_port}/api/v1/gateway/v1" if desktop_port else "",
+                      "api_key": agent_token, "model": "smd-local", "network_request": desktop_services.network_request}
+    workspace_router, workspace = create_workspace_router(data_dir, local, registry, store, gateway_config)
 
     @asynccontextmanager
     async def lifespan(app):
@@ -113,17 +126,19 @@ def create_app(data_dir: Path, *, runtime=None, providers=None, engine=execute,
         except Exception:
             # Readiness remains false; the setup screen offers installation and retry.
             pass
+        await workspace.start()
         yield
         tasks = [job.task for job in jobs.values() if job.task and not job.task.done()]
         for task in tasks:
             task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
+        await workspace.stop()
         try:
             await local.stop()
         finally:
             store.close()
 
-    app = FastAPI(title="Secure Model Delegation", lifespan=lifespan, docs_url=None,
+    app = FastAPI(title="aethon", lifespan=lifespan, docs_url=None,
                   redoc_url=None, openapi_url=None)
     app.state.store, app.state.runtime, app.state.providers = store, local, registry
 
@@ -139,16 +154,21 @@ def create_app(data_dir: Path, *, runtime=None, providers=None, engine=execute,
             origin_parts.scheme == request.url.scheme and origin_parts.netloc == request.url.netloc)
         if host not in {"127.0.0.1", "localhost", "::1"} or not valid_origin or request.headers.get("sec-fetch-site") == "cross-site":
             return JSONResponse({"detail": "Only this application's local browser session is accepted."}, status_code=403)
-        if request.url.path.startswith("/api/v1/") and request.url.path != "/api/v1/session":
+        gateway_request = request.url.path.startswith("/api/v1/gateway/")
+        if gateway_request and not hmac.compare_digest(request.headers.get("authorization", ""), "Bearer " + agent_token):
+            return JSONResponse({"detail": "The private agent token is required."}, status_code=401)
+        if request.url.path.startswith("/api/v1/") and request.url.path != "/api/v1/session" and not gateway_request:
             if not hmac.compare_digest(request.cookies.get("smd_session", ""), token):
                 return JSONResponse({"detail": "Open the application to establish a local session."}, status_code=401)
             if request.method not in {"GET", "HEAD"} and not hmac.compare_digest(request.headers.get("x-smd-token", ""), token):
                 return JSONResponse({"detail": "The local session token is required."}, status_code=403)
         if request.method in {"POST", "PUT", "PATCH"}:
-            if len(await request.body()) > 256 * 1024:
+            limit = 24 * 1024**2 if request.url.path == "/api/v1/voice/transcribe" else (2 * 1024**2 if gateway_request else 256 * 1024)
+            if len(await request.body()) > limit:
                 return JSONResponse({"detail": "This request exceeds the application size limit."}, status_code=413)
         response = await call_next(request)
-        response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
+        ancestors = "'self'" if request.url.path.startswith(("/api/v1/workspace/renders/", "/static/canvas/")) else "'none'"
+        response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; frame-src 'self' blob:; connect-src 'self'; frame-ancestors " + ancestors + "; base-uri 'none'; form-action 'self'"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
         if request.url.path.startswith("/api/"):
@@ -160,7 +180,9 @@ def create_app(data_dir: Path, *, runtime=None, providers=None, engine=execute,
         return JSONResponse({"detail": "Invalid request fields or size. Check the highlighted settings."}, status_code=422)
 
     @app.get("/api/v1/session")
-    async def session():
+    async def session(request: Request):
+        if not gateway_config["base_url"]:
+            gateway_config["base_url"] = str(request.base_url).rstrip("/") + "/api/v1/gateway/v1"
         response = JSONResponse({"token": token})
         response.set_cookie("smd_session", token, httponly=True, samesite="strict")
         return response
@@ -171,7 +193,7 @@ def create_app(data_dir: Path, *, runtime=None, providers=None, engine=execute,
                 "providers": registry.status(), "settings": store.settings(), "busy": lock.locked()}
 
     async def reserve():
-        if lock.locked():
+        if lock.locked() or any(job.status in {"pending", "running"} for job in workspace.jobs.values()):
             raise HTTPException(409, "Another operation is running. Wait for it or stop it first.")
         await lock.acquire()
 
@@ -204,15 +226,20 @@ def create_app(data_dir: Path, *, runtime=None, providers=None, engine=execute,
 
     @app.get("/api/v1/models/catalog")
     async def catalog(query: str = Query(default="", max_length=120),
-                      sort: str = Query(default="lastModified", pattern="^(lastModified|downloads)$")):
+                      sort: str = Query(default="lastModified", pattern="^(lastModified|downloads)$"),
+                      format: str = Query(default="gguf", pattern="^(gguf|mlx)$")):
         try:
+            if format == "mlx" and hasattr(local, "mlx"):
+                return await local.mlx.catalog(query, sort)
             return await model_hub.search(query=query, sort=sort)
         except (ValueError, RuntimeError) as exc:
             raise HTTPException(503, str(exc)[:500]) from None
 
     @app.get("/api/v1/models/details")
-    async def model_details(repo: str = Query(min_length=3, max_length=160)):
+    async def model_details(repo: str = Query(min_length=3, max_length=160), format: str = Query(default="gguf", pattern="^(gguf|mlx)$")):
         try:
+            if format == "mlx" and hasattr(local, "mlx"):
+                return await local.mlx.details(repo)
             return await model_hub.details(repo)
         except ValueError as exc:
             raise HTTPException(422, str(exc)[:500]) from None
@@ -223,6 +250,7 @@ def create_app(data_dir: Path, *, runtime=None, providers=None, engine=execute,
     async def install(body: ModelInput):
         await reserve()
         job = new_job()
+        job.model = body.model
 
         async def work():
             try:
@@ -262,6 +290,16 @@ def create_app(data_dir: Path, *, runtime=None, providers=None, engine=execute,
         finally:
             lock.release()
 
+    @app.post("/api/v1/models/unload")
+    async def unload_model():
+        await reserve()
+        try:
+            if not hasattr(local, "unload"):
+                raise HTTPException(409, "Model unloading is unavailable in this runtime.")
+            return await local.unload()
+        finally:
+            lock.release()
+
     async def events(job_id: str, request: Request):
         job = jobs.get(job_id)
         if job is None:
@@ -282,6 +320,23 @@ def create_app(data_dir: Path, *, runtime=None, providers=None, engine=execute,
 
     app.add_api_route("/api/v1/jobs/{job_id}/cancel", cancel, methods=["POST"])
     app.add_api_route("/api/v1/runs/{job_id}/cancel", cancel, methods=["POST"])
+
+    @app.post("/api/v1/jobs/{job_id}/pause")
+    async def pause_download(job_id: str):
+        job = jobs.get(job_id)
+        if job is None or not getattr(job, "model", None):
+            raise HTTPException(404, "This download is no longer available.")
+        await cancel(job_id)
+        if job.task:
+            await asyncio.gather(job.task, return_exceptions=True)
+        return {"paused": True, "model": job.model, "note": "Partial model weights are retained for a resumed installation."}
+
+    @app.post("/api/v1/jobs/{job_id}/resume")
+    async def resume_download(job_id: str):
+        job = jobs.get(job_id)
+        if job is None or not getattr(job, "model", None) or not job.done:
+            raise HTTPException(409, "Pause this download before resuming.")
+        return await install(ModelInput(model=job.model))
 
     @app.post("/api/v1/policies/compile")
     async def compile_draft(body: PolicyInput):
@@ -322,7 +377,10 @@ def create_app(data_dir: Path, *, runtime=None, providers=None, engine=execute,
     async def configure_provider(provider: str, body: ProviderInput):
         await reserve()
         try:
-            registry.configure(provider, body.api_key, body.model)
+            if provider == "remote":
+                registry.configure(provider, body.api_key, body.model, base_url=body.base_url)
+            else:
+                registry.configure(provider, body.api_key, body.model)
             return {"providers": registry.status()}
         except ValueError as exc:
             raise HTTPException(422, str(exc)[:300]) from None
@@ -435,9 +493,19 @@ def create_app(data_dir: Path, *, runtime=None, providers=None, engine=execute,
             store.clear_activity()
             conversations.clear()
             jobs.clear()
+            agent_gateway.records.clear()
             return {"deleted": True, "start_new_conversation": True}
         finally:
             lock.release()
+
+    app.include_router(create_gateway_router(agent_gateway))
+    app.include_router(create_desktop_services_router(desktop_services))
+    app.include_router(workspace_router)
+    app.state.workspace, app.state.agent_gateway = workspace, agent_gateway
+
+    @app.get("/api/v1/agent/activity")
+    async def agent_activity():
+        return {"runs": list(reversed(agent_gateway.records))}
 
     static_dir = str(files("smd_app").joinpath("static"))
     app.mount("/static", StaticFiles(directory=static_dir), name="static")

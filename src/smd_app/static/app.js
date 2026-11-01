@@ -20,6 +20,8 @@ const state = {
   install: null,
   installEvents: null,
   lastInstallModel: null,
+  pausedInstall: null,
+  pausingInstall: false,
   draft: null,
   policyDirty: false,
   activeView: "chat",
@@ -88,7 +90,7 @@ async function api(path, options = {}) {
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
     });
   } catch (_) {
-    throw new Error("The local app is not responding. Keep the terminal running, then refresh this page.");
+    throw new Error("The local app is not responding. Restart the desktop app and try again.");
   }
   let result = {};
   if (response.status !== 204) {
@@ -96,7 +98,7 @@ async function api(path, options = {}) {
   }
   if (!response.ok) {
     const detail = result.detail || result.message;
-    if (path.startsWith("/models/") && typeof detail === "string") throw new Error(detail);
+    if ((path.startsWith("/models/") || path.startsWith("/workspace/") || path.startsWith("/voice/") || path.startsWith("/web/")) && typeof detail === "string" && detail.length < 700) throw new Error(detail);
     throw new Error(apiError(response.status, detail));
   }
   return result;
@@ -145,6 +147,7 @@ function updateControls() {
   $("prompt-input").disabled = running;
   $("destination").disabled = running;
   $("new-chat").disabled = running;
+  $("unload-model").disabled = !ready || busy || Boolean(state.status && state.status.busy);
   $("compile-policy").disabled = !ready || busy || state.compileBusy || !$("policy-text").value.trim();
   $("policy-text").disabled = state.compileBusy;
   $("activate-policy").disabled = busy || state.compileBusy || !canActivateDraft(state.draft);
@@ -181,7 +184,7 @@ function renderStatus() {
     $("runtime-title").textContent = "Choose a model to get started";
     $("runtime-description").textContent = "Browse the catalog and download a file. The app will prepare the local runtime.";
   }
-  if (runtime.error && !state.installing) $("runtime-description").textContent = "The local runtime needs attention. Try selecting a model again or check the terminal for setup status.";
+  if (runtime.error && !state.installing) $("runtime-description").textContent = "The local runtime needs attention. Try selecting a model again or check its setup status.";
   $("active-policy-preview").textContent = policy.text || "No active policy. Open Policy to create and activate your rules.";
   if (!state.policyDirty && !state.compileBusy) {
     if (current.draft && current.draft.text) {
@@ -204,7 +207,7 @@ function renderStatus() {
   local.value = "local";
   $("destination").append(local);
   const providers = Array.isArray(current.providers) ? current.providers : Object.entries(current.providers || {}).map(([id, item]) => ({ id, ...item }));
-  for (const id of ["openai", "anthropic"]) {
+  for (const id of ["openai", "anthropic", "remote"]) {
     const provider = providers.find((item) => item.id === id) || {};
     const configured = Boolean(provider.configured);
     $(id + "-status").textContent = configured ? "CONNECTED" : "NOT CONNECTED";
@@ -212,7 +215,7 @@ function renderStatus() {
     if (!state.providerDirty.has(id) && document.activeElement !== $(id + "-model") && provider.model) $(id + "-model").value = provider.model;
     document.querySelector(`.provider-disconnect[data-provider="${id}"]`).disabled = !configured;
     if (configured) {
-      const option = element("option", null, id === "openai" ? "OpenAI" : "Anthropic");
+      const option = element("option", null, id === "openai" ? "OpenAI" : id === "remote" ? "Your remote server" : "Anthropic");
       option.value = id;
       $("destination").append(option);
     }
@@ -261,9 +264,9 @@ async function searchCatalog() {
   state.catalogBusy = true;
   $("search-models").disabled = true;
   $("search-models").textContent = "Searching...";
-  $("catalog-summary").textContent = "Searching Hugging Face for GGUF model repositories...";
+  $("catalog-summary").textContent = `Searching Hugging Face for ${$("model-format").value.toUpperCase()} model repositories...`;
   $("model-catalog").setAttribute("aria-busy", "true");
-  const query = new URLSearchParams({ query: $("model-search").value.trim(), sort: $("model-sort").value });
+  const query = new URLSearchParams({ query: $("model-search").value.trim(), sort: $("model-sort").value, format: $("model-format").value });
   try {
     const catalog = await api(`/models/catalog?${query.toString()}`);
     if (request !== state.catalogRequest) return;
@@ -325,11 +328,11 @@ async function loadModelDetails(repo) {
   renderHubCatalog();
   const panel = $("model-detail");
   const loading = element("div", "model-detail-empty");
-  loading.append(icon("model", "icon large-icon"), element("h3", null, "Reading repository files..."), element("p", null, "Checking available GGUF variants and file metadata."));
+  loading.append(icon("model", "icon large-icon"), element("h3", null, "Reading repository files..."), element("p", null, "Checking available model files and repository metadata."));
   panel.replaceChildren(loading);
   panel.setAttribute("aria-busy", "true");
   try {
-    const details = await api(`/models/details?${new URLSearchParams({ repo }).toString()}`);
+    const details = await api(`/models/details?${new URLSearchParams({ repo, format: $("model-format").value }).toString()}`);
     if (request !== state.modelDetailsRequest) return;
     state.modelDetails = details;
     state.selectedVariant = null;
@@ -367,11 +370,11 @@ function renderModelDetails() {
   panel.append(metadata);
   if (details.gated) panel.append(element("p", "policy-issue", "This repository has access restrictions. Only files that the app can download without additional authorization are available here."));
   const header = element("div", "variant-heading");
-  header.append(element("h3", null, "Choose a file"), element("span", "mono muted", "GGUF VARIANTS"));
+  header.append(element("h3", null, details.format === "MLX" ? "Download the repository" : "Choose a file"), element("span", "mono muted", details.format === "MLX" ? "MLX WEIGHTS" : "GGUF VARIANTS"));
   panel.append(header, element("p", "variant-help", "Quantization changes model size and precision. Review the actual file size, license, and model requirements before downloading."));
   const variants = Array.isArray(details.variants) ? details.variants : [];
   const list = element("div", "variant-list");
-  if (!variants.length) list.append(element("p", "field-help", "No installable GGUF files were listed in this repository. Try another model or use an Ollama tag below."));
+  if (!variants.length) list.append(element("p", "field-help", "No installable files were listed in this repository. Try another model or format."));
   variants.forEach((variant, index) => {
     const row = element("label", `variant-row${variant.installable && variant.model_ref ? "" : " unavailable"}`);
     const radio = document.createElement("input");
@@ -392,6 +395,13 @@ function renderModelDetails() {
     const size = Number(variant.size_bytes) > 0 ? `${(Number(variant.size_bytes) / 1000000000).toLocaleString([], { maximumFractionDigits: 2 })} GB` : Number(variant.size_gb) > 0 ? `${variant.size_gb} GB` : "Size not reported";
     facts.append(element("span", null, size));
     copy.append(facts);
+    const memory = state.hardware?.total_memory_bytes;
+    if (memory && Number(variant.size_bytes) > 0) {
+      const weight = Number(variant.size_bytes);
+      copy.append(element("small", "variant-device-fit", weight > memory
+        ? "Weights exceed this Mac's physical memory. Choose a smaller variant or verify runtime offloading support."
+        : `Weights are below this Mac's ${(memory / 1024 ** 3).toFixed(0)} GB memory. Runtime and context overhead still require a local compatibility check.`));
+    }
     if (!variant.installable || !variant.model_ref) copy.append(element("small", "variant-unavailable", variant.reason || "This file cannot be installed by the current runtime."));
     row.append(radio, copy);
     list.append(row);
@@ -509,6 +519,9 @@ async function installModel(model) {
   if (!model || state.installing || hasActiveRun() || state.selectingModel) return;
   notify("");
   state.lastInstallModel = model;
+  state.pausedInstall = null;
+  $("pause-install").hidden = false;
+  $("resume-install").hidden = true;
   state.installing = true;
   $("model-install-progress").hidden = false;
   $("install-title").textContent = `Downloading ${model}`;
@@ -529,6 +542,7 @@ async function installModel(model) {
 }
 
 function handleInstallEvent(event) {
+  if (state.pausingInstall) return;
   if (event.type === "progress") {
     $("install-title").textContent = event.stage ? humanize(event.stage) : `Preparing ${state.lastInstallModel}`;
     $("install-message").textContent = event.message || "Your local model is being prepared.";
@@ -557,13 +571,48 @@ async function finishInstall(success, message) {
   $("install-progress-bar").style.width = success ? "100%" : "0%";
   $("install-percent").textContent = success ? "100%" : "";
   $("cancel-install").hidden = true;
+  $("pause-install").hidden = true;
+  $("resume-install").hidden = true;
   $("retry-install").hidden = success;
   await refreshStatus(true);
   updateControls();
   if (success) notify("Download complete. Choose Use in the installed list to check and activate the model. Your current selection has not changed.");
 }
 
+async function pauseInstall() {
+  if (!state.install || state.pausingInstall) return;
+  state.pausingInstall = true;
+  const id = state.install;
+  $("pause-install").disabled = true;
+  try {
+    await api(`/jobs/${encodeURIComponent(id)}/pause`, { method: "POST" });
+    if (state.installEvents) state.installEvents.close();
+    state.installEvents = null; state.pausedInstall = id; state.install = null; state.installing = false;
+    $("install-title").textContent = "Download paused";
+    $("install-message").textContent = "Downloaded parts stay on this computer. Resume continues the selected model download.";
+    $("pause-install").hidden = true; $("resume-install").hidden = false;
+    $("cancel-install").disabled = false;
+    updateControls();
+  } catch (error) { notify(error.message, true); }
+  finally { state.pausingInstall = false; $("pause-install").disabled = false; }
+}
+
+async function resumeInstall() {
+  if (!state.pausedInstall || state.installing) return;
+  $("resume-install").disabled = true;
+  try {
+    const job = await api(`/jobs/${encodeURIComponent(state.pausedInstall)}/resume`, { method: "POST" });
+    state.install = job.id || job.job_id; state.pausedInstall = null; state.installing = true;
+    $("resume-install").hidden = true; $("pause-install").hidden = false; $("cancel-install").hidden = false;
+    $("install-message").textContent = "Resuming the selected download...";
+    state.installEvents = stream(`/jobs/${encodeURIComponent(state.install)}/events`, handleInstallEvent, () => finishInstall(false, "The download connection stopped. Check model status before retrying."));
+    updateControls();
+  } catch (error) { notify(error.message, true); }
+  finally { $("resume-install").disabled = false; }
+}
+
 async function cancelInstall() {
+  if (state.pausedInstall) { state.pausedInstall = null; await finishInstall(false, "Paused download cancelled. Retained parts may be reused if you download this model again."); return; }
   if (!state.install) return;
   $("cancel-install").disabled = true;
   try {
@@ -605,7 +654,7 @@ function renderClauses(container, rules) {
       }
       if (rule.action) {
         const actions = { allow: "Allow", redact: "Remove matching information before external use", local_only: "Keep processing local", deny: "Block this request", clarify: "Ask for clarification" };
-        const targets = { local: "Local model", openai: "OpenAI", anthropic: "Anthropic" };
+        const targets = { local: "Local model", openai: "OpenAI", anthropic: "Anthropic", remote: "Your remote server" };
         row.append(element("p", "field-help", `Handling: ${actions[rule.action] || humanize(rule.action)}`));
         row.append(element("p", "field-help", `Information: ${(rule.info || []).map(humanize).join(", ") || "Not specified"}`));
         row.append(element("p", "field-help", `Applies to: ${(rule.targets || []).map((target) => targets[target] || target).join(", ") || "Not specified"}`));
@@ -784,7 +833,7 @@ function renderRunDetails(result) {
     if (transforms.length) addDetail(panel, "Transformations", transforms.map((item) => typeof item === "string" ? item : item.description || (item.kind ? `${humanize(item.kind)}${item.count !== undefined ? ` (${item.count})` : ""}` : item.type || item.action || "Transformation recorded")).join("; "));
   }
   panel.append(element("div", "detail-label", result.external_attempted ? "Outgoing payload" : "Prepared payload"));
-  panel.append(element("pre", "detail-payload", result.payload || "No external payload recorded."));
+  panel.append(element("pre", "detail-payload", (typeof result.payload === "object" ? JSON.stringify(result.payload, null, 2) : result.payload) || "No external payload recorded."));
   panel.append(element("div", "detail-label", "Limited content inspection"));
   const inspection = result.inspection;
   let explanation = "The app checks recognized information patterns. This is not a semantic privacy review or proof of confidentiality.";
@@ -850,14 +899,20 @@ async function configureProvider(event) {
   const button = form.querySelector('button[type="submit"]');
   const apiKey = $(id + "-key").value.trim();
   const model = $(id + "-model").value.trim();
-  if (!apiKey || !model) return;
+  const privateEntry = Boolean(window.smdDesktop?.configureProvider);
+  if (!model || (!privateEntry && !apiKey)) return;
   button.disabled = true;
   try {
-    await api(`/providers/${id}`, { method: "PUT", body: { api_key: apiKey, model } });
+    if (privateEntry) {
+      const result = await window.smdDesktop.configureProvider({ provider: id, model, ...(id === "remote" ? { base_url: $("remote-base-url").value.trim() } : {}) });
+      if (result.canceled) return;
+    } else {
+      await api(`/providers/${id}`, { method: "PUT", body: { api_key: apiKey, model, ...(id === "remote" ? { base_url: $("remote-base-url").value.trim() } : {}) } });
+    }
     state.providerDirty.delete(id);
     $(id + "-key").value = "";
     await refreshStatus(true);
-    notify(`${id === "openai" ? "OpenAI" : "Anthropic"} connection saved in memory. Select it in Chat to try delegation. Configuration alone does not verify a successful provider call.`);
+    notify(`${id === "openai" ? "OpenAI" : id === "remote" ? "Your remote server" : "Anthropic"} connection saved in memory. Select it in Chat to try delegation. Configuration alone does not verify a successful provider call.`);
   } catch (error) {
     $(id + "-key").value = "";
     notify(error.message, true);
@@ -880,6 +935,7 @@ function formatDate(value) {
 }
 
 async function loadActivity() {
+  window.dispatchEvent(new CustomEvent("smd:activity"));
   try {
     const activity = await api("/activity");
     const runs = activity.runs || [];
@@ -977,12 +1033,28 @@ $("destination").addEventListener("change", updateControls);
 $("stop-run").addEventListener("click", cancelRun);
 $("new-chat").addEventListener("click", newConversation);
 $("refresh-models").addEventListener("click", refreshModels);
+$("unload-model").addEventListener("click", async () => {
+  $("unload-model").disabled = true;
+  try {
+    await api("/models/unload", { method: "POST", body: {} });
+    await refreshStatus(true);
+    notify("The active model was unloaded to release memory. Its downloaded files remain available; choose Use to activate it again.");
+  } catch (error) { notify(error.message, true); updateControls(); }
+});
 $("model-search-form").addEventListener("submit", (event) => { event.preventDefault(); searchCatalog(); });
 $("model-search").addEventListener("input", () => {
   clearTimeout(state.catalogTimer);
   state.catalogTimer = setTimeout(searchCatalog, 550);
 });
 $("model-sort").addEventListener("change", searchCatalog);
+$("model-format").addEventListener("change", () => {
+  state.modelDetails = null; state.selectedVariant = null;
+  $("model-format-label").textContent = `LIVE CATALOG / ${$("model-format").value.toUpperCase()}`;
+  $("model-detail").replaceChildren(element("div", "model-detail-empty", "Choose a repository to inspect its files."));
+  searchCatalog();
+});
+$("pause-install").addEventListener("click", pauseInstall);
+$("resume-install").addEventListener("click", resumeInstall);
 $("cancel-install").addEventListener("click", cancelInstall);
 $("retry-install").addEventListener("click", () => installModel(state.lastInstallModel));
 $("advanced-model-form").addEventListener("submit", (event) => {
@@ -999,7 +1071,7 @@ $("policy-text").addEventListener("input", () => {
 });
 $("activate-policy").addEventListener("click", activatePolicy);
 document.querySelectorAll(".provider-form").forEach((form) => form.addEventListener("submit", configureProvider));
-for (const provider of ["openai", "anthropic"]) $(provider + "-model").addEventListener("input", () => state.providerDirty.add(provider));
+for (const provider of ["openai", "anthropic", "remote"]) $(provider + "-model").addEventListener("input", () => state.providerDirty.add(provider));
 document.querySelectorAll(".provider-disconnect").forEach((button) => button.addEventListener("click", () => disconnectProvider(button.dataset.provider)));
 $("refresh-activity").addEventListener("click", loadActivity);
 $("save-content").addEventListener("change", changeStorageSetting);

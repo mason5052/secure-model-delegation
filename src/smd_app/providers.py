@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from urllib.parse import urlsplit
 from dataclasses import dataclass
 from typing import Any
 
@@ -20,6 +21,7 @@ class ProviderError(RuntimeError):
 class _Configuration:
     key: str
     model: str
+    base_url: str | None = None
 
 
 class ProviderRegistry:
@@ -30,7 +32,7 @@ class ProviderRegistry:
         self._transport = transport
         self._timeout = httpx.Timeout(timeout, connect=min(10.0, timeout))
 
-    def configure(self, name: str, api_key: str, model: str) -> None:
+    def configure(self, name: str, api_key: str, model: str, *, base_url: str | None = None) -> None:
         self._check_name(name)
         if not isinstance(api_key, str) or not 8 <= len(api_key) <= 512 or re.search(r"\s", api_key):
             raise ValueError("Enter a valid provider API key without whitespace.")
@@ -38,7 +40,11 @@ class ProviderRegistry:
             raise ValueError("Enter a provider model identifier, not an endpoint URL.")
         if "://" in model:
             raise ValueError("Custom provider endpoints are not supported.")
-        self._entries[name] = _Configuration(api_key, model)
+        if name == "remote":
+            parsed = urlsplit(base_url or "")
+            if not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment or (parsed.scheme != "https" and not (parsed.scheme == "http" and parsed.hostname in {"127.0.0.1", "localhost", "::1"})):
+                raise ValueError("Use an explicit HTTPS model endpoint, or HTTP on loopback, without embedded credentials.")
+        self._entries[name] = _Configuration(api_key, model, base_url.rstrip("/") if base_url else None)
 
     def remove(self, name: str) -> None:
         self._check_name(name)
@@ -55,12 +61,12 @@ class ProviderRegistry:
                 "model": self._entries[name].model if name in self._entries else "",
                 "masked_key": "********" + self._entries[name].key[-4:] if name in self._entries else "",
             }
-            for name in ("openai", "anthropic")
+            for name in ("openai", "anthropic", "remote")
         ]
 
     @staticmethod
     def _check_name(name: str) -> None:
-        if name not in {"openai", "anthropic"}:
+        if name not in {"openai", "anthropic", "remote"}:
             raise ValueError("Choose OpenAI or Anthropic.")
 
     async def complete(self, name: str, messages: list[dict[str, str]]) -> str:
@@ -69,6 +75,10 @@ class ProviderRegistry:
         if entry is None:
             raise ProviderError("This provider is not configured.", code="not_configured")
         self._validate_messages(messages)
+        if name == "remote":
+            from .agent_gateway import provider_agent_complete
+            reply, _ = await provider_agent_complete(self, name, {"model": "smd-remote", "messages": messages})
+            return reply["choices"][0]["message"].get("content") or ""
         if name == "openai":
             url = "https://api.openai.com/v1/responses"
             headers = {"Authorization": "Bearer " + entry.key}

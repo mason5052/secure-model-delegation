@@ -41,3 +41,9 @@ dist/
 .smd/
 application.sqlite3*
 runtime-state.json
+node_modules/
+frontend-dist/
+workspace.sqlite3*
+desktop-artifacts/
+src/smd_app/static/canvas/
+src/smd_app/static/pdf/

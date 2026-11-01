@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title description">
+  <title id="title">aethon sun horse</title>
+  <desc id="description">An original galloping horse with a flame mane crossing an amber sun, framed by a Platinum desktop tile.</desc>
+  <defs>
+    <linearGradient id="tile" x2="0" y2="1"><stop stop-color="#faf9f4"/><stop offset="1" stop-color="#c8c7c1"/></linearGradient>
+    <linearGradient id="sun" x2="0" y2="1"><stop stop-color="#f6ca6b"/><stop offset="1" stop-color="#d77d38"/></linearGradient>
+    <pattern id="grain" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M0 0h2v2H0zM6 6h2v2H6z" fill="#1f293b" opacity=".07"/></pattern>
+  </defs>
+  <rect x="34" y="34" width="956" height="956" rx="142" fill="#1f293b"/>
+  <rect x="48" y="48" width="928" height="928" rx="128" fill="url(#tile)"/>
+  <path d="M75 840V179Q75 75 179 75h661" fill="none" stroke="#fff" stroke-width="16"/>
+  <path d="M949 184v661q0 104-104 104H184" fill="none" stroke="#93949a" stroke-width="16"/>
+  <circle cx="535" cy="434" r="294" fill="url(#sun)"/>
+  <circle cx="535" cy="434" r="294" fill="url(#grain)"/>
+  <g stroke="#b76a35" stroke-width="17" stroke-linecap="square">
+    <path d="M535 101v-25M700 147l13-22M822 269l22-13M867 434h25M822 599l22 13M248 269l-22-13M370 147l-13-22"/>
+  </g>
+  <path d="M294 496c-61-62-117-38-119-120-65 72-24 115 19 134-58 10-45 59-104 75 79 36 136-16 190-30Z" fill="#c9673d" stroke="#1f293b" stroke-width="21" stroke-linejoin="round"/>
+  <path d="m340 554 57 24-56 57-94 3-50 62-44-22 52-86 88-17Z" fill="#b85c32" stroke="#1f293b" stroke-width="23" stroke-linejoin="round"/>
+  <path d="m572 535 62 27-13 84 88 50-26 39-111-48-9-65-44-44Z" fill="#b85c32" stroke="#1f293b" stroke-width="23" stroke-linejoin="round"/>
+  <path d="M281 501c66-58 161-61 250-26l45-88 48-106 37-47 30 48 34-17 25 58 68 39-12 45-55 18-54-27-29 53-11 67 56 64 54 86-39 23-62-75-55-35-52 20-89 13-70-18-54 67-48 65-48-30 45-81-31-50Z" fill="#e7a047" stroke="#1f293b" stroke-width="25" stroke-linejoin="round"/>
+  <path d="m624 280-57-19 18 57-47 3 24 44-49 14 38 46-29 54 65-14 30-75 22-65Z" fill="#d56a3e" stroke="#1f293b" stroke-width="19" stroke-linejoin="round"/>
+  <path d="m700 329 27 10" fill="none" stroke="#1f293b" stroke-width="17" stroke-linecap="round"/>
+  <circle cx="724" cy="350" r="10" fill="#fff7df"/>
+  <circle cx="724" cy="350" r="4" fill="#1f293b"/>
+  <path d="m782 387 16-6M658 446l-20 29" fill="none" stroke="#1f293b" stroke-width="14" stroke-linecap="round"/>
+  <path d="M395 529c52 29 99 28 137 12" fill="none" stroke="#f8d187" stroke-width="16" stroke-linecap="round"/>
+  <path d="m195 700-41-22M294 728l-46-28M683 735l26-39M729 691l38-23" stroke="#1f293b" stroke-width="25"/>
+  <path d="M234 806h516M304 844h376" stroke="#a5a6ab" stroke-width="13"/>
+  <path d="M234 800h516M304 838h376" stroke="#fff" stroke-width="9"/>
+</svg>
