@@ -1,0 +1,82 @@
+Korean working manuscript with separate live-model evaluation
+
+Current draft: 16 pages including references and appendix.
+Authors: Junkuk Kim and Jinyoung Choi.
+Only Junkuk Kim has the supplied Georgia Institute of Technology affiliation.
+No coauthor affiliation, email or approval history was inferred.
+
+The source uses the explicitly requested two-column, 10pt letter format:
+7-inch text width, 0.25-inch column gap, full-width title and summary, serif
+body text, numbered sections and author-year references. Eight large tables
+and four vector figures span both columns; a compact appendix table occupies
+one column. The owner-supplied LoRA source informs typography and figure
+clarity, not the number of columns. No venue acceptance is claimed and no
+reference-paper assets are bundled.
+
+Editable contents
+- secure-model-delegation-ko.tex
+- architecture-ko.pdf, protocol-ko.pdf, baseline-ko.pdf, live-model-ko.pdf
+- build-figures-ko.py
+- BUILD.txt and paper-style-analysis.txt
+
+Build from the extracted folder:
+  tectonic -X compile secure-model-delegation-ko.tex
+Alternatively run XeLaTeX twice:
+  xelatex secure-model-delegation-ko.tex
+  xelatex secure-model-delegation-ko.tex
+
+The verified build uses Tectonic 0.17.0 and locally available fonts:
+Times New Roman, AppleMyungjo, AppleGothic and Menlo. The source declares
+font fallbacks. Fonts are not bundled. Tectonic may fetch public packages;
+the manuscript is compiled locally and is not uploaded by this build.
+
+Optional figure editing requires Python and ReportLab (verified 4.4.9):
+  python build-figures-ko.py --figure all
+  python build-figures-ko.py --figure live-model
+Use --font for an installed Korean TrueType font on another platform.
+The four unchanged assets are 396-point vector PDFs with native text at
+least 8.5pt, scaled to the full 7-inch figure width in this layout.
+
+Evidence boundaries
+- Historical 1400/210/36 results are unchanged rule-based study results.
+- The separate new study runs 12 authored task groups, three recipient
+  profiles and A/B/C once: 108 executions, not 108 independent tasks.
+- Actual Qwen3-4B GGUF Q4_K_M runs on Ollama 0.40.13, Apple M4, 16 GiB.
+- The controlled HTTP receiver forwards to the same local model. It is
+  not an actual commercial provider or a stronger remote model.
+- Scalar task checks pass in A/B/C in 36/36, 32/36 and 34/36 conditions.
+- B has 12 actual HTTP receipts, with protected fixture values in two.
+  A and C have no HTTP receipts; received-content privacy is unmeasured.
+- The exposed 45-condition transport regression has no model answers:
+  15 actual receipts, six with protected values, no missing designated
+  facts in the ten applicable receipts. It does not replace 6/18 -> 0/18.
+- Independent human policy, preference and semantic reviews are pending.
+- A separate fixed-representation diagnostic made 11 real OpenAI API calls:
+  one compatibility probe and ten task requests. Field checks pass in 6/10,
+  compared with 7/10 for the same original Qwen B representations.
+- Provider responses are not independent server-received-body observations.
+  Usage-derived uncached-rate cost upper estimate is USD 0.001797, not an invoice.
+- Actual desktop GUI paid delegation was not verified. C was not forced to send.
+- Complete manifests, protocol, blank human packets, frozen source,
+  per-condition results, receiver bytes and the English report remain
+  in the separate private live-model-evaluation run folder.
+
+Review first
+- Pages 5-8: actual model settings, fixed policies and shared backend path.
+- Pages 11-12: actual local answers, failures, loopback receipts and latency.
+- Pages 13-14: actual-provider diagnostic, protected-value failures and limits.
+
+Preservation
+The verified 19-page single-column draft is preserved in
+before-two-column-layout-20261101T033901Z/. Scientific text, numbers, citations
+and the four vector figure files are unchanged by this layout correction.
+The verified 17-page draft immediately before the real-provider diagnostic is
+preserved in before-external-provider-20261101T031700Z/.
+The exact previous 13-page PDF, TEX, figures, source archive and build guide
+are preserved in before-live-model-evaluation-20261101T013607Z/. The five
+out-of-scope English source/PDF/archive assets retain their recorded hashes.
+Original research code, data and review labels are not edited by this build.
+The editable paper archive contains no original work prompts, private source
+mappings, raw model logs, API keys or research answer fixtures.
+
+The two-column build also uses the public dblfloatfix LaTeX package.

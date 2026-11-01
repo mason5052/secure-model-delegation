@@ -136,10 +136,19 @@ jobs:
           python -m unittest discover -s tests -p 'test_desktop_lifecycle.py' -v
       - name: Build installable wheel and source package
         run: python -m build
-      - name: Confirm application did not change preserved research inputs
+      - name: Confirm preserved research inputs outside reviewed Korean manuscript assets
         run: >-
           git diff --exit-code eb48dc0752800920b218b08517aed08a85b93bd6 --
           src/smd_gateway src/smd_bench configs benchmark data paper
+          ':(exclude)paper/korean/secure-model-delegation-ko.tex'
+          ':(exclude)paper/korean/secure-model-delegation-ko.pdf'
+          ':(exclude)paper/korean/secure-model-delegation-ko-source.zip'
+          ':(exclude)paper/korean/live-model-ko.pdf'
+          ':(exclude)paper/korean/build-figures-ko.py'
+          ':(exclude)paper/korean/README.md'
+          ':(exclude)paper/korean/BUILD.txt'
+          ':(exclude)paper/korean/paper-style-analysis.txt'
+          ':(exclude)paper/korean/.gitignore'
       - name: Explain historical reference
         shell: bash
         run: |

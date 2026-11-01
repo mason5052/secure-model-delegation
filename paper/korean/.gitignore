@@ -1,5 +1,4 @@
-# Local manuscript build output. Figure PDFs and the source ZIP stay tracked.
-/secure-model-delegation-ko.pdf
+# Local build intermediates. The review PDF, figure PDFs and source ZIP are tracked.
 *.aux
 *.log
 *.out

@@ -1,0 +1,277 @@
+Comparative scholarly style analysis
+Prepared: 2026-10-31
+
+Purpose and scope
+
+This analysis supports a scholarly Korean rewrite of Secure Model Delegation.
+It concerns exposition and layout, not a new novelty or performance evaluation.
+The four public original PDFs were downloaded and their hashes match the
+existing public-source manifest. Their section structures were examined from
+page-delimited PDF text. Portcullis and Evidence-Bound v2 first pages were also
+rendered and visually inspected. No private manuscript was uploaded, and no D64
+source was accessed for this analysis.
+
+Observed paper patterns
+
+1. Portcullis: an implementation-centered systems paper.
+
+The first page has a centered full-width title and author block above a serif
+two-column body. Its abstract occupies the left column, followed by the
+Introduction; main headings are centered and unnumbered. These are observed
+AAAI presentation choices, not IEEE requirements. Contributions on printed
+p. 1023 distinguish the gateway design, confidential execution, verification,
+and evaluation. Background precedes the architecture (Figure 1, p. 1024),
+execution policy (Table 2, p. 1025), implementation/security discussion
+(p. 1026), and evaluation (pp. 1027-1028). Borrow the separation of mechanism,
+assurance, and experiment. Do not import broad assurance language into a
+local simulation whose threat model supports a narrower conclusion.
+
+Original: https://ojs.aaai.org/index.php/AAAI/article/download/32088/34243
+Read copy: https://papers.cool/pdf?url=https%3A%2F%2Fojs.aaai.org%2Findex.php%2FAAAI%2Farticle%2Fview%2F32088%2F34243
+
+2. PRISM: a mechanism-centered privacy/utility paper.
+
+The Introduction moves from a specific limitation to three contributions
+(PDF p. 2). Framework Design then introduces components, routing, privacy
+transformation, and refinement before Analysis and Evaluation. Figure 1 is
+an early worked workflow example on p. 1. Algorithm 1 is on p. 5. Evaluation
+Setting on p. 6 separates dataset construction, deployment environment,
+baselines, and metrics; results occupy pp. 6-7. Borrow this ordering and the
+use of one concrete transformation diagram to explain an unfamiliar system.
+Keep an implementation mechanism distinct from evidence that it improves
+the measured outcome. A routing paper's privacy/utility result is not a
+direct comparator for our agreement with authored expected routes.
+
+Original: https://arxiv.org/pdf/2511.22788v1
+HTML: https://arxiv.org/html/2511.22788v1
+
+3. Evidence-Bound Gateway-Path Provenance v2: a contract/security paper.
+
+The first page uses a full-width title, two-column body, numbered hierarchy,
+abstract and keywords, and three concrete contributions before the system
+section. System and Adversary starts on p. 1; contracts and required
+properties follow on p. 2. Architecture precedes the security analysis;
+implementation and experiments follow. Section 6.1 (p. 10) explicitly
+distinguishes controlled software measurements from the attested deployment,
+states topology and trial units, and defines paired summaries. Discussion,
+Related Work, and Conclusion are on p. 12. Borrow explicit trust assumptions,
+observable properties, and measurement boundaries. A signed execution trace,
+an authorized representation, and a semantic leakage judgment must remain
+different claims in our paper.
+
+Original: https://arxiv.org/pdf/2606.22560v2
+HTML: https://arxiv.org/html/2606.22560v2
+
+4. AirGapAgent: a threat-and-evaluation paper.
+
+Figure 1 (p. 1) contrasts benign disclosure, attack, and mitigation. The
+Introduction summarizes contributions on p. 2. Privacy Task and Threat Model
+precedes the attack analysis and agent design (Sections 2-4, pp. 2-7).
+Data generation is a separate section (Section 5, pp. 7-9), followed by
+Experimental Results and an explicit setup (Section 6, pp. 10-12). Related
+Work and Conclusions follow on pp. 12-13. Borrow the separation of task
+definition, adversary, data construction, and evaluation. Put extensive
+generation prompts and implementation detail in supplementary material.
+Explain who supplies appropriateness labels rather than allowing a synthetic
+data-generation procedure to imply independent human validation.
+
+Original: https://arxiv.org/pdf/2405.05175v2
+HTML: https://arxiv.org/html/2405.05175v2
+
+Bibliographic verification
+
+The following titles and author orders were checked against original first
+pages and the publisher or arXiv records. Reference initials are suitable for
+the IEEE-style working bibliography. Retain the reviewed arXiv version rather
+than inventing proceedings metadata that was not checked in this audit.
+
+- Portcullis: A Scalable and Verifiable Privacy Gateway for Third-Party LLM
+  Inference. Jiangou Zhan, W. Zhang, Zheng Zhang, Huanran Xue, Yao Zhang,
+  and Ye Wu. Proceedings of the AAAI Conference on Artificial Intelligence,
+  vol. 39, no. 1, pp. 1022-1030, 2025. DOI: 10.1609/aaai.v39i1.32088.
+  Primary-source discrepancy: the PDF prints Wenhu Zhang, whereas the publisher
+  record prints Wenhui Zhang. The shared initial W. avoids silently resolving
+  an unverified spelling discrepancy. The full title above is confirmed by
+  both sources.
+  https://ojs.aaai.org/index.php/AAAI/article/view/32088
+
+- PRISM: Privacy-Aware Routing for Adaptive Cloud-Edge LLM Inference via
+  Semantic Sketch Collaboration. Junfei Zhan, Haoxun Shen, Zheng Lin,
+  and Tengjiao He. arXiv:2511.22788v1, 2025.
+  https://arxiv.org/abs/2511.22788v1
+
+- Evidence-Bound Gateway-Path Provenance for Third-Party LLM Inference.
+  Fei Wang and Zebai Tian. arXiv:2606.22560v2, 2026; revision dated
+  2026-10-16. This is the reviewed version with the expanded protocol model.
+  https://arxiv.org/abs/2606.22560v2
+
+- AirGapAgent: Protecting Privacy-Conscious Conversational Agents.
+  Eugene Bagdasarian, Ren Yi, Sahra Ghalebikesabi, Peter Kairouz,
+  Marco Gruteser, Sewoong Oh, Borja Balle, and Daniel Ramage.
+  arXiv:2405.05175v2, 2024; revision dated 2024-09-18.
+  https://arxiv.org/abs/2405.05175v2
+
+Three layout patterns worth retaining
+
+- A full-width title with a compact, consistent two-column text grid establishes
+  a proceedings appearance. Let the chosen class control margins, headings,
+  title spacing, references, and captions.
+- PRISM and AirGapAgent introduce an explanatory example figure early; the
+  figure helps a reader understand the mechanism before formal detail.
+  Our architecture figure should show the policy boundary and observed
+  endpoint, with concise Korean labels legible at the final column width.
+- Evidence-Bound places definitions and observable security properties before
+  implementation and experiments. Our policy/representation definitions should
+  likewise precede an implementation narrative and empirical interpretation.
+
+These patterns are compatible at the level of exposition. AAAI centered
+unnumbered headings, ACM-style numbered headings and metadata, and IEEEtran
+heading conventions should not be combined manually.
+
+Official guidance and the working-format decision
+
+IEEE's conference structure guide recommends a specific title, a self-contained
+single-paragraph abstract, a precise research question, sufficiently detailed
+methods for replication, and results interpreted with limitations. The guide
+sets an English abstract length of up to 250 words; the eventual venue and
+submission language determine how a Korean working abstract is converted.
+IEEE's template resource identifies the standard conference layout as
+two-column. Using IEEEtran conference mode is a defensible working choice,
+but does not establish compliance with a venue that has not been selected.
+
+Sources:
+https://conferences.ieeeauthorcenter.ieee.org/write-your-paper/structure-your-paper/
+https://events.ieee.org/forms-and-templates/
+
+ACM is not synonymous with a universal two-column review format. Official
+2026 HCOMP/CI instructions specify single-column anonymous manuscript review
+copies. UbiComp/ISWC 2026 instead specifies double-column review copies for
+the listed proceedings tracks. Thus review stage, publication family, and
+track must be checked before changing class or claiming template compliance.
+ACM's LaTeX best-practices guide also distinguishes manuscript review and
+production styles and explains figure descriptions and structured source.
+Its general author pages returned access errors in this retrieval, so the
+current venue examples provide the clearest directly readable distinction.
+
+Sources:
+https://hcomp.acm.org/2026/submit.html
+https://ci.acm.org/2026/general-submission-instructions.html
+https://ubicomp.hosting.acm.org/ubicompiswc2026_wp/formatting/
+https://authors.acm.org/binaries/content/assets/publications/taps/latex-best_practices-06-may-2020.pdf
+
+Concrete rewrite rules for this paper
+
+1. Abstract: use one connected paragraph containing the problem, narrow gap,
+   design, evaluation setting, principal finding, and bounded implication.
+   Identify simulated endpoints and authored expected routes where the
+   reported result depends on them. Remove progress-report wording and
+   unsupported priority claims.
+
+2. Introduction: progress from a concrete recipient-dependent disclosure
+   problem to the capabilities already established by prior work, the remaining
+   question, the proposed design, and three verifiable contributions. Frame
+   the contribution consistently as content/recipient-dependent handling and
+   representation selection plus separate evaluation of route and delivered
+   content. A contribution is an artifact, method, or established result,
+   rather than a list of implementation tasks completed.
+
+3. Related work: compare decisions, trust models, transformations, and evidence.
+   Acknowledge that earlier systems already restrict routes or inspect
+   transmission evidence. Name unconfirmed capabilities as unconfirmed.
+   Identify the filter baseline as our implementation, rather than presenting
+   it as an execution of a cited system.
+
+4. Definitions and threat model: define request/context, recipient profile,
+   representation, admissible route, preferred route, policy violation, and
+   observed disclosure before presenting the controller. State trusted
+   components, adversary powers, simulation boundaries, and excluded claims.
+   Distinguish policy authorization from detector coverage and enforcement.
+
+5. Methods: identify the unit of analysis and each denominator, data lineage,
+   input conditions, frozen systems, baseline scope, label author, scoring
+   rules, and endpoint observation. Keep operational runs and controller-only
+   diagnostics as different experiments. Treat three recipient variants as
+   repeated conditions of one task. A future independent review remains a
+   future study even when its packets and protocol are complete.
+
+6. Results: use noun-phrase headings aligned with the evaluation questions.
+   State a result and denominator, explain the mechanism supported by the
+   observation, then bound the inference. In the ablation, explain what changed
+   in 26 controller-only route names, why that diagnostic performs no external
+   call, and why equal runtime egress differs from changed diagnostic agreement.
+   Do not call agreement with researcher expectations independent accuracy.
+
+7. Tables and figures: use descriptive captions specifying condition, unit,
+   denominator, and limitations needed to interpret the visual independently.
+   Explain denominator exceptions next to the relevant table. Use consistent
+   route names and show permitted handling separately from observed payload
+   inspection. Prefer vector figures and readable labels over miniaturized
+   prose embedded in a drawing. A figure should explain a mechanism or result,
+   not duplicate an entire paragraph.
+
+8. Discussion and conclusion: separate internal validity, construct validity,
+   external validity, and operational implications in coherent paragraphs.
+   Explain author-supplied labels, incomplete semantic leakage detection,
+   synthetic-data limits, and the pending human study. Conclude with the
+   supported design/evaluation finding rather than a claim of general safety.
+
+Language and heading recommendations
+
+Use formal Korean declarative prose, stable technical terms, and explicit
+subjects. Introduce a term once with its English equivalent when needed.
+Replace conversational questions and instructions with analytical statements.
+Keep concrete research questions in the evaluation overview, then use concise
+noun-phrase headings such as evaluation datasets, evaluation metrics,
+recipient-dependent route selection, utility optimization, multi-turn cue
+ablation, pre-egress inspection failures, operational auditability, and
+validity and limitations. Avoid repeated bold lead-ins, decorative color
+panels, tutorial prompts, and manual spacing that bypasses the class.
+
+Completion criteria
+
+A reader should be able to identify the research question and supported
+contributions from the first page; reproduce each experimental denominator
+and input condition from Methods; distinguish authored expectations from
+independent human judgments; and explain the difference between selected
+routes, enforcement behavior, and endpoint-observed content without consulting
+internal preparation notes. Final PDF review must check Korean glyphs,
+two-column reading order, table notes, equation wrapping, float placement,
+caption references, and the absence of clipped or excessively small labels.
+
+
+Evidence alignment and supplied LoRA reference, 2026-10-31
+
+The earlier IEEE two-column choice above is historical. The owner supplied the
+local source of LoRA: Low-Rank Adaptation of Large Language Models, arXiv
+2106.09685v2, as the visual reference. Its article/ICLR2022 source uses a
+single column with a 5.5-inch text width, a serif body, a left-aligned title,
+compact numbered sections and author-year citations. The current Korean draft
+adopts these visual principles without a conference submission/publication
+banner. It does not import LoRA technical claims, figures or performance data.
+
+Figures were redrawn at 396 PDF points, with text at least 8.5 points and both
+color and grayscale inspection. The architecture distinguishes a route label
+from a locally recorded mock body. The ablation uses a two-condition/two-mode
+comparison. The baseline plot uses two panels with common axes and direct
+values; the ordinal metric is not independent permission conformance.
+
+The strict implementation audit also corrected measurement scope: three
+controls inspect generated candidate strings, while controller/Osaurus arms
+record local JSONL; no recipient server or network capture exists. The code
+route replaces spans and adds fixed text rather than generating task-specific
+pseudocode. The output guard has no uncertainty state. Local route selection
+is not local model task execution. Scores are rule-based assumptions.
+
+D64 original-request windows were subsequently coded through an explicitly
+on-device SystemLanguageModel API into closed-vocabulary structures. Eight
+usable structures produced 24 new prepared reviewer instances, not new
+performance outcomes. This does not retrospectively validate the old 45-case
+pilot or the realism of the 1,400-case benchmark.
+
+
+Two-column layout correction, 2026-10-31
+The current editable draft restores the explicitly requested two-column
+letter layout with a full-width title and summary. Earlier single-column
+recommendations in this style history are superseded. The LoRA reference
+informs typography and clear figures without overriding the two-column
+requirement. Scientific content and vector figure bytes are unchanged.
