@@ -983,7 +983,8 @@ async function loadActivityDetail(id) {
     if (prompt || answer || payload) {
       for (const [label, value] of [["Saved request", prompt], ["Saved answer", answer], ["Saved payload", payload]]) {
         if (!value) continue;
-        panel.append(element("div", "detail-label", label), element("div", "activity-content", value));
+        const text = typeof value === "object" ? JSON.stringify(value, null, 2) : value;
+        panel.append(element("div", "detail-label", label), element("div", "activity-content", text));
       }
     } else panel.append(element("p", "field-help", "This record contains metadata only. The original request and answer are not available from this saved record."));
     panel.scrollIntoView({ behavior: "smooth", block: "nearest" });

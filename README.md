@@ -217,6 +217,64 @@ Historical job results do not certify current HEAD as the frozen controller.
 Application CI separately verifies that this work did not change research
 code, policies, labels, datasets, or paper files from `eb48dc0`.
 
+### Live Model Evaluation
+
+The separately invoked live evaluator calls `smd_app.engine.execute`,
+`LocalRuntimes.chat`, `ProviderRegistry.complete`, and the actual HTTP provider
+adapter used by the application. It does not relabel the historical simulated
+1,400/210/36-case results as a downloaded model's performance.
+
+```bash
+.venv/bin/python -m smd_app.evaluation \
+  --dataset /path/to/private/synthetic-inputs.jsonl \
+  --fixtures /path/to/private/researcher-fixtures.json \
+  --policies /path/to/private/policies.json \
+  --runtime-source /path/to/existing-local-runtime-profile \
+  --model qwen3:4b \
+  --output /path/to/new-private-run
+```
+
+The runtime source must already contain the chosen model and the application's
+verified runtime. A separate profile, process and port are created; the user's
+active application and conversation database are not used. Weights/runtime
+files may be hardlinked on the same filesystem, so do not install, remove or
+modify models during the run. The evaluator only performs inference and
+records content hashes. A model name alone is insufficient: retain the emitted
+weight, manifest, template and source hashes with every result.
+
+Input JSONL records contain `case_id`, `task_id`, `group_id`, `profile`,
+`policy_id`, and the complete ordered `messages` list. Supported profiles are
+`local`, `approved_external`, and `restricted_external`. The policies file maps
+policy IDs to already reviewed executable policies. Fixtures are a separate
+JSON list keyed by `case_id`, with `protected_values`,
+`protected_code_fragments`, `required_context_facts`, and a `quality` rubric.
+The model receives messages and policy processing, not fixtures or expected
+answers. A `json_fields` rubric checks the fields in `quality.expected`;
+`not_scored` explicitly leaves answer quality unevaluated.
+
+The default comparison uses three declared conditions:
+
+- A: deterministic pattern evidence, local destination, and a real local answer.
+- B: the same pattern/policy program with a fixed request for external help and
+  a real answer on the selected path.
+- C: actual local-model inspection and capability advice, followed by the same
+  policy program and task-answer adapter.
+
+B changes inspection and capability advice together relative to C; this is
+not an isolated causal estimate of a single detector and is not execution of
+the historical controller or another published system. Model advice cannot
+override the executable recipient contract.
+
+All HTTP requests are restricted to a separately running loopback receiver.
+The receiver hashes the raw bytes independently, then generates a real answer
+with the same local model. This tests the transmission boundary and the effect
+of transformed context under one model. It does not measure a stronger remote
+model's benefit, commercial-provider retention, or independent semantic safety.
+No paid endpoint or API key is used. Sender/receiver bodies, model traces,
+case-level CSVs, stage times, token counts and failures remain in the private
+output folder. Freeze input groups, policies, fixtures, blind packets and code
+before measuring; do not publish private run folders with the source.
+
 ## Korean Manuscript Collaboration
 
 The public [Korean manuscript workspace](paper/korean/README.md) contains the
