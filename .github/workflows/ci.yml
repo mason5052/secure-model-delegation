@@ -134,6 +134,10 @@ jobs:
           python -m unittest discover -s tests -p 'test_mlx_runtime.py' -v
           python -m unittest discover -s tests -p 'test_model_downloads.py' -v
           python -m unittest discover -s tests -p 'test_desktop_lifecycle.py' -v
+      - name: Test research accounting and paid-call guards without model downloads
+        run: |
+          python -m unittest discover -s tests -p 'test_live_*.py' -v
+          python -m unittest discover -s tests -p 'test_external_model_diagnostic.py' -v
       - name: Build installable wheel and source package
         run: python -m build
       - name: Confirm application did not change preserved research inputs

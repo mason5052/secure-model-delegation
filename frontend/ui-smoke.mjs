@@ -11,6 +11,7 @@ const { window } = dom;
 const errors = [];
 const calls = [];
 const privateProviderInputs = [];
+const savedPayload = [{ role: "user", content: "Public context and [REMOVED_SECRET] <script>never execute</script>" }];
 const project = { id: "project-one", name: "Synthetic project", folder: "/tmp/synthetic-project", save_content: false, tabs: [] };
 const session = { id: "session-one", project_id: project.id, title: "New task" };
 window.addEventListener("error", (event) => { errors.push(event.error?.stack || event.message); });
@@ -42,6 +43,7 @@ window.fetch = async (url, opts = {}) => {
   else if (route.startsWith(`/workspace/projects/${project.id}/file?`)) value = { path: "notes.md", content: "Original synthetic text", sha256: "synthetic-sha" };
   else if (route === `/workspace/projects/${project.id}/file` && opts.method === "POST") value = { approval: { id: "approval-one", kind: "file_write", status: "pending", summary: "Write notes.md", details: { diff: "-Original synthetic text\n+New synthetic text" } } };
   else if (route === "/workspace/approvals") value = { approvals: [] };
+  else if (route === "/activity/synthetic-record") value = { id: "synthetic-record", status: "completed", content: { result: { payload: savedPayload } } };
   return { ok: true, status: 200, json: async () => value };
 };
 for (const name of ["app.js", "desktop.js"]) {
@@ -89,6 +91,10 @@ for (const view of ["policy", "models", "connections", "activity", "browser", "e
 window.document.querySelector("#unload-model").click(); await tick();
 assert.ok(calls.some((call) => call.route === "/models/unload" && call.method === "POST"), "Unload uses the memory-release endpoint");
 assert.equal(calls.filter((call) => call.route.startsWith("/models/") && call.method === "DELETE").length, 0, "Unload does not delete downloaded models");
+await window.loadActivityDetail("synthetic-record");
+const payloadText = window.document.querySelector("#activity-detail .activity-content").textContent;
+assert.deepEqual(JSON.parse(payloadText), savedPayload, "Stored payloads remain inspectable JSON instead of object coercion");
+assert.equal(window.document.querySelector("#activity-detail script"), null, "Payload markup stays inert text");
 assert.deepEqual(errors, [], "No frontend runtime errors");
 dom.window.close();
-console.log("Passed: desktop navigation, project/session setup, file editing requires explicit approval, content hash preserved, native provider setup has no renderer key, document defaults/cancellation, MLX catalog format, unload preserves model files, no duplicate IDs, no frontend runtime errors.");
+console.log("Passed: desktop navigation, project/session setup, file editing requires explicit approval, content hash preserved, native provider setup has no renderer key, document defaults/cancellation, MLX catalog format, unload preserves model files, stored payload JSON remains inspectable and inert, no duplicate IDs, no frontend runtime errors.");
