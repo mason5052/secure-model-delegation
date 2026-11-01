@@ -267,13 +267,54 @@ def draw_baseline():
     f.save()
 
 
+def draw_live_model():
+    f = Figure("live-model-ko.pdf", 396, 294)
+    f.text(198, 12, "동일한 새 합성 문맥과 고정 정책", 10.0, "center")
+    f.text(198, 27, "과제별 세 조건에서는 수신 프로필만 변경", 8.7, "center", GRAY)
+    f.line(62, 36, 334, 36, color=LIGHT_GRAY)
+    for x in (62, 198, 334):
+        f.arrow(x, 36, x, 47, color=GRAY)
+    arms = [
+        (0, "A: 로컬 전용", "패턴 검사와 공통 통제", "외부 호출 없음"),
+        (136, "B: 규칙과 실제 모델", "패턴 기반 민감성 검사", "외부 도움 필요를 고정"),
+        (272, "C: 모델 검사와 정책", "Qwen의 실제 문맥 검사", "처리 가능성 제안"),
+    ]
+    for x, title, first, second in arms:
+        f.frame(x + .5, 49, 123, 56, color=BLUE if x == 272 else GRAY,
+                fill=PALE_BLUE if x == 272 else "#FFFFFF")
+        f.text(x + 62, 65, title, 9.0, "center")
+        f.text(x + 62, 83, first, 8.5, "center")
+        f.text(x + 62, 97, second, 8.5, "center", GRAY)
+        f.line(x + 62, 106, x + 62, 116, color=GRAY)
+    f.line(62, 116, 334, 116, color=GRAY)
+    f.arrow(198, 116, 198, 127, color=BLUE)
+    f.frame(.5, 129, 395, 36, color=BLUE, fill=PALE_BLUE)
+    f.text(198, 144, "공통 실행 경로: 앱의 정책 집행과 본문 변환", 9.5, "center", BLUE)
+    f.text(198, 159, "모델의 제안은 권한을 만들지 않음 / 인식한 보호 값 최종 검사", 8.5, "center")
+    f.arrow(93, 166, 93, 182, color=GRAY)
+    f.arrow(288, 166, 288, 182, color=BLUE)
+    f.frame(.5, 184, 183, 44, color=GRAY)
+    f.text(92, 201, "로컬 처리 또는 거부·설명 요청", 9.0, "center")
+    f.text(92, 218, "처리 경로에서는 실제 Qwen 답변", 8.5, "center", GRAY)
+    f.frame(202, 184, 193.5, 44, color=BLUE, fill=PALE_BLUE)
+    f.text(299, 201, "앱 HTTP 어댑터 -> 별도 로컬 수신기", 9.0, "center", BLUE)
+    f.text(299, 218, "수신 바이트·해시 확인 후 같은 Qwen 실행", 8.5, "center")
+    f.arrow(92, 229, 92, 245, color=GRAY)
+    f.arrow(299, 229, 299, 245, color=BLUE)
+    f.frame(.5, 247, 395, 43, color=LIGHT_GRAY)
+    f.text(198, 264, "분리 채점: 경로 / 수신 보호 값 / 지정 문맥 / 실제 답변", 9.2, "center")
+    f.text(198, 281, "외부 모델 품질 이득과 독립 사람 정책 판정은 이 경로로 증명되지 않음", 8.5, "center", GRAY)
+    f.save()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--figure", choices=["protocol", "architecture", "baseline", "all"], default="all")
+    parser.add_argument("--figure", choices=["protocol", "architecture", "baseline", "live-model", "all"], default="all")
     parser.add_argument("--font", help="Path to an installed Korean TrueType font")
     args = parser.parse_args()
     register_korean_font(args.font)
-    draw = {"architecture": draw_architecture, "protocol": draw_protocol, "baseline": draw_baseline}
+    draw = {"architecture": draw_architecture, "protocol": draw_protocol,
+            "baseline": draw_baseline, "live-model": draw_live_model}
     for name in draw if args.figure == "all" else [args.figure]:
         draw[name]()
         print(OUT / (name + "-ko.pdf"))

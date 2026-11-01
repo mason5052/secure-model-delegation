@@ -214,21 +214,30 @@ original freeze reference. Before this application work, main at `eb48dc0`
 already differed from `d1d13cd` in two protected files: `configs/policy.yaml`
 (advisory ML notes) and `src/smd_gateway/policy.py` (a rule-name change).
 Historical job results do not certify current HEAD as the frozen controller.
-Application CI separately verifies that this work did not change research
-code, policies, labels, datasets, or paper files from `eb48dc0`.
+Application CI separately verifies that research code, policies, labels,
+datasets and unapproved paper paths remain unchanged from `eb48dc0`.
+Only nine explicitly listed Korean manuscript assets may change; the original
+three vector figures and all other paper paths remain in that preservation check.
 
 ## Korean Manuscript Collaboration
 
 The public [Korean manuscript workspace](paper/korean/README.md) contains the
-editable [LaTeX draft](paper/korean/secure-model-delegation-ko.tex), vector
-figures, figure generator, and a downloadable
+latest [16-page PDF](paper/korean/secure-model-delegation-ko.pdf),
+editable [two-column LaTeX draft](paper/korean/secure-model-delegation-ko.tex),
+four vector figures, figure generator, and downloadable
 [source bundle](paper/korean/secure-model-delegation-ko-source.zip).
 Junkuk Kim and Jinyoung Choi can use this publication draft for collaborative
 editing through branches and pull requests.
 
-The manuscript distinguishes authored evaluation metrics, generated candidate
-text, and locally recorded mock bodies. It does not claim actual network
-receipt or independently validated semantic confidentiality. The public package
+The manuscript separates historical file-only simulation, a newer Qwen3-4B
+comparison through an actual loopback HTTP receiver, and a separate real-provider
+diagnostic on ten previously observed transformed representations. It reports
+negative findings and pending human review; neither matching network records
+nor successful API responses establish semantic confidentiality or enterprise
+effectiveness. The new execution code is linked in
+[PR #2](https://github.com/mason5052/secure-model-delegation/pull/2), at
+commit `9a9f97a`; this manuscript-only change does not merge that code.
+The public package
 contains no original practitioner prompts, private source mappings, reviewer
 response files, or private analysis reports. The existing executable evaluation
 data in this repository remains synthetic.
@@ -486,9 +495,12 @@ sensitivity. It is diagnostic rather than a production-frequency estimate.
 | Rule-based utility-label agreement | Not labeled | 0.915 | 0.895 | 0.889 |
 
 Rule-based utility-label agreement is not a live-model response-quality score.
-The prototype has not measured how much OpenAI, Claude, or another external
-model's answer quality changes after sanitization, pseudocode conversion, or
-local summarization.
+The historical evaluator did not measure actual external-model answer quality.
+The newer Korean manuscript separately reports fixed answer-field checks for
+Qwen3-4B and a bounded OpenAI diagnostic. Those checks are authored criteria,
+not independent human quality ratings, and do not demonstrate an aggregate
+benefit from external delegation. The original table above is not relabeled
+as performance of those models.
 
 The lower challenge result is intentionally preserved. It exposes detector and
 utility weaknesses that the authored main templates did not reveal. Human review
