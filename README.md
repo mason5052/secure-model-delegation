@@ -275,6 +275,39 @@ case-level CSVs, stage times, token counts and failures remain in the private
 output folder. Freeze input groups, policies, fixtures, blind packets and code
 before measuring; do not publish private run folders with the source.
 
+The separate `scripts/analyze_live_model_evaluation.py` audit reopens sender
+and receiver files, recovers decisions made before answer failures, and counts
+native model usage even when a received task reaches its output limit. It
+refuses a final aggregate before every planned condition has a record.
+
+An optional real-provider diagnostic is prepared separately:
+
+```bash
+.venv/bin/python scripts/run_external_model_diagnostic.py \
+  --approval /path/to/private/explicit-approval.json \
+  --frozen-run /path/to/private/frozen-study \
+  --execution /path/to/private/frozen-study/execution \
+  --output /path/to/new-private-provider-diagnostic
+```
+
+This command prepares candidates without dispatch. Execution requires the
+explicit `--execute` option and the approved application's secret-management
+path supplying a credential over a private stdin pipe. Never put a key in
+arguments, environment variables, research files or public logs. The diagnostic
+pins its approved provider/model, checks the complete source evidence, excludes
+known protected fixtures, and persists attempt and conservative cost limits
+before dispatch. Source answer failures remain eligible when their policy and
+transmission evidence are valid; successful source answers are not selected
+preferentially. This is a secondary frozen-representation diagnostic, not a new
+full routing experiment or independent provider-side byte observation.
+
+For supervised desktop acceptance tests, `--profile-root=/absolute/test/path`
+uses separate Electron and backend directories before acquiring instance
+locks. `AETHON_PROFILE_ROOT` is the equivalent bundle-scoped launch option.
+Ordinary startup retains the existing application data location. Use a
+dedicated synthetic project; these options do not disable approvals or provide
+an operating-system sandbox for commands.
+
 ## Korean Manuscript Collaboration
 
 The public [Korean manuscript workspace](paper/korean/README.md) contains the

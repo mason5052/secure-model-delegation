@@ -12,6 +12,27 @@ function dataDirectory(appData, exists = fs.existsSync) {
   return exists(legacy) && !currentHasData ? legacy : current;
 }
 
+function profileDirectories(appData, argv = [], inherited = {}, exists = fs.existsSync) {
+  const values = [];
+  for (let index = 0; index < argv.length; index += 1) {
+    if (argv[index] === '--profile-root') values.push(argv[++index]);
+    else if (argv[index].startsWith('--profile-root=')) values.push(argv[index].slice('--profile-root='.length));
+  }
+  if (values.length > 1) throw new Error('Specify --profile-root only once.');
+  if (values.length && values[0] === undefined) throw new Error('The --profile-root option requires an absolute path.');
+  const supplied = values.length ? values[0] : inherited.AETHON_PROFILE_ROOT;
+  if (supplied !== undefined) {
+    if (typeof supplied !== 'string' || !supplied.trim() || supplied.includes('\0') || !path.isAbsolute(supplied)) {
+      throw new Error('The isolated profile root must be a nonempty absolute path.');
+    }
+    if (argv.includes('--desktop-smoke')) throw new Error('Use an isolated profile or a temporary smoke run, not both.');
+    const root = path.resolve(supplied);
+    if (root === path.parse(root).root) throw new Error('A filesystem root cannot be used as an application profile.');
+    return { root, desktop: path.join(root, 'desktop'), backend: path.join(root, 'backend'), isolated: true };
+  }
+  return { root: null, desktop: path.join(appData, 'aethon', 'desktop'), backend: dataDirectory(appData, exists), isolated: false };
+}
+
 function privateEnvironment(inherited, overrides = {}) {
   const permitted = new Set(['PATH', 'HOME', 'USER', 'LOGNAME', 'TMPDIR', 'LANG', 'LC_ALL',
     'SYSTEMROOT', 'WINDIR', 'SSL_CERT_FILE', 'SSL_CERT_DIR']);
@@ -100,4 +121,4 @@ class Backend extends EventEmitter {
   }
 }
 
-module.exports = { Backend, privateEnvironment, dataDirectory };
+module.exports = { Backend, privateEnvironment, dataDirectory, profileDirectories };

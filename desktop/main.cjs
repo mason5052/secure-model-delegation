@@ -5,7 +5,7 @@ const { spawn } = require('node:child_process');
 const path = require('node:path');
 const fs = require('node:fs');
 const os = require('node:os');
-const { Backend, privateEnvironment, dataDirectory } = require('./lifecycle.cjs');
+const { Backend, privateEnvironment, profileDirectories } = require('./lifecycle.cjs');
 const { nativeKey, configureConnection } = require('./provider-connection.cjs');
 
 let window = null;
@@ -16,11 +16,14 @@ let voice = null;
 let smokeDataDirectory = null;
 const root = app.isPackaged ? process.resourcesPath : path.resolve(__dirname, '..');
 const smoke = process.argv.includes('--desktop-smoke');
-const backendDataDirectory = dataDirectory(app.getPath('appData'));
+const profile = profileDirectories(app.getPath('appData'), process.argv, process.env);
+const backendDataDirectory = profile.backend;
+const windowTitle = profile.isolated ? 'aethon - Research QA' : 'aethon';
 app.setName('aethon');
 app.setAppUserModelId('io.github.mason5052.aethon');
+if (profile.isolated) fs.mkdirSync(profile.desktop, { recursive: true, mode: 0o700 });
 app.setPath('userData', smoke ? fs.mkdtempSync(path.join(os.tmpdir(), 'smd-desktop-profile-')) :
-  path.join(app.getPath('appData'), 'aethon', 'desktop'));
+  profile.desktop);
 
 if (!app.requestSingleInstanceLock()) app.quit();
 else {
@@ -58,10 +61,14 @@ async function start() {
   privateSession.setPermissionCheckHandler((contents, permission, requestingOrigin) =>
     contents === window?.webContents && requestingOrigin === origin && permission === 'media');
   window = new BrowserWindow({ width: 1340, height: 900, minWidth: 840, minHeight: 600,
-    backgroundColor: '#c0c0c0', show: true, title: 'aethon',
+    backgroundColor: '#c0c0c0', show: true, title: windowTitle,
     webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true,
       nodeIntegration: false, sandbox: true, webSecurity: true, partition: 'smd-private',
       devTools: !app.isPackaged } });
+  if (profile.isolated) window.on('page-title-updated', event => {
+    event.preventDefault();
+    window.setTitle(windowTitle);
+  });
   await window.loadFile(path.join(__dirname, 'starting.html'));
   window.webContents.setWindowOpenHandler(({ url }) => {
     const target = new URL(url);
