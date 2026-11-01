@@ -1,0 +1,8 @@
+{
+  "name": "aethon-agent-support",
+  "version": "0.3.0",
+  "private": true,
+  "dependencies": {
+    "@opencode-ai/plugin": "1.19.5"
+  }
+}

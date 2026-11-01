@@ -1,0 +1,94 @@
+import { JSDOM } from "jsdom";
+import { readFile } from "node:fs/promises";
+import assert from "node:assert/strict";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+const here = path.dirname(fileURLToPath(import.meta.url));
+const staticDir = path.join(here, "../src/smd_app/static");
+const html = await readFile(path.join(staticDir, "index.html"), "utf8");
+const dom = new JSDOM(html.replace(/<script[^>]*src=[^>]+><\/script>/g, ""), { url: "http://127.0.0.1:6728/", runScripts: "dangerously", pretendToBeVisual: true });
+const { window } = dom;
+const errors = [];
+const calls = [];
+const privateProviderInputs = [];
+const project = { id: "project-one", name: "Synthetic project", folder: "/tmp/synthetic-project", save_content: false, tabs: [] };
+const session = { id: "session-one", project_id: project.id, title: "New task" };
+window.addEventListener("error", (event) => { errors.push(event.error?.stack || event.message); });
+window.matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {} });
+window.confirm = () => false;
+window.smdDesktop = {
+  hardware: async () => ({ arch: "arm64", total_memory_bytes: 16 * 1024 ** 3, free_memory_bytes: 8 * 1024 ** 3 }),
+  configureProvider: async (input) => { privateProviderInputs.push(input); return { canceled: false, configured: true }; },
+};
+window.HTMLElement.prototype.scrollIntoView = () => {};
+window.HTMLDialogElement.prototype.showModal = function() { this.open = true; };
+window.HTMLDialogElement.prototype.close = function() { this.open = false; };
+window.fetch = async (url, opts = {}) => {
+  const route = String(url).replace("/api/v1", "");
+  const body = opts.body ? JSON.parse(opts.body) : null;
+  calls.push({ route, method: opts.method || "GET", body });
+  let value = {};
+  if (route === "/session") value = { token: "synthetic-token" };
+  else if (route === "/status") value = { runtime: { ready: true, runtime_ready: true, model: "synthetic-local-model" }, policy: { text: "Synthetic policy" }, settings: { save_content: false }, providers: [] };
+  else if (route === "/workspace/status") value = { agent: { available: true }, documents: { render_available: false } };
+  else if (route === "/workspace/projects" && opts.method === "POST") value = project;
+  else if (route === "/workspace/projects") value = { projects: [] };
+  else if (route === `/workspace/projects/${project.id}`) value = project;
+  else if (route === `/workspace/projects/${project.id}/sessions` && opts.method === "POST") value = session;
+  else if (route.startsWith(`/workspace/projects/${project.id}/sessions`)) value = { sessions: [session] };
+  else if (route === `/workspace/sessions/${session.id}`) value = session;
+  else if (route === `/workspace/sessions/${session.id}/messages`) value = { messages: [], content_saved: false };
+  else if (route.startsWith(`/workspace/projects/${project.id}/files`)) value = { path: "", entries: [{ name: "notes.md", path: "notes.md", type: "file" }] };
+  else if (route.startsWith(`/workspace/projects/${project.id}/file?`)) value = { path: "notes.md", content: "Original synthetic text", sha256: "synthetic-sha" };
+  else if (route === `/workspace/projects/${project.id}/file` && opts.method === "POST") value = { approval: { id: "approval-one", kind: "file_write", status: "pending", summary: "Write notes.md", details: { diff: "-Original synthetic text\n+New synthetic text" } } };
+  else if (route === "/workspace/approvals") value = { approvals: [] };
+  return { ok: true, status: 200, json: async () => value };
+};
+for (const name of ["app.js", "desktop.js"]) {
+  const script = window.document.createElement("script"); script.textContent = await readFile(path.join(staticDir, name), "utf8"); window.document.body.append(script);
+}
+const tick = () => new Promise((resolve) => setTimeout(resolve, 40));
+await tick(); await tick();
+assert.equal(window.document.querySelector("#view-work").hidden, false, "Workspace is the opening view");
+assert.equal(window.document.querySelectorAll("[id]").length, new Set([...window.document.querySelectorAll("[id]")].map((item) => item.id)).size, "No duplicate IDs");
+window.document.querySelector("#new-project").click(); await tick();
+assert.equal(window.document.querySelector("#desktop-dialog").open, true);
+window.document.querySelector("#dialog-name").value = "Synthetic project";
+window.document.querySelector("#dialog-form").dispatchEvent(new window.Event("submit", { cancelable: true }));
+await tick(); await tick();
+assert.equal(window.document.querySelector("#work-area").hidden, false);
+assert.equal(window.document.querySelector("#work-session-title").textContent, "New task");
+window.document.querySelector("#files-tab").click(); await tick();
+window.document.querySelector(".file-row").click(); await tick();
+const editor = window.document.querySelector("#file-editor");
+assert.equal(editor.value, "Original synthetic text");
+editor.value = "New synthetic text"; editor.dispatchEvent(new window.Event("input"));
+window.document.querySelector("#editor-save").click(); await tick();
+assert.equal(window.document.querySelectorAll(".approval-card").length, 1, "Editing requires a visible approval");
+assert.equal(calls.filter((call) => call.route.includes("/decision")).length, 0, "No approval decision was sent automatically");
+assert.equal(calls.find((call) => call.route.endsWith("/file") && call.method === "POST").body.base_sha256, "synthetic-sha", "Changes include the loaded file digest");
+window.document.querySelector("#document-create").click(); await tick();
+assert.equal(window.document.querySelector("#dialog-format").value, "docx", "Format dialogs default to the first supported option");
+window.document.querySelector("#dialog-form").dispatchEvent(new window.Event("submit", { cancelable: true })); await tick();
+assert.equal(JSON.parse(window.document.querySelector("#dialog-structure").value).paragraphs.length, 2);
+window.document.querySelector("#dialog-cancel").click();
+assert.equal(calls.filter((call) => call.route.endsWith("/document") && call.method === "POST").length, 0, "Cancelling a document draft never requests a write");
+window.document.querySelector("#openai-model").value = "synthetic-model";
+assert.equal(window.document.querySelector("#openai-key").hidden, true, "Desktop keys are entered outside the renderer");
+assert.equal(window.document.querySelector("#openai-key").required, false);
+window.document.querySelector('.provider-form[data-provider="openai"]').dispatchEvent(new window.Event("submit", { cancelable: true })); await tick();
+assert.deepEqual(privateProviderInputs.map((input) => ({ ...input })), [{ provider: "openai", model: "synthetic-model" }]);
+assert.equal(calls.filter((call) => call.route === "/providers/openai" && call.method === "PUT").length, 0, "Desktop renderer does not submit an API key");
+window.document.querySelector("#model-format").value = "mlx";
+window.document.querySelector("#model-format").dispatchEvent(new window.Event("change")); await tick();
+assert.ok(calls.some((call) => call.route.includes("/models/catalog?") && call.route.includes("format=mlx")));
+for (const view of ["policy", "models", "connections", "activity", "browser", "extensions"]) {
+  window.document.querySelector(`[data-view="${view}"]`).click(); await tick();
+  assert.equal(window.document.querySelector(`#view-${view}`).hidden, false);
+}
+window.document.querySelector("#unload-model").click(); await tick();
+assert.ok(calls.some((call) => call.route === "/models/unload" && call.method === "POST"), "Unload uses the memory-release endpoint");
+assert.equal(calls.filter((call) => call.route.startsWith("/models/") && call.method === "DELETE").length, 0, "Unload does not delete downloaded models");
+assert.deepEqual(errors, [], "No frontend runtime errors");
+dom.window.close();
+console.log("Passed: desktop navigation, project/session setup, file editing requires explicit approval, content hash preserved, native provider setup has no renderer key, document defaults/cancellation, MLX catalog format, unload preserves model files, no duplicate IDs, no frontend runtime errors.");

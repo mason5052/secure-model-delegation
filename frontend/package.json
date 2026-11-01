@@ -1,0 +1,21 @@
+{
+  "name": "smd-canvas",
+  "private": true,
+  "version": "0.3.0",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node --check ../src/smd_app/static/desktop.js",
+    "test": "node ui-smoke.mjs"
+  },
+  "dependencies": {
+    "@excalidraw/excalidraw": "0.18.0",
+    "pdfjs-dist": "6.4.299",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "jsdom": "26.1.0"
+  }
+}

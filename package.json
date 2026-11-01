@@ -1,0 +1,16 @@
+{
+  "name": "aethon-desktop",
+  "version": "0.3.0",
+  "private": true,
+  "description": "aethon desktop workspace with Secure Model Delegation",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "desktop": "electron desktop/main.cjs",
+    "test:desktop": "node --test desktop/tests/*.test.cjs",
+    "build:desktop": "python3 scripts/build_desktop.py",
+    "package:desktop": "python3 scripts/package_desktop.py"
+  },
+  "devDependencies": {
+    "electron": "42.3.3"
+  }
+}

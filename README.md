@@ -1,25 +1,221 @@
-# Secure Model Delegation
+# aethon
 
-**Secure Model Delegation: A Policy-Bounded Controller for Local-to-Cloud LLM Fallback**
+**A local-first desktop workspace powered by Secure Model Delegation**
 
-Policy-bounded controller prototype for local-to-external AI fallback. The
-project's fixed research contribution is **Policy-Bounded Model Delegation
-Control and Evaluation**, summarized as **Route Safety plus Target-Specific
-Delegation**.
+This repository contains the aethon local-first desktop application, an editable research paper,
+and the preserved synthetic evaluator from a Georgia Tech CS6727 project.
+The application generates actual local AI answers and optionally calls OpenAI
+or Anthropic, or a user-owned OpenAI-compatible endpoint. The historical evaluator records simulated payloads; its reported
+research results do not evaluate the new application.
 
-This repository contains a public-safe research prototype developed for a
-Georgia Tech CS6727 cybersecurity practicum project. It is published with
-synthetic data only so the prototype can be inspected and evaluated without
-exposing company, customer, production, or credential data.
-
-This is not a general PII detector, DLP product, or privacy masking tool. The
-prototype demonstrates Policy-Bounded Model Delegation Control and Evaluation:
-deterministic detectors and ML-assisted classifiers produce evidence first, and
-the policy-bounded controller remains the final route authority. The design rule is:
+The application uses local-model evidence and deterministic checks, with
+human-reviewed policy rules controlling permitted paths. Its design rule is:
 
 ```text
 Evidence first, policy authority always.
 ```
+
+![aethon desktop with the original sun-horse identity](docs/assets/aethon-desktop.png)
+
+## Install aethon on Mac
+
+The desktop deliverable is `aethon.app` inside `aethon-arm64.dmg`, for Apple
+Silicon and macOS 15 or later. Drag the app to Applications and open it from
+Finder or the Dock. Python, Node, Bun, Ollama, Microsoft Office, and a separate
+browser are not end-user requirements.
+
+The first release is an ad-hoc-signed development test build, not a Developer
+ID-signed or notarized public release. See the
+[desktop installation and rebuild guide](docs/desktop-installation.md) for the
+exact setup, storage behavior, supported tools, and distribution limitations.
+
+- Choose and download a compatible GGUF or MLX model inside the app. No model
+  chat or speech model weights are included or selected automatically. Small
+  auxiliary classifier resources are identified in the package manifest.
+- Review and activate a natural-language information policy, then work in
+  projects and sessions. Project file changes and commands require approval.
+- Use the file editor, supervised terminal, structured document tools, local
+  Office-to-PDF renderer, Canvas, Skills/MCP manager, and optional local dictation.
+- Connect an external API only when needed. SMD checks the supported model
+  request envelope, including earlier turns and tool results, and exposes its
+  routing and provider-adapter record.
+
+The original sun-horse identity and Platinum interface belong to aethon.
+Secure Model Delegation remains the research and routing component's name.
+
+## Run From Source
+
+For development or the cross-platform browser interface, use Python 3.11 or newer. Clone this repository, open its folder, and run
+with that Python version (`python3.12` can replace `python3` if the system
+`python3` is older):
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -e .
+.venv/bin/smd serve
+```
+
+Windows PowerShell:
+
+```powershell
+py -3.11 -m venv .venv
+.venv\Scripts\python -m pip install -e .
+.venv\Scripts\smd serve
+```
+
+The browser opens at `http://127.0.0.1:6728`. Use `smd serve --port 6730`
+for another port or `--no-browser` to open the address yourself. Keep the terminal
+running; Ctrl+C stops the service and its managed model process.
+
+For Canvas and PDF previews in a fresh source checkout, also run
+`npm --prefix frontend ci` and `npm --prefix frontend run build`.
+The workspace agent, MLX and Office rendering use the prepared runtimes described
+in the desktop build guide. The complete Mac installer already includes them.
+
+1. Open Models to browse the live Hugging Face catalog. Search by model or
+   publisher and sort by latest updates or download count. No model is bundled,
+   selected, or downloaded on first launch.
+2. Open a repository, inspect its license, file size and available GGUF
+   variants or MLX repositories, and click Download for the selection you want. The application prepares
+   its own verified runtime and downloads the model. In Installed models, click
+   Use to activate it after a local execution check. Structured-output and tool
+   support vary and are validated per operation. A
+   separate Ollama installation is not required. Changing model families does
+   not require changing the application or policy code. Advanced selection also
+   accepts official Ollama registry tags. MLX support in the complete Mac desktop distribution uses its bundled oMLX helper.
+3. A conservative example policy is active initially. In Policy, write short
+   natural-language clauses, save and interpret the draft locally, review the
+   source clauses and interpreted rules, then activate the revision. Unsupported
+   or conflicting drafts cannot replace the active policy.
+4. Enter a prompt in Chat and click Submit. The app inspects the whole
+   conversation, selects a permitted path, generates an answer, and shows actual
+   progress. Details show applied rules, transformations, and any outgoing
+   message bundle. New Chat resets the conversation.
+5. Optionally add an OpenAI API key, Anthropic API key, or your own compatible remote endpoint and a model ID in
+   Connections, then select that external destination in Chat. No separate
+   per-request send confirmation is required: Submit executes the active policy.
+   A configured API enables delegation; it does not force it. The default is
+   local-first, with external use only when the local model estimates that it
+   needs additional help and the policy permits the transformed request.
+
+Without an API connection, supported requests are answered locally. After the
+initial downloads, this local-only workflow can run offline. Denial and
+clarification remain valid policy outcomes. Model errors, failed checks, or
+timeouts never trigger a raw-message or alternate-provider retry.
+
+The model browser follows the discover, choose a variant, download, and load
+workflow described in [LM Studio's documentation](https://lmstudio.ai/docs/cli/local-models/get).
+It uses [Hugging Face's public catalog](https://huggingface.co/docs/hub/en/api)
+and its [native Ollama GGUF integration](https://huggingface.co/docs/hub/ollama),
+not a fixed list of three model families. Model search terms and metadata
+requests go to the Hub; policy and conversation text do not. Catalog errors do
+not prevent use of models already installed on the computer.
+
+The application exposes compatible GGUF and MLX candidates, with runtime-specific capability checks. The complete Mac desktop bundle includes both model engines; source-only environments need the corresponding prepared runtime. Not every public model has a compatible architecture, file
+layout, license, hardware requirement, or structured-output behavior. The app
+reports unavailable or unsupported variants and checks selected models rather
+than claiming that every open model can run. Downloading and activating are
+separate actions. Download size is not a memory requirement guarantee; runtime
+downloads and unpacked files also require disk space. Cloud models and
+arbitrary download hosts are rejected.
+
+### Policy And Observation Limits
+
+The first policy schema supports named recipients (`local`, `openai`,
+`anthropic`, `remote`), a fixed set of information categories, and allow, redact,
+local-only, deny, or clarification actions. It does not enforce provider
+contracts, geographic processing, retention periods, arbitrary programs, or
+unlimited exceptions. Human review of compiled rules is required. Credential
+removal before external delegation is a fixed protection that a model or
+policy draft cannot disable.
+
+Local sensitivity classification and local capability estimates can be wrong.
+If the local inspection cannot validate its structured result or ground a
+quoted finding, external delegation is disabled. The app can still answer
+locally when local policy permits it; uncertain local deny/clarification
+conditions require clarification instead. Details identify unreliable or
+uncertain inspection rather than presenting it as a completed security check.
+The final inspection checks recognized protected spans in the entire outgoing
+message bundle, including previous turns and the app's fixed system message.
+It does not prove semantic confidentiality. Code removal uses placeholders,
+not verified meaning-preserving pseudocode generation. Oversized conversations
+are refused rather than silently dropping earlier turns.
+
+Quick Chat uses the OpenAI Responses API with `store=false`; the agent adapter uses the Chat Completions interface and also sets `store=false`. These options are not guarantees about all provider retention. Anthropic uses the Messages API. A timeout after
+dispatch is recorded as delivery-unknown; cancellation cannot recall an
+already dispatched request. Provider model availability and billing depend on
+the user's API account. ChatGPT or Claude Code sign-in is not imported.
+
+### Local Data And Model Lifecycle
+
+Policies, model files, and metadata are stored outside the repository:
+
+- macOS: `~/Library/Application Support/SecureModelDelegation`
+- Windows: `%LOCALAPPDATA%\SecureModelDelegation`
+- Linux: `~/.local/share/SecureModelDelegation`
+
+Use `smd serve --data-dir <directory>` for a different application directory.
+By default, prompt, answer, and outgoing-body content remain in memory; Activity
+persists only hashes, versions, path and dispatch metadata. Enabling content
+storage saves future run contents, including their conversation context, on
+this computer. Clear Activity deletes saved runs and in-memory conversations.
+API keys remain in server memory and are cleared when the app stops; they are
+never saved with conversations or browser storage.
+
+The managed runtime is pinned to Ollama v0.40.13 with published per-platform
+SHA256 checks. It runs on a private loopback port with cloud functionality and
+request-body debugging disabled. The app does not register a service, change
+PATH, or modify another Ollama installation. Ollama itself may create
+`~/.ollama/id_ed25519` and `.pub` on startup; the application does not delete or
+overwrite those shared files. Remove models through Models. To remove all
+application data, stop the app and delete only its application data directory.
+
+The complete aethon desktop bundle requires Apple Silicon and macOS 15+. The legacy GGUF source interface requires macOS 14+; Apple Silicon supports CPU/GPU and
+Intel Mac uses CPU. Windows 10 22H2+ and compatible Linux amd64/arm64 use the
+same managed installation approach. Existing compatible GPU drivers may be
+used; installing system GPU drivers is outside the app. Unsupported platforms,
+insufficient memory, and interrupted downloads are reported in the setup UI.
+Runtime, model, and application licenses remain separate; model license
+metadata is displayed when supplied by the publisher. Public availability is
+not treated as proof of an open-source license. No model weights are committed
+to this repository.
+
+This version is for each user on their own computer. It binds to loopback,
+validates browser origin/host and a local session token, and does not expose a
+shared multi-user server or hosted proxy. All interface assets are local.
+
+## Application Tests And Research Provenance
+
+```bash
+.venv/bin/python -m unittest discover -s tests -p 'test_app_*.py' -v
+.venv/bin/python -m pip install build
+.venv/bin/python -m build
+```
+
+Application tests use local model and provider doubles without paid API calls
+or multi-GB downloads. Real model/device smoke checks and actual provider
+checks must be reported separately from those tests. The CI matrix covers
+Python 3.11/3.12 on macOS, Windows, and Linux; a workflow definition is not
+evidence that every device or architecture has been exercised.
+
+Earlier browser-application implementation checks on October 31, 2026: 132 unit/integration tests
+passed on macOS arm64; the wheel was built and opened outside the source tree
+with its packaged browser assets. The managed runtime and an explicitly chosen
+Qwen3 4B were downloaded, then a different family (SmolLM2 360M, Q4_K_M) was
+discovered and downloaded through Hugging Face. Separate activation and actual
+local answers were checked for both, along with policy draft review/activation
+and a synthetic two-turn context check. These are software smoke checks, not a
+new benchmark or independent policy-accuracy study. Live external API calls and
+physical Windows/Linux model execution were not performed in these local checks.
+
+The historical CI job checks out exactly
+`47068049ad690950c0f516955960e0b3a1aebba2`, whose protected core matches the
+original freeze reference. Before this application work, main at `eb48dc0`
+already differed from `d1d13cd` in two protected files: `configs/policy.yaml`
+(advisory ML notes) and `src/smd_gateway/policy.py` (a rule-name change).
+Historical job results do not certify current HEAD as the frozen controller.
+Application CI separately verifies that this work did not change research
+code, policies, labels, datasets, or paper files from `eb48dc0`.
 
 ## Korean Manuscript Collaboration
 
@@ -142,7 +338,7 @@ This is the main distinction from a generic privacy filter. A detector might
 say "this span looks sensitive." The Secure Model Delegation controller decides
 what model target, if any, may receive the request and in what form.
 
-## Current Scope
+## Historical Evaluator Scope
 
 - Text-only synthetic enterprise requests.
 - Trusted local gateway running in Python.
@@ -153,7 +349,7 @@ what model target, if any, may receive the request and in what form.
   approved external profile for compatibility.
 - Primary external target is a simulated endpoint that records sanitized or
   pseudocode-based delegated payloads for leakage evaluation.
-- Real provider API calls are out of scope for the current prototype and remain
+- Real provider API calls are out of scope for the historical evaluator and remain
   optional sanitized-only future smoke tests.
 - Provider no-training, retention, residency, and contractual controls are
   modeled as target assurances that may narrow external eligibility. They do not
@@ -176,12 +372,11 @@ what model target, if any, may receive the request and in what form.
 - Stable placeholders preserve repeated-value relationships within a request,
   while the reversible mapping remains local. The simulated endpoint records
   the exact wire-body digest and byte count for auditability.
-- Stage 2 is an ML-assisted evidence layer, not an ML security authority. It
-  can score intent, obfuscation, local feasibility, residual leakage risk, and
-  expected utility, but the controller still performs policy-bounded route
-  arbitration.
+- The legacy configuration's ML evidence block describes a proposed advisory
+  layer; the historical evaluator does not load a local model. The new
+  application implements local-model inspection separately.
 
-## Quick Start
+## Historical Evaluator Quick Start
 
 Windows:
 
@@ -208,7 +403,7 @@ python3 scripts/run_eval.py --dataset data/smd_egress_challenge_36.jsonl --bench
 PYTHONPATH=src python3 -m unittest discover -s tests
 ```
 
-## Local Web UI
+## Historical Simulated Web UI
 
 Install runtime dependencies if needed:
 
