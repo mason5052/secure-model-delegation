@@ -9,7 +9,7 @@
     "test": "node ui-smoke.mjs"
   },
   "dependencies": {
-    "@excalidraw/excalidraw": "0.18.0",
+    "@excalidraw/excalidraw": "0.18.1",
     "pdfjs-dist": "6.4.299",
     "react": "19.2.0",
     "react-dom": "19.2.0"
