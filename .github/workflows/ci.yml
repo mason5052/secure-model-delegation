@@ -17,13 +17,14 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
+          persist-credentials: false
           ref: 47068049ad690950c0f516955960e0b3a1aebba2
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.12"
           cache: pip
@@ -116,10 +117,11 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python: ['3.11', '3.12']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: ${{ matrix.python }}
       - name: Install editable application
@@ -150,8 +152,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '24.22.2'
       - name: Check lifecycle and restricted desktop interfaces
@@ -164,3 +168,24 @@ jobs:
         run: |
           node --check src/smd_app/static/app.js
           node --check src/smd_app/static/desktop.js
+
+  required-application-checks:
+    name: Required application checks
+    if: ${{ always() }}
+    needs: [historical-evaluation, live-application, desktop-interface]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Require every application check to succeed
+        env:
+          HISTORICAL_RESULT: ${{ needs.historical-evaluation.result }}
+          APPLICATION_RESULT: ${{ needs.live-application.result }}
+          DESKTOP_RESULT: ${{ needs.desktop-interface.result }}
+        run: |
+          for result in "$HISTORICAL_RESULT" "$APPLICATION_RESULT" "$DESKTOP_RESULT"; do
+            if [ "$result" != "success" ]; then
+              echo "A required application check did not succeed: $result"
+              exit 1
+            fi
+          done

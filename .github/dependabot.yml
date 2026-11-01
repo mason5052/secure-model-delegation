@@ -1,0 +1,70 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directories:
+      - /
+      - /frontend
+      - /desktop/opencode-support
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/New_York
+    open-pull-requests-limit: 3
+    groups:
+      npm-minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+      npm-security:
+        applies-to: security-updates
+        patterns: ["*"]
+
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/New_York
+    open-pull-requests-limit: 3
+    groups:
+      python-minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+      python-security:
+        applies-to: security-updates
+        patterns: ["*"]
+
+  - package-ecosystem: pip
+    directory: /desktop
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/New_York
+    open-pull-requests-limit: 3
+    # The .txt seeds are supported; custom .lock receipts require a reviewed rebuild.
+    # Platform-specific wheel URLs do not establish compatibility on other Macs.
+    groups:
+      desktop-python-minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+      desktop-python-security:
+        applies-to: security-updates
+        patterns: ["*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/New_York
+    open-pull-requests-limit: 2
+    groups:
+      actions-version-updates:
+        patterns: ["*"]
+      actions-security:
+        applies-to: security-updates
+        patterns: ["*"]
