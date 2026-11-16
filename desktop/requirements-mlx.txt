@@ -3,4 +3,4 @@ omlx[audio] @ git+https://github.com/jundot/omlx.git@v0.7.3
 # Select compatible wheels explicitly; newer Macs otherwise select the macOS 26 build.
 mlx @ https://files.pythonhosted.org/packages/6d/92/7a999dcf6460525a31e555905cdca2f835ec0d786c528e969e04cd00d158/mlx-0.32.4-cp312-cp312-macosx_15_0_arm64.whl#sha256=f0604cb3015091f285c79c7b7dbfcabcfa9948248728c7bab6e0263513c3d3fe
 mlx-metal @ https://files.pythonhosted.org/packages/54/8c/9754dd6c4db485037f59cc8be6495738e14cdeb8bf19d5bddb5e96da890f/mlx_metal-0.32.4-py3-none-macosx_15_0_arm64.whl#sha256=9f0a3cc26d89724434d9684932fc6f3e4e83669d2a895d858ed2c8a55eb84e8b
-PyInstaller==6.22.0
+PyInstaller==6.22.3
